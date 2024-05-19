@@ -17,7 +17,7 @@ class TopicDetail extends StatelessWidget {
             child: Cube(
             onSceneCreated: (Scene scene) {
                   scene.world.add(Object(
-            fileName: 'assets/placeHolderToothModel.obj',
+            fileName: 'assets/pHTooth.obj',
                   ));
                   //initial zoom
               scene.camera.zoom = 50;
