@@ -11,7 +11,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Welcome back, ${user.email}')),
+      appBar: AppBar(title: Text('Welcome back, ${user.displayName}')),
       body: Column(
         children: [
           // Other UI elements
