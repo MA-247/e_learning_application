@@ -8,13 +8,20 @@ class HomePage extends StatelessWidget {
 
   HomePage({required this.user});
 
+  void signOut(){
+    FirebaseAuth.instance.signOut();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Welcome back, ${user.displayName}',
       style: TextStyle(color: Colors.white),),
         centerTitle: true,
-      backgroundColor: Colors.blue[300],),
+      backgroundColor: Colors.blue[300],
+      actions: [
+        IconButton(onPressed: signOut, icon: Icon(Icons.logout), color: Colors.white,),
+
+      ],),
 
       body: Center(
         child: Column(
