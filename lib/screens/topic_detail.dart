@@ -11,19 +11,37 @@ class TopicDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(topic.title)),
-        body: Center(
-        child: Container(
-        height: 300,
-        width: 300,
-        child: Cube(
-        onSceneCreated: (Scene scene) {
-      scene.world.add(Object(
-        fileName: 'assets/donut1.obj',
-      ));
-        },
+        body: Column(
+          children: <Widget>[
+            Expanded(flex: 2,
+            child: Cube(
+            onSceneCreated: (Scene scene) {
+                  scene.world.add(Object(
+            fileName: 'assets/placeHolderToothModel.obj',
+                  ));
+                  //initial zoom
+              scene.camera.zoom = 50;
+
+
+            },
+            ),
+            ),
+            Expanded(
+              flex : 1,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  child: Text(
+                    "This is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the model"
+                              
+                              
+                  ),
+                ),
+              ),
+            )
+          ],
         ),
-        ),
-        ),
-    );
+
+      );
   }
 }
