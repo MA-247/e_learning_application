@@ -22,7 +22,25 @@ class HomePage extends StatelessWidget {
         IconButton(onPressed: signOut, icon: Icon(Icons.logout), color: Colors.white,),
 
       ],),
-
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Drawer Header',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+          ],
+        )
+      ),
       body: Center(
         child: Column(
           children: [

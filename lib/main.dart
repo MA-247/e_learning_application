@@ -24,7 +24,37 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       debugShowCheckedModeBanner: false,
-      home: AuthWrapper(),
+      home: SplashScreen(),
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget{
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _navigateToHome();
+  }
+
+  _navigateToHome() async {
+    await Future.delayed(Duration(seconds: 3), () {});
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => AuthWrapper()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Image.asset('assets/logos/logo1.png'), // Ensure this path is correct
+      ),
     );
   }
 }
