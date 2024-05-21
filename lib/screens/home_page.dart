@@ -8,6 +8,7 @@ class HomePage extends StatelessWidget {
 
   HomePage({required this.user});
 
+
   void signOut(){
     FirebaseAuth.instance.signOut();
   }
@@ -21,22 +22,66 @@ class HomePage extends StatelessWidget {
       actions: [
         IconButton(onPressed: signOut, icon: Icon(Icons.logout), color: Colors.white,),
 
-      ],),
+      ],
+    leading: Builder(
+    builder: (BuildContext context) {
+      return IconButton(
+        icon: Icon(Icons.menu),
+        color: Colors.white, // Change this to your desired color
+        onPressed: () {
+          Scaffold.of(context).openDrawer();
+        },
+      );
+    }
+      ),
+    ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.white,
               ),
-              child: Text(
-                'Drawer Header',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+              child:  Align(
+                alignment: Alignment.topLeft,
+                child: Column(
+                  children: [
+                    Image.asset(
+                        'assets/logos/logo1.png',
+                        width: 75,
+                        height: 75,
+                        fit: BoxFit.contain,
+                      ),
+                    Text(
+                      'AppName',
+                      style: TextStyle(
+                        color: Colors.blue[300],
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  ],
                 ),
+
               ),
+            ),
+            ListTile(
+              title: Text('Home'),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => HomePage(user: user)),
+                );
+              }
+            ),
+            ListTile(
+                title: Text('Log Out',
+                style: TextStyle(color: Colors.red),),
+                onTap: () {
+                  signOut();
+                }
             ),
           ],
         )
