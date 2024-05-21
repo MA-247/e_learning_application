@@ -14,8 +14,8 @@ class LearningSection extends StatelessWidget {
     // Fetch and display the list of topics
     // For simplicity, using static data
     List<Topic> topics = [
-      Topic(id: '1', title: 'Topic 1', description: 'Description 1', modelUrl: 'url1'),
-      Topic(id: '2', title: 'Topic 2', description: 'Description 2', modelUrl: 'url1')
+      Topic(id: '1', title: 'Topic 1', description: 'Description 1', modelUrl: 'assets/pHTooth.obj', subtitle: 'Sub Topic'),
+      Topic(id: '2', title: 'Topic 2', description: 'Description 2', modelUrl: 'assets/donut1.obj', subtitle: 'Sub Topic')
       // Other topics
     ];
 

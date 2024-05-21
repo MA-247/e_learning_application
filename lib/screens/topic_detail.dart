@@ -10,35 +10,38 @@ class TopicDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(topic.title)),
+      appBar: AppBar(title: Text(topic.title + ": " + topic.subtitle)),
         body: Column(
           children: <Widget>[
-            Expanded(flex: 2,
-            child: Cube(
-            onSceneCreated: (Scene scene) {
-                  scene.world.add(Object(
-            fileName: 'assets/pHTooth.obj',
-                  ));
-                  //initial zoom
-              scene.camera.zoom = 50;
+            Expanded(flex: 3,
+            child: Center(
+              child: Cube(
+              onSceneCreated: (Scene scene) {
+                    scene.world.add(Object(
+              fileName: topic.modelUrl,
+                    ));
+                    //initial zoom
+                scene.camera.zoom = 20;
 
 
-            },
+              },
+              ),
             ),
             ),
             Expanded(
-              flex : 1,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SingleChildScrollView(
-                  child: Text(
-                    "This is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the modelThis is the description of the model"
-                              
-                              
+              flex : 2,
+              child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                      topic.description,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            )
           ],
         ),
 
