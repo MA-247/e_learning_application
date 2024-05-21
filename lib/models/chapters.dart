@@ -1,4 +1,4 @@
-import 'package:e_learning_application/models/chapters.dart';
+import 'package:flutter/material.dart';
 
 class Topic {
   final String id;
