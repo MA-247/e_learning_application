@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:e_learning_application/models/topic.dart';
 import 'package:e_learning_application/screens/topic_detail.dart';
 import 'package:e_learning_application/widgets/custom_listTile.dart';
+import 'package:e_learning_application/models/chapters.dart';
 
 class LearningSection extends StatelessWidget {
   final User user;
@@ -13,9 +14,13 @@ class LearningSection extends StatelessWidget {
   Widget build(BuildContext context) {
     // Fetch and display the list of topics
     // For simplicity, using static data
+    List<Chapter> chapters = [
+      Chapter(id: '1', title: 'Healthy Tooth', description: 'First Chapter', modelUrl: 'assets/donut1.obj'),
+      Chapter(id: '2', title: 'Decaying Tooth', description: 'Second Chapter', modelUrl: 'assets/pHTooth.obj'),
+    ];
     List<Topic> topics = [
-      Topic(id: '1', title: 'Topic 1', description: 'Description 1', modelUrl: 'assets/pHTooth.obj', subtitle: 'Sub Topic'),
-      Topic(id: '2', title: 'Topic 2', description: 'Description 2', modelUrl: 'assets/donut1.obj', subtitle: 'Sub Topic')
+      Topic(id: '1', title: 'Topic 1: Testing', chapters: chapters),
+      Topic(id: '2', title: 'Topic 2', chapters: chapters),
       // Other topics
     ];
 
