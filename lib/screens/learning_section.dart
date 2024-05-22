@@ -15,7 +15,7 @@ class LearningSection extends StatelessWidget {
     // Fetch and display the list of topics
     // For simplicity, using static data
     List<Chapter> chapters = [
-      Chapter(id: '1', title: 'Healthy Tooth', description: 'First Chapter', modelUrl: 'assets/3d_Models/healthyToothL1obj.obj'),
+      Chapter(id: '1', title: 'Healthy Tooth', description: 'First Chapter', modelUrl: 'assets/pHTooth.obj'),
       Chapter(id: '2', title: 'Decaying Tooth', description: 'Second Chapter', modelUrl: 'assets/pHTooth.obj'),
     ];
     List<Topic> topics = [
