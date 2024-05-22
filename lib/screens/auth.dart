@@ -1,10 +1,12 @@
+import 'package:e_learning_application/screens/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:e_learning_application/screens/login_or_register.dart';
 import 'package:e_learning_application/screens/home_page.dart';
+import 'package:e_learning_application/screens/login_page.dart';
 class AuthPage extends StatelessWidget{
-  const AuthPage({super.key});
-
+  const AuthPage({super.key, this.onTap});
+  final Function()? onTap;
   @override
 
   Widget build(BuildContext context)
@@ -15,7 +17,7 @@ class AuthPage extends StatelessWidget{
           builder: (context, snapshot){
             //user logged in
             if(snapshot.hasData){
-              return  HomePage(user: snapshot.data!);
+              return HomePage(user: snapshot.data!);//HomePage(user: snapshot.data!);
             }
             else
             {

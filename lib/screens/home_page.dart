@@ -19,8 +19,9 @@ class HomePage extends StatelessWidget {
       style: TextStyle(color: Colors.white),),
         centerTitle: true,
       backgroundColor: Colors.blue[300],
+      toolbarHeight: 75,
       actions: [
-        IconButton(onPressed: signOut, icon: Icon(Icons.logout), color: Colors.white,),
+        IconButton(onPressed: (){}, icon: Icon(Icons.supervised_user_circle), color: Colors.white,),
 
       ],
     leading: Builder(
@@ -89,50 +90,68 @@ class HomePage extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            SizedBox(height: 150),
 
             // Other UI elements
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LearningSection(user: user)),
-                );
-              },
-              child: Text('Learning Section'),
-        style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-        minimumSize: Size(double.infinity, 60),
-        textStyle: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.blue[300],
-        ),
-        alignment: Alignment.center,
-        ),
+
+          Expanded(
+            flex: 1,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1), // Adjust the opacity and color as needed
+                borderRadius: BorderRadius.circular(10.0), // Optional: Add border radius for rounded corners
+              ),
+              margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Optional: Adjust margins
+              child: ListTile(
+                title: Text('Learning Section'),
+                subtitle: Text('Go To Learning Section'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LearningSection(user: user))
+                  );
+                },
+              ),
             ),
-            SizedBox(height: 50),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => QuizSection(user: user)),
-                );
-              },
-              child: Text('Quiz Section'),
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(0)
+          ),
+        //     ElevatedButton(
+        //       onPressed: () {
+        //         Navigator.push(
+        //           context,
+        //           MaterialPageRoute(builder: (context) => LearningSection(user: user)),
+        //         );
+        //       },
+        //       child: Text('Learning Section'),
+        // style: ElevatedButton.styleFrom(
+        //   shape: RoundedRectangleBorder(
+        //     borderRadius: BorderRadius.circular(20),
+        //   ),
+        // minimumSize: Size(double.infinity, 60),
+        // textStyle: TextStyle(
+        //   fontSize: 18,
+        //   fontWeight: FontWeight.bold,
+        //   color: Colors.blue[300],
+        // ),
+        // alignment: Alignment.center,
+        // ),
+        //     )
+            Expanded(
+              flex: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1), // Adjust the opacity and color as needed
+                  borderRadius: BorderRadius.circular(10.0), // Optional: Add border radius for rounded corners
                 ),
-                minimumSize: Size(double.infinity, 60),
-                textStyle: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue[300],
+                margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Optional: Adjust margins
+                child: ListTile(
+                  title: Text('Quiz Section'),
+                  subtitle: Text('Take a Quiz'),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => QuizSection(user: user))
+                    );
+                  },
                 ),
-                alignment: Alignment.center,
               ),
             ),
           ],

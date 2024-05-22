@@ -39,6 +39,7 @@ dependencies:
   firebase_core: ^2.31.0
   flutter_cube: ^0.1.1
   flutter_native_splash: ^2.2.16
+  cloud_firestore: ^4.17.4
 
 dev_dependencies:
   flutter_test:
@@ -76,6 +77,8 @@ flutter:
     - assets/logos/logo1.png
     - assets/pHTooth.obj
     - assets/pHTooth.mtl
+    - assets/3d_Models/healthyToothL1obj.obj
+    - assets/3d_Models/healthyToothL1obj.mtl
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
