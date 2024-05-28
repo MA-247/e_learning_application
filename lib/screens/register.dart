@@ -71,8 +71,9 @@ class _RegisterPageState extends State<RegisterPage> {
           'city' : cityTextController.text,
           'university' : selectedUniversity,
           'yearOfStudy' : yearOfStudyTextController.text,
+          'faculty' : false,
         });
-        print("User registered with name: ${user?.displayName}");
+        print("User registered with name: ${user.displayName}");
 
         //storing the additional information on firebase
 
