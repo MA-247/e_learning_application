@@ -78,7 +78,6 @@ class _TakeQuizPageState extends State<TakeQuizPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pop(context); // Go back to the quiz list page
             },
             child: Text('OK'),
           ),

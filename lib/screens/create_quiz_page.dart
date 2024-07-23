@@ -16,7 +16,12 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   void _addQuestion() {
     _questions.add({
       "question": TextEditingController(),
-      "options": [TextEditingController(), TextEditingController(), TextEditingController(), TextEditingController()],
+      "options": [
+        TextEditingController(),
+        TextEditingController(),
+        TextEditingController(),
+        TextEditingController()
+      ],
       "correctOption": 0
     });
     setState(() {});
@@ -36,7 +41,23 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
     };
 
     await _firestore.collection('quizzes').add(quizData);
-    Navigator.pop(context);
+
+    // Show dialog and navigate back
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Quiz Created'),
+        content: Text('The quiz has been created successfully.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
