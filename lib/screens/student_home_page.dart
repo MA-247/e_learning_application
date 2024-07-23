@@ -3,10 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:e_learning_application/screens/learning_section.dart';
 import 'package:e_learning_application/screens/quiz_section.dart';
 
-class HomePage extends StatelessWidget {
+class StudentHomePage extends StatelessWidget {
   final User user;
 
-  HomePage({required this.user});
+  StudentHomePage({required this.user});
 
 
   void signOut(){
@@ -73,7 +73,7 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => HomePage(user: user)),
+                        builder: (context) => StudentHomePage(user: user)),
                 );
               }
             ),
