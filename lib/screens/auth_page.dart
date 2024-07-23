@@ -29,7 +29,7 @@ class AuthPage extends StatelessWidget {
                 } else {
                   bool? isFaculty = roleSnapshot.data;
                   if (isFaculty == true) {
-                    return FacultyHomePage();
+                    return FacultyHomePage(user: user);
                   } else if (isFaculty == false) {
                     return StudentHomePage(user: user);
                   }

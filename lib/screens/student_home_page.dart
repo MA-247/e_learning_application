@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:e_learning_application/screens/learning_section.dart';
-import 'package:e_learning_application/screens/quiz_section.dart';
+import 'package:e_learning_application/screens/take_quiz_page.dart';
+import 'package:e_learning_application/screens/quiz_list_page.dart';
 
 class StudentHomePage extends StatelessWidget {
   final User user;
@@ -148,7 +149,7 @@ class StudentHomePage extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => QuizSection(user: user))
+                        MaterialPageRoute(builder: (context) => QuizListPage())
                     );
                   },
                 ),
