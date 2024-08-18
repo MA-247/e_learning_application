@@ -40,6 +40,9 @@ dependencies:
   flutter_cube: ^0.1.1
   flutter_native_splash: ^2.2.16
   cloud_firestore: ^4.17.4
+  image_picker: ^1.1.2
+  firebase_storage: ^11.7.7
+  file_picker: ^8.0.7
 
 dev_dependencies:
   flutter_test:

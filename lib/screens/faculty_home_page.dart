@@ -3,16 +3,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:e_learning_application/screens/learning_section.dart';
 import 'package:e_learning_application/screens/take_quiz_page.dart';
 import 'package:e_learning_application/screens/create_quiz_page.dart';
+import 'package:e_learning_application/screens/create_test_page.dart';
+
 
 class FacultyHomePage extends StatelessWidget {
   final User user;
 
   FacultyHomePage({required this.user});
 
-
   void signOut(){
     FirebaseAuth.instance.signOut();
   }
+
+  final currentUser = FirebaseAuth.instance.currentUser;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,7 +112,7 @@ class FacultyHomePage extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => CreateQuizPage())
+                        MaterialPageRoute(builder: (context) => CreateTestPage())
                     );
                   },
                 ),
