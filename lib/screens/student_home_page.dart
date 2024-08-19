@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'take_test_page.dart';
+import 'package:e_learning_application/screens/test_list_page.dart';
 import 'package:e_learning_application/screens/learning_section.dart';
 
 class StudentHomePage extends StatelessWidget {
@@ -133,47 +133,6 @@ class StudentHomePage extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class TestListPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Available Tests'),
-        backgroundColor: Colors.blue[300],
-      ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('tests').snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          final tests = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: tests.length,
-            itemBuilder: (context, index) {
-              final test = tests[index];
-              return ListTile(
-                title: Text('Test ${index + 1}'),
-                subtitle: Text('Tap to take the test'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TakeTestPage(testData: test),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
       ),
     );
   }

@@ -1,93 +1,108 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class TakeTestPage extends StatefulWidget {
-  final QueryDocumentSnapshot testData;
+class TestPage extends StatefulWidget {
+  final String testId;
 
-  TakeTestPage({required this.testData});
-
+  TestPage({required this.testId});
   @override
-  _TakeTestPageState createState() => _TakeTestPageState();
+  _TestPageState createState() => _TestPageState();
 }
 
-class _TakeTestPageState extends State<TakeTestPage> {
-  final _formKey = GlobalKey<FormState>();
-  Map<int, dynamic> _answers = {};
+class _TestPageState extends State<TestPage> {
+  late Future<List<dynamic>> _testData;
 
-  void _submitAnswers() async {
-    if (_formKey.currentState!.validate()) {
-      // Store the student's answers to Firestore (optional)
-      await FirebaseFirestore.instance.collection('test_results').add({
-        'testId': widget.testData.id,
-        'answers': _answers,
-        'timestamp': Timestamp.now(),
-      });
+  @override
+  void initState() {
+    super.initState();
+    _testData = _fetchTest();
+  }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Test submitted successfully!')));
-      Navigator.pop(context);
+  Future<List<dynamic>> _fetchTest() async {
+    final doc = await FirebaseFirestore.instance.collection('tests').doc(widget.testId).get();
+    if (doc.exists) {
+      return List.from(doc.data()!['fields'] ?? []);
+    } else {
+      return [];
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final fields = widget.testData['fields'] as List<dynamic>;
-
+    print("reached the test page");
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Take Test'),
+        appBar: AppBar(
+        title: Text('Test Page'),
         backgroundColor: Colors.blue[300],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Form(
-          key: _formKey,
-          child: ListView.builder(
-            itemCount: fields.length,
-            itemBuilder: (context, index) {
-              final field = fields[index];
-
-              switch (field['type']) {
-                case 'text':
-                  return ListTile(
-                    title: Text(field['content']),
-                  );
-                case 'image':
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Image.network(field['url']),
-                  );
-                case 'mcq':
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(field['question']),
-                      ...List.generate(4, (optionIndex) {
-                        final option = field['options'][optionIndex];
-                        return RadioListTile<String>(
-                          title: Text(option),
-                          value: option,
-                          groupValue: _answers[index],
-                          onChanged: (value) {
-                            setState(() {
-                              _answers[index] = value;
-                            });
-                          },
-                        );
-                      }),
-                    ],
-                  );
-                default:
-                  return Container();
-              }
-            },
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _submitAnswers,
-        child: Icon(Icons.check),
-        backgroundColor: Colors.blue[300],
+      body: FutureBuilder<List<dynamic>>(
+        future: _testData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No test data available.'));
+          } else {
+            final fields = snapshot.data!;
+            return ListView.builder(
+              itemCount: fields.length,
+              itemBuilder: (context, index) {
+                final field = fields[index];
+                // Build your field widget based on the field type
+                return _buildField(field);
+              },
+            );
+          }
+        },
       ),
     );
   }
+
+  Widget _buildField(Map<String, dynamic> field) {
+    switch (field['type']) {
+      case 'text':
+        return Text(field['content'] ?? '');
+      case 'heading':
+        return Text(
+          field['content'] ?? '',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        );
+      case 'image':
+        return Image.network(field['url']);
+      case 'mcq':
+        return _buildMCQField(field);
+      default:
+        return Container();
+    }
+  }
+
+  Widget _buildMCQField(Map<String, dynamic> field) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 5),
+      child: ListTile(
+        title: Text(field['question'] ?? 'Question'),
+        subtitle: Column(
+          children: [
+            ...List.generate(4, (index) {
+              final optionKey = 'option${index + 1}';
+              return RadioListTile(
+                title: Text(field[optionKey] ?? 'Option ${index + 1}'),
+                value: optionKey,
+                groupValue: _answers[field['question']],
+                onChanged: (value) {
+                  setState(() {
+                    _answers[field['question']] = value;
+                  });
+                },
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Map<String, dynamic> _answers = {};
 }
