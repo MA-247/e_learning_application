@@ -1,3 +1,5 @@
+import 'dart:js_interop';
+
 import 'package:e_learning_application/screens/login_or_register.dart';
 import 'package:e_learning_application/screens/student_home_page.dart';
 import 'package:e_learning_application/screens/faculty_home_page.dart';
@@ -29,6 +31,7 @@ class AuthPage extends StatelessWidget {
                 } else {
                   bool? isFaculty = roleSnapshot.data;
                   if (isFaculty == true) {
+                    print(user.displayName);
                     return FacultyHomePage(user: user);
                   } else if (isFaculty == false) {
                     return StudentHomePage(user: user);

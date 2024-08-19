@@ -58,11 +58,17 @@ class _LoginPageState extends State<LoginPage>{
                     ),
                     //welcome text
                     const SizedBox(height : 25),
-
+                    Text(
+                      "Pulpath",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                        fontSize: 24,
+                      ),
+                    ),
                     Text(
                       "Welcome Back!",
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
                         color: Colors.blue,
 
                       ),

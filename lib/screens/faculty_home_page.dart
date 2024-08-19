@@ -4,6 +4,8 @@ import 'package:e_learning_application/screens/learning_section.dart';
 import 'package:e_learning_application/screens/take_quiz_page.dart';
 import 'package:e_learning_application/screens/create_quiz_page.dart';
 import 'package:e_learning_application/screens/create_test_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_learning_application/screens/test_list_faculty_page.dart';
 
 
 class FacultyHomePage extends StatelessWidget {
@@ -17,8 +19,32 @@ class FacultyHomePage extends StatelessWidget {
 
   final currentUser = FirebaseAuth.instance.currentUser;
 
+  Future<void> fetchFieldFromDocument() async {
+    if (user != null) {
+        DocumentSnapshot doc = await FirebaseFirestore.instance
+            .collection("users")
+            .doc(user.uid)
+            .get();
+
+        if (doc != null && doc!.exists) {
+          // Replace "fieldName" with the name of the field you want to retrieve
+          String? fieldValue = doc!.get('name');
+          print("Field Value: $fieldValue");
+          user.updateDisplayName(fieldValue);
+        } else {
+          print("Document does not exist.");
+        }
+      } else {
+        print("No user is signed in.");
+      }
+  }
+
+
   @override
+
   Widget build(BuildContext context) {
+    if (user.displayName == null)
+      fetchFieldFromDocument();
     return Scaffold(
       appBar: AppBar(title: Text('Welcome back, ${user.displayName}',
         style: TextStyle(color: Colors.white),),
@@ -60,7 +86,7 @@ class FacultyHomePage extends StatelessWidget {
                         fit: BoxFit.contain,
                       ),
                       Text(
-                        'AppName',
+                        'Pulpath',
                         style: TextStyle(
                           color: Colors.blue[300],
                           fontSize: 24,
@@ -112,7 +138,7 @@ class FacultyHomePage extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => CreateTestPage())
+                        MaterialPageRoute(builder: (context) => TestListPage())
                     );
                   },
                 ),
