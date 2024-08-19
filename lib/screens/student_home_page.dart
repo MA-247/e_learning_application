@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'take_test_page.dart';
+import 'package:e_learning_application/screens/learning_section.dart';
 
 class StudentHomePage extends StatelessWidget {
   final User user;
@@ -90,6 +91,26 @@ class StudentHomePage extends StatelessWidget {
         child: Column(
           children: [
             // Other UI elements
+            Expanded(
+              flex: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                child: ListTile(
+                  title: Text('Learning Section'),
+                  subtitle: Text('Tap to go to the learning secition'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LearningSection(user: user)),
+                    );
+                  },
+                ),
+              ),
+            ),
             Expanded(
               flex: 1,
               child: Container(
