@@ -9,6 +9,7 @@ class TestListPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Test List'),
         backgroundColor: Colors.blue[300],
+
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('tests').snapshots(),

@@ -17,7 +17,8 @@ class _CreateTestPageState extends State<CreateTestPage> {
   List<DynamicField> _fields = [];
 
   Future<void> _pickImage(DynamicField field) async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
@@ -92,7 +93,8 @@ class _CreateTestPageState extends State<CreateTestPage> {
       try {
         for (var field in _fields) {
           if (field.type == FieldType.image && field.image != null) {
-            final storageRef = FirebaseStorage.instance.ref().child('test_images/${DateTime.now().toString()}');
+            final storageRef = FirebaseStorage.instance.ref().child(
+                'test_images/${DateTime.now().toString()}');
             await storageRef.putFile(field.image!);
             field.text = await storageRef.getDownloadURL();
           }
@@ -108,7 +110,12 @@ class _CreateTestPageState extends State<CreateTestPage> {
               return {
                 'type': 'mcq',
                 'question': field.question,
-                'options': [field.option1, field.option2, field.option3, field.option4],
+                'options': [
+                  field.option1,
+                  field.option2,
+                  field.option3,
+                  field.option4
+                ],
                 'correctOption': field.correctOption,
                 'score': field.score, // Add this line
               };
@@ -127,12 +134,14 @@ class _CreateTestPageState extends State<CreateTestPage> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => TestUploadConfirmationScreen()),
+          MaterialPageRoute(
+              builder: (context) => TestUploadConfirmationScreen()),
         );
       } catch (e) {
         Navigator.pop(context);
 
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to upload test: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to upload test: $e')));
       }
     }
   }
@@ -140,6 +149,7 @@ class _CreateTestPageState extends State<CreateTestPage> {
   @override
   // In CreateTestPage class
 
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,14 +174,20 @@ class _CreateTestPageState extends State<CreateTestPage> {
                         title: field.type == FieldType.heading
                             ? TextFormField(
                           decoration: InputDecoration(labelText: 'Heading'),
-                          validator: (value) => value!.isEmpty ? 'Enter heading text' : null,
+                          validator: (value) =>
+                          value!.isEmpty
+                              ? 'Enter heading text'
+                              : null,
                           initialValue: field.headingText,
                           onChanged: (value) => field.headingText = value,
                         )
                             : field.type == FieldType.text
                             ? TextFormField(
                           decoration: InputDecoration(labelText: 'Text'),
-                          validator: (value) => value!.isEmpty ? 'Enter text' : null,
+                          validator: (value) =>
+                          value!.isEmpty
+                              ? 'Enter text'
+                              : null,
                           initialValue: field.text,
                           onChanged: (value) => field.text = value,
                         )
@@ -190,47 +206,29 @@ class _CreateTestPageState extends State<CreateTestPage> {
                             ? Column(
                           children: [
                             TextFormField(
-                              decoration: InputDecoration(labelText: 'Question'),
-                              validator: (value) => value!.isEmpty ? 'Enter a question' : null,
+                              decoration: InputDecoration(
+                                  labelText: 'Question'),
+                              validator: (value) =>
+                              value!.isEmpty
+                                  ? 'Enter a question'
+                                  : null,
                               initialValue: field.question,
                               onChanged: (value) => field.question = value,
                             ),
-                            TextFormField(
-                              decoration: InputDecoration(labelText: 'Option 1'),
-                              validator: (value) => value!.isEmpty ? 'Enter option 1' : null,
-                              initialValue: field.option1,
-                              onChanged: (value) => field.option1 = value,
-                            ),
-                            TextFormField(
-                              decoration: InputDecoration(labelText: 'Option 2'),
-                              validator: (value) => value!.isEmpty ? 'Enter option 2' : null,
-                              initialValue: field.option2,
-                              onChanged: (value) => field.option2 = value,
-                            ),
-                            TextFormField(
-                              decoration: InputDecoration(labelText: 'Option 3'),
-                              validator: (value) => value!.isEmpty ? 'Enter option 3' : null,
-                              initialValue: field.option3,
-                              onChanged: (value) => field.option3 = value,
-                            ),
-                            TextFormField(
-                              decoration: InputDecoration(labelText: 'Option 4'),
-                              validator: (value) => value!.isEmpty ? 'Enter option 4' : null,
-                              initialValue: field.option4,
-                              onChanged: (value) => field.option4 = value,
-                            ),
-                            TextFormField(
-                              decoration: InputDecoration(labelText: 'Correct Option'),
-                              validator: (value) => value!.isEmpty ? 'Enter the correct option' : null,
-                              initialValue: field.correctOption,
-                              onChanged: (value) => field.correctOption = value,
-                            ),
+                            _buildOptionField(field, 'Option 1', 1),
+                            _buildOptionField(field, 'Option 2', 2),
+                            _buildOptionField(field, 'Option 3', 3),
+                            _buildOptionField(field, 'Option 4', 4),
                             TextFormField(
                               decoration: InputDecoration(labelText: 'Score'),
                               keyboardType: TextInputType.number,
-                              validator: (value) => value!.isEmpty ? 'Enter the score' : null,
+                              validator: (value) =>
+                              value!.isEmpty
+                                  ? 'Enter the score'
+                                  : null,
                               initialValue: field.score?.toString(),
-                              onChanged: (value) => field.score = int.tryParse(value),
+                              onChanged: (value) =>
+                              field.score = int.tryParse(value),
                             ),
                           ],
                         )
@@ -263,5 +261,65 @@ class _CreateTestPageState extends State<CreateTestPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildOptionField(DynamicField field, String label, int optionNumber) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextFormField(
+            decoration: InputDecoration(labelText: label),
+            validator: (value) => value!.isEmpty ? 'Enter $label' : null,
+            initialValue: _getOptionText(field, optionNumber),
+            onChanged: (value) => _setOptionText(field, optionNumber, value),
+          ),
+        ),
+        Radio<int>(
+          value: optionNumber,
+          groupValue: field.correctOptionNumber,
+          onChanged: (int? value) {
+            setState(() {
+              field.correctOptionNumber = value!;
+              field.correctOption =
+                  _getOptionText(field, optionNumber); // Update correctOption
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  String? _getOptionText(DynamicField field, int optionNumber) {
+    switch (optionNumber) {
+      case 1:
+        return field.option1;
+      case 2:
+        return field.option2;
+      case 3:
+        return field.option3;
+      case 4:
+        return field.option4;
+      default:
+        return '';
+    }
+  }
+
+  void _setOptionText(DynamicField field, int optionNumber, String value) {
+    setState(() {
+      switch (optionNumber) {
+        case 1:
+          field.option1 = value;
+          break;
+        case 2:
+          field.option2 = value;
+          break;
+        case 3:
+          field.option3 = value;
+          break;
+        case 4:
+          field.option4 = value;
+          break;
+      }
+    });
   }
 }

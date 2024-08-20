@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_learning_application/screens/result_page.dart';
 
 class TestPage extends StatefulWidget {
   final String testId;
 
   TestPage({required this.testId});
+
   @override
   _TestPageState createState() => _TestPageState();
 }
 
 class _TestPageState extends State<TestPage> {
   late Future<List<dynamic>> _testData;
+  Map<String, dynamic> _answers = {};
 
   @override
   void initState() {
@@ -18,20 +21,68 @@ class _TestPageState extends State<TestPage> {
     _testData = _fetchTest();
   }
 
+  Future<void> _submitTest() async {
+    try {
+      int totalScore = 0;
+      final responses = _answers.map((question, answer) {
+        return MapEntry(question, answer);
+      });
+
+      final testDoc = await FirebaseFirestore.instance.collection('tests').doc(widget.testId).get();
+      if (testDoc.exists) {
+        final fields = List.from(testDoc.data()!['fields'] ?? []);
+
+        for (var field in fields) {
+          if (field['type'] == 'mcq') {
+            String correctOption = field['correctOption'];
+            String selectedOption = _answers[field['question']] ?? '';
+            print('Question: ${field['question']}');
+            print('Selected Option: $selectedOption');
+            print('Correct Option: $correctOption');
+            if (selectedOption == correctOption) {
+              totalScore += field['score'] as int? ?? 0;
+            }
+          }
+        }
+      }
+
+      await FirebaseFirestore.instance.collection('student_responses').add({
+        'testId': widget.testId,
+        'responses': responses,
+        'score': totalScore,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ResultPage(score: totalScore)),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to submit test: $e')));
+    }
+  }
+
+
   Future<List<dynamic>> _fetchTest() async {
-    final doc = await FirebaseFirestore.instance.collection('tests').doc(widget.testId).get();
-    if (doc.exists) {
-      return List.from(doc.data()!['fields'] ?? []);
-    } else {
+    try {
+      final doc = await FirebaseFirestore.instance.collection('tests').doc(widget.testId).get();
+      if (doc.exists) {
+        final fields = List.from(doc.data()!['fields'] ?? []);
+        print('Fetched fields: $fields'); // Debugging line
+        return fields;
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching test: $e'); // Debugging line
       return [];
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    print("reached the test page");
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         title: Text('Test Page'),
         backgroundColor: Colors.blue[300],
       ),
@@ -50,12 +101,16 @@ class _TestPageState extends State<TestPage> {
               itemCount: fields.length,
               itemBuilder: (context, index) {
                 final field = fields[index];
-                // Build your field widget based on the field type
                 return _buildField(field);
               },
             );
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _submitTest,
+        child: Icon(Icons.check),
+        backgroundColor: Colors.blue,
       ),
     );
   }
@@ -63,33 +118,42 @@ class _TestPageState extends State<TestPage> {
   Widget _buildField(Map<String, dynamic> field) {
     switch (field['type']) {
       case 'text':
-        return Text(field['content'] ?? '');
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(field['content'] ?? ''),
+        );
       case 'heading':
-        return Text(
-          field['content'] ?? '',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            field['content'] ?? '',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
         );
       case 'image':
-        return Image.network(field['url']);
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.network(field['url']),
+        );
       case 'mcq':
         return _buildMCQField(field);
       default:
-        return Container();
+        return SizedBox.shrink();
     }
   }
 
   Widget _buildMCQField(Map<String, dynamic> field) {
+    final options = List<String>.from(field['options'] ?? []);
     return Card(
       margin: EdgeInsets.symmetric(vertical: 5),
       child: ListTile(
         title: Text(field['question'] ?? 'Question'),
         subtitle: Column(
           children: [
-            ...List.generate(4, (index) {
-              final optionKey = 'option${index + 1}';
+            ...List.generate(options.length, (index) {
               return RadioListTile(
-                title: Text(field[optionKey] ?? 'Option ${index + 1}'),
-                value: optionKey,
+                title: Text(options[index]),
+                value: options[index],
                 groupValue: _answers[field['question']],
                 onChanged: (value) {
                   setState(() {
@@ -103,6 +167,4 @@ class _TestPageState extends State<TestPage> {
       ),
     );
   }
-
-  Map<String, dynamic> _answers = {};
 }

@@ -47,7 +47,8 @@ class _EditTestPageState extends State<EditTestPage> {
                   ..option2 = fieldData['options'][1]
                   ..option3 = fieldData['options'][2]
                   ..option4 = fieldData['options'][3]
-                  ..correctOption = fieldData['correctOption'];
+                  ..correctOption = fieldData['correctOption']
+                  ..score = fieldData['score']; // Load the score
               case 'heading':
                 return DynamicField(type: FieldType.heading)..headingText = fieldData['content'];
               default:
@@ -89,6 +90,7 @@ class _EditTestPageState extends State<EditTestPage> {
                 'question': field.question,
                 'options': [field.option1, field.option2, field.option3, field.option4],
                 'correctOption': field.correctOption,
+                'score': field.score, // Include score
               };
             case FieldType.heading:
               return {'type': 'heading', 'content': field.headingText};
@@ -136,9 +138,12 @@ class _EditTestPageState extends State<EditTestPage> {
                       margin: EdgeInsets.symmetric(vertical: 5),
                       child: ListTile(
                         title: field.type == FieldType.heading
-                            ? Text(
-                          field.headingText ?? '',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                            ? TextFormField(
+                          decoration: InputDecoration(labelText: 'Heading'),
+                          validator: (value) => value!.isEmpty ? 'Enter a heading' : null,
+                          initialValue: field.headingText,
+                          onChanged: (value) => field.headingText = value,
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18), // Style for heading
                         )
                             : field.type == FieldType.text
                             ? TextFormField(
@@ -167,35 +172,16 @@ class _EditTestPageState extends State<EditTestPage> {
                               initialValue: field.question,
                               onChanged: (value) => field.question = value,
                             ),
+                            _buildOptionField(field, 'Option 1', 1),
+                            _buildOptionField(field, 'Option 2', 2),
+                            _buildOptionField(field, 'Option 3', 3),
+                            _buildOptionField(field, 'Option 4', 4),
                             TextFormField(
-                              decoration: InputDecoration(labelText: 'Option 1'),
-                              validator: (value) => value!.isEmpty ? 'Enter option 1' : null,
-                              initialValue: field.option1,
-                              onChanged: (value) => field.option1 = value,
-                            ),
-                            TextFormField(
-                              decoration: InputDecoration(labelText: 'Option 2'),
-                              validator: (value) => value!.isEmpty ? 'Enter option 2' : null,
-                              initialValue: field.option2,
-                              onChanged: (value) => field.option2 = value,
-                            ),
-                            TextFormField(
-                              decoration: InputDecoration(labelText: 'Option 3'),
-                              validator: (value) => value!.isEmpty ? 'Enter option 3' : null,
-                              initialValue: field.option3,
-                              onChanged: (value) => field.option3 = value,
-                            ),
-                            TextFormField(
-                              decoration: InputDecoration(labelText: 'Option 4'),
-                              validator: (value) => value!.isEmpty ? 'Enter option 4' : null,
-                              initialValue: field.option4,
-                              onChanged: (value) => field.option4 = value,
-                            ),
-                            TextFormField(
-                              decoration: InputDecoration(labelText: 'Correct Option'),
-                              validator: (value) => value!.isEmpty ? 'Enter the correct option' : null,
-                              initialValue: field.correctOption,
-                              onChanged: (value) => field.correctOption = value,
+                              decoration: InputDecoration(labelText: 'Score'),
+                              keyboardType: TextInputType.number,
+                              validator: (value) => value!.isEmpty ? 'Enter the score' : null,
+                              initialValue: field.score?.toString(),
+                              onChanged: (value) => field.score = int.tryParse(value),
                             ),
                           ],
                         )
@@ -228,6 +214,66 @@ class _EditTestPageState extends State<EditTestPage> {
         ),
       ),
     );
+  }
+
+
+  Widget _buildOptionField(DynamicField field, String label, int optionNumber) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextFormField(
+            decoration: InputDecoration(labelText: label),
+            validator: (value) => value!.isEmpty ? 'Enter $label' : null,
+            initialValue: _getOptionText(field, optionNumber),
+            onChanged: (value) => _setOptionText(field, optionNumber, value),
+          ),
+        ),
+        Radio<int>(
+          value: optionNumber,
+          groupValue: field.correctOptionNumber,
+          onChanged: (int? value) {
+            setState(() {
+              field.correctOptionNumber = value!;
+              field.correctOption = _getOptionText(field, optionNumber); // Update correctOption
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  String? _getOptionText(DynamicField field, int optionNumber) {
+    switch (optionNumber) {
+      case 1:
+        return field.option1;
+      case 2:
+        return field.option2;
+      case 3:
+        return field.option3;
+      case 4:
+        return field.option4;
+      default:
+        return '';
+    }
+  }
+
+  void _setOptionText(DynamicField field, int optionNumber, String value) {
+    setState(() {
+      switch (optionNumber) {
+        case 1:
+          field.option1 = value;
+          break;
+        case 2:
+          field.option2 = value;
+          break;
+        case 3:
+          field.option3 = value;
+          break;
+        case 4:
+          field.option4 = value;
+          break;
+      }
+    });
   }
 
   Future<void> _pickImage(DynamicField field) async {
@@ -292,7 +338,7 @@ class _EditTestPageState extends State<EditTestPage> {
 
   void _addField(FieldType type) {
     setState(() {
-      _fields.add(DynamicField(type: type));
+      _fields.add(DynamicField(type: type)); // Initialize score
     });
   }
 }

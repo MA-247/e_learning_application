@@ -5,27 +5,16 @@ enum FieldType { text, heading, image, mcq }
 class DynamicField {
   FieldType type;
   String? text;
-  File? image;
+  String? headingText;
   String? question;
   String? option1;
   String? option2;
   String? option3;
   String? option4;
   String? correctOption;
-  String? headingText;
-  int? score; // Add this line
+  int? correctOptionNumber; // New property to store the selected correct option number
+  int? score;
+  File? image;
 
-  DynamicField({
-    required this.type,
-    this.text,
-    this.image,
-    this.question,
-    this.option1,
-    this.option2,
-    this.option3,
-    this.option4,
-    this.correctOption,
-    this.headingText,
-    this.score,
-  });
+  DynamicField({required this.type});
 }
