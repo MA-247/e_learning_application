@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_learning_application/screens/chapter_details_page.dart';
+import 'edit_lecture_page.dart';
 
 class LectureListPage extends StatelessWidget {
   final String topicId;
@@ -33,17 +33,26 @@ class LectureListPage extends StatelessWidget {
               var chapter = chapters[index];
               return ListTile(
                 title: Text(chapter['title']),
-                subtitle: Text(chapter['description']),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChapterDetailPage(
-                        chapterId: chapter.id,
-                        topicId: topicId,
+                subtitle: Text(chapter['description'] ?? 'No description available'),
+                trailing: IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditLecturePage(
+                          topicId: topicId,
+                          chapterId: chapter.id,
+                          initialTitle: chapter['title'],
+                          initialDescription: chapter['description'],
+                          initialImageUrl: chapter['modelUrl'],
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  },
+                ),
+                onTap: () {
+                  // Navigate to chapter details page (if needed)
                 },
               );
             },

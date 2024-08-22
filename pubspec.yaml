@@ -52,7 +52,7 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/logos/papo_logo.jfif"
+  image_path: "assets/logos/logo1.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -78,7 +78,6 @@ flutter:
     - assets/donut1.mtl
     - assets/donut1.obj
     - assets/logos/logo1.png
-    - assets/logos/papo_logo.jfif
     - assets/pHTooth.obj
     - assets/pHTooth.mtl
     - assets/3d_Models/healthyToothL1obj.obj
