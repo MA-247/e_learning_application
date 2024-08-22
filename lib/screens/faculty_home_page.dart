@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:e_learning_application/screens/learning_section.dart';
-import 'package:e_learning_application/screens/take_quiz_page.dart';
-import 'package:e_learning_application/screens/create_quiz_page.dart';
-import 'package:e_learning_application/screens/create_test_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_learning_application/screens/test_list_faculty_page.dart';
 import 'package:e_learning_application/screens/faculty_learning_section.dart';

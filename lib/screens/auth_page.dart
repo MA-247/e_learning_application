@@ -1,5 +1,3 @@
-import 'dart:js_interop';
-
 import 'package:e_learning_application/screens/login_or_register.dart';
 import 'package:e_learning_application/screens/student_home_page.dart';
 import 'package:e_learning_application/screens/faculty_home_page.dart';
