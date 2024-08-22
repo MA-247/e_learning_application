@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_learning_application/screens/test_list_page.dart';
 import 'package:e_learning_application/screens/learning_section.dart';
+import 'package:e_learning_application/screens/student_topics_list_page.dart';
 
 class StudentHomePage extends StatelessWidget {
   final User user;
@@ -105,7 +106,7 @@ class StudentHomePage extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LearningSection(user: user)),
+                      MaterialPageRoute(builder: (context) => TopicsListPage()),
                     );
                   },
                 ),

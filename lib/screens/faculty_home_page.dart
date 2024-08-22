@@ -6,7 +6,7 @@ import 'package:e_learning_application/screens/create_quiz_page.dart';
 import 'package:e_learning_application/screens/create_test_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_learning_application/screens/test_list_faculty_page.dart';
-
+import 'package:e_learning_application/screens/faculty_learning_section.dart';
 
 class FacultyHomePage extends StatelessWidget {
   final User user;
@@ -133,8 +133,28 @@ class FacultyHomePage extends StatelessWidget {
                 ),
                 margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Optional: Adjust margins
                 child: ListTile(
-                  title: Text('Quiz'),
-                  subtitle: Text('Manage Quizzes'),
+                  title: Text('Learning Section'),
+                  subtitle: Text('Manage Lectures'),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ManageTopicsPage(user: user))
+                    );
+                  },
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1), // Adjust the opacity and color as needed
+                  borderRadius: BorderRadius.circular(10.0), // Optional: Add border radius for rounded corners
+                ),
+                margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Optional: Adjust margins
+                child: ListTile(
+                  title: Text('Test Section'),
+                  subtitle: Text('Manage Tests'),
                   onTap: () {
                     Navigator.push(
                         context,
