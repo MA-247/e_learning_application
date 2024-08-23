@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:e_learning_application/screens/student_home_page.dart';
+import 'package:e_learning_application/screens/student_side/student_home_page.dart';
 
 class ResultPage extends StatelessWidget {
   final int score;

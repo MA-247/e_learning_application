@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_learning_application/screens/take_test_page.dart';
+import 'package:e_learning_application/screens/student_side/testing_system/take_test_page.dart';
 
 class TestListPage extends StatelessWidget {
   @override

@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:e_learning_application/screens/test_upload_confirmation_screen.dart';
+import 'package:e_learning_application/screens/faculty_side/testing_system/test_upload_confirmation_screen.dart';
 import 'package:e_learning_application/widgets/loading_screen.dart';
 import 'package:e_learning_application/widgets/dynamic_field_type.dart';
 

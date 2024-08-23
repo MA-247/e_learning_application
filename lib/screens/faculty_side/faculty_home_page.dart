@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_learning_application/screens/test_list_faculty_page.dart';
-import 'package:e_learning_application/screens/faculty_learning_section.dart';
+import 'package:e_learning_application/screens/faculty_side/testing_system/test_list_faculty_page.dart';
+import 'package:e_learning_application/screens/faculty_side/learning_section/faculty_learning_section.dart';
 
 class FacultyHomePage extends StatelessWidget {
   final User user;

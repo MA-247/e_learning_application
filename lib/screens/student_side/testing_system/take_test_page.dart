@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_learning_application/screens/result_page.dart';
+import 'package:e_learning_application/screens/student_side/testing_system/result_page.dart';
 
 class TestPage extends StatefulWidget {
   final String testId;

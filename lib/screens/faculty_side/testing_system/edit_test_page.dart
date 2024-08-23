@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:e_learning_application/widgets/loading_screen.dart';
 import 'package:e_learning_application/widgets/dynamic_field_type.dart';
-import 'package:e_learning_application/screens/test_list_faculty_page.dart';
+import 'package:e_learning_application/screens/faculty_side/testing_system/test_list_faculty_page.dart';
 
 class EditTestPage extends StatefulWidget {
   final String testId;

@@ -1,7 +1,7 @@
 import 'package:e_learning_application/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:e_learning_application/screens/auth_page.dart';
+import 'package:e_learning_application/screens/student_side/auth/auth_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
