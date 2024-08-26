@@ -4,21 +4,22 @@ import 'package:e_learning_application/screens/student_side/testing_system/resul
 
 class TestPage extends StatefulWidget {
   final String testId;
+  final String userId; // Accept the userId
 
-  TestPage({required this.testId});
+  TestPage({required this.testId, required this.userId});
 
   @override
   _TestPageState createState() => _TestPageState();
 }
 
 class _TestPageState extends State<TestPage> {
-  late Future<List<dynamic>> _testData;
+  late Future<List<dynamic>> _testData; // Ensure _testData is declared
   Map<String, dynamic> _answers = {};
 
   @override
   void initState() {
     super.initState();
-    _testData = _fetchTest();
+    _testData = _fetchTest(); // Initialize _testData with the fetched test data
   }
 
   Future<void> _submitTest() async {
@@ -36,9 +37,6 @@ class _TestPageState extends State<TestPage> {
           if (field['type'] == 'mcq') {
             String correctOption = field['correctOption'];
             String selectedOption = _answers[field['question']] ?? '';
-            print('Question: ${field['question']}');
-            print('Selected Option: $selectedOption');
-            print('Correct Option: $correctOption');
             if (selectedOption == correctOption) {
               totalScore += field['score'] as int? ?? 0;
             }
@@ -48,10 +46,12 @@ class _TestPageState extends State<TestPage> {
 
       await FirebaseFirestore.instance.collection('student_responses').add({
         'testId': widget.testId,
+        'userId': widget.userId, // Add userId to the student response
         'responses': responses,
         'score': totalScore,
         'timestamp': FieldValue.serverTimestamp(),
       });
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -62,19 +62,17 @@ class _TestPageState extends State<TestPage> {
     }
   }
 
-
   Future<List<dynamic>> _fetchTest() async {
     try {
       final doc = await FirebaseFirestore.instance.collection('tests').doc(widget.testId).get();
       if (doc.exists) {
         final fields = List.from(doc.data()!['fields'] ?? []);
-        print('Fetched fields: $fields'); // Debugging line
         return fields;
       } else {
         return [];
       }
     } catch (e) {
-      print('Error fetching test: $e'); // Debugging line
+      print('Error fetching test: $e');
       return [];
     }
   }
@@ -87,7 +85,7 @@ class _TestPageState extends State<TestPage> {
         backgroundColor: Colors.blue[300],
       ),
       body: FutureBuilder<List<dynamic>>(
-        future: _testData,
+        future: _testData, // Use the initialized _testData
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());

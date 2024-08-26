@@ -41,25 +41,33 @@ class ChapterDetailPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Title
                   Text(
                     title,
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
-                  Text(
-                    description,
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  SizedBox(height: 20),
+
+                  // Image
                   if (imageUrl != null && imageUrl.isNotEmpty)
                     Image.network(
                       imageUrl,
                       fit: BoxFit.cover,
                       height: 200,
                       width: double.infinity,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Text('Failed to load image');
+                      },
                     )
                   else
                     Text('No image or model available'),
+                  SizedBox(height: 20),
+
+                  // Description
+                  Text(
+                    description,
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ],
               ),
             ),

@@ -8,17 +8,66 @@ class ManageTopicsPage extends StatelessWidget {
 
   ManageTopicsPage({required this.user});
 
-  Future<void> _addOrEditTopic(BuildContext context, {String? topicId, String? initialTitle}) async {
+  Future<void> _addOrEditTopic(BuildContext context, {String? topicId, String? initialTitle, String? initialPretestId, String? initialPosttestId}) async {
     final topicTitleController = TextEditingController(text: initialTitle);
+    String? selectedPretestId = initialPretestId;
+    String? selectedPosttestId = initialPosttestId;
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text(topicId == null ? 'Add New Topic' : 'Edit Topic'),
-          content: TextField(
-            controller: topicTitleController,
-            decoration: InputDecoration(hintText: 'Topic Title'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: topicTitleController,
+                decoration: InputDecoration(hintText: 'Topic Title'),
+              ),
+              SizedBox(height: 10),
+              StreamBuilder(
+                stream: FirebaseFirestore.instance.collection('tests').snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (!snapshot.hasData) {
+                    return CircularProgressIndicator();
+                  }
+
+                  var tests = snapshot.data!.docs;
+                  return Column(
+                    children: [
+                      DropdownButtonFormField<String>(
+                        value: selectedPretestId,
+                        decoration: InputDecoration(labelText: 'Select Pretest'),
+                        items: tests.map((test) {
+                          return DropdownMenuItem<String>(
+                            value: test.id,
+                            child: Text(test['title']),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          selectedPretestId = value;
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      DropdownButtonFormField<String>(
+                        value: selectedPosttestId,
+                        decoration: InputDecoration(labelText: 'Select Post-test'),
+                        items: tests.map((test) {
+                          return DropdownMenuItem<String>(
+                            value: test.id,
+                            child: Text(test['title']),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          selectedPosttestId = value;
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
           ),
           actions: [
             TextButton(
@@ -26,11 +75,19 @@ class ManageTopicsPage extends StatelessWidget {
                 final title = topicTitleController.text;
                 if (title.isNotEmpty) {
                   if (topicId == null) {
-                    // Add new topic
-                    await FirebaseFirestore.instance.collection('topics').add({'title': title});
+                    // Add new topic with pretest and post-test
+                    await FirebaseFirestore.instance.collection('topics').add({
+                      'title': title,
+                      'pretestId': selectedPretestId,
+                      'posttestId': selectedPosttestId,
+                    });
                   } else {
                     // Edit existing topic
-                    await FirebaseFirestore.instance.collection('topics').doc(topicId).update({'title': title});
+                    await FirebaseFirestore.instance.collection('topics').doc(topicId).update({
+                      'title': title,
+                      'pretestId': selectedPretestId,
+                      'posttestId': selectedPosttestId,
+                    });
                   }
                   Navigator.of(context).pop();
                 }
@@ -97,12 +154,13 @@ class ManageTopicsPage extends StatelessWidget {
               var topic = topics[index];
               return ListTile(
                 title: Text(topic['title']),
+                subtitle: Text('Pretest: ${topic['pretestId'] ?? 'None'}, Post-test: ${topic['posttestId'] ?? 'None'}'),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
                       icon: Icon(Icons.edit),
-                      onPressed: () => _addOrEditTopic(context, topicId: topic.id, initialTitle: topic['title']),
+                      onPressed: () => _addOrEditTopic(context, topicId: topic.id, initialTitle: topic['title'], initialPretestId: topic['pretestId'], initialPosttestId: topic['posttestId']),
                     ),
                     IconButton(
                       icon: Icon(Icons.delete, color: Colors.red),

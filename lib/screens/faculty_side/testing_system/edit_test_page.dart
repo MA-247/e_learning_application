@@ -19,6 +19,7 @@ class EditTestPage extends StatefulWidget {
 class _EditTestPageState extends State<EditTestPage> {
   final _formKey = GlobalKey<FormState>();
   List<DynamicField> _fields = [];
+  String _testTitle = ''; // Add a variable to hold the test title
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _EditTestPageState extends State<EditTestPage> {
         var fieldsData = testData['fields'] as List<dynamic>;
 
         setState(() {
+          _testTitle = testData['title'] ?? ''; // Load the test title
           _fields = fieldsData.map<DynamicField>((fieldData) {
             switch (fieldData['type']) {
               case 'text':
@@ -100,6 +102,7 @@ class _EditTestPageState extends State<EditTestPage> {
         }).toList();
 
         await FirebaseFirestore.instance.collection('tests').doc(widget.testId).update({
+          'title': _testTitle, // Update the test title
           'fields': fieldData,
         });
 
@@ -129,6 +132,12 @@ class _EditTestPageState extends State<EditTestPage> {
           key: _formKey,
           child: Column(
             children: [
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Test Title'),
+                validator: (value) => value!.isEmpty ? 'Enter a test title' : null,
+                initialValue: _testTitle,
+                onChanged: (value) => _testTitle = value,
+              ),
               Expanded(
                 child: ListView.builder(
                   itemCount: _fields.length,
@@ -216,7 +225,6 @@ class _EditTestPageState extends State<EditTestPage> {
     );
   }
 
-
   Widget _buildOptionField(DynamicField field, String label, int optionNumber) {
     return Row(
       children: [
@@ -258,27 +266,25 @@ class _EditTestPageState extends State<EditTestPage> {
   }
 
   void _setOptionText(DynamicField field, int optionNumber, String value) {
-    setState(() {
-      switch (optionNumber) {
-        case 1:
-          field.option1 = value;
-          break;
-        case 2:
-          field.option2 = value;
-          break;
-        case 3:
-          field.option3 = value;
-          break;
-        case 4:
-          field.option4 = value;
-          break;
-      }
-    });
+    switch (optionNumber) {
+      case 1:
+        field.option1 = value;
+        break;
+      case 2:
+        field.option2 = value;
+        break;
+      case 3:
+        field.option3 = value;
+        break;
+      case 4:
+        field.option4 = value;
+        break;
+    }
   }
 
   Future<void> _pickImage(DynamicField field) async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         field.image = File(pickedFile.path);
@@ -295,38 +301,46 @@ class _EditTestPageState extends State<EditTestPage> {
   void _showAddFieldDialog() {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Select Field Type'),
+          title: Text('Add Field'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
                 title: Text('Text'),
                 onTap: () {
-                  Navigator.of(context).pop();
-                  _addField(FieldType.text);
-                },
-              ),
-              ListTile(
-                title: Text('Heading'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _addField(FieldType.heading);
+                  setState(() {
+                    _fields.add(DynamicField(type: FieldType.text));
+                  });
+                  Navigator.pop(context);
                 },
               ),
               ListTile(
                 title: Text('Image'),
                 onTap: () {
-                  Navigator.of(context).pop();
-                  _addField(FieldType.image);
+                  setState(() {
+                    _fields.add(DynamicField(type: FieldType.image));
+                  });
+                  Navigator.pop(context);
                 },
               ),
               ListTile(
                 title: Text('MCQ'),
                 onTap: () {
-                  Navigator.of(context).pop();
-                  _addField(FieldType.mcq);
+                  setState(() {
+                    _fields.add(DynamicField(type: FieldType.mcq));
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Heading'),
+                onTap: () {
+                  setState(() {
+                    _fields.add(DynamicField(type: FieldType.heading));
+                  });
+                  Navigator.pop(context);
                 },
               ),
             ],
@@ -334,11 +348,5 @@ class _EditTestPageState extends State<EditTestPage> {
         );
       },
     );
-  }
-
-  void _addField(FieldType type) {
-    setState(() {
-      _fields.add(DynamicField(type: type)); // Initialize score
-    });
   }
 }

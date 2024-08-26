@@ -1,4 +1,4 @@
-import 'package:e_learning_application/screens/student_side/auth/login_or_register.dart';
+import 'package:e_learning_application/screens/auth/login_or_register.dart';
 import 'package:e_learning_application/screens/student_side/student_home_page.dart';
 import 'package:e_learning_application/screens/faculty_side/faculty_home_page.dart';
 import 'package:flutter/material.dart';

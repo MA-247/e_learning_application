@@ -14,11 +14,11 @@ class CreateTestPage extends StatefulWidget {
 
 class _CreateTestPageState extends State<CreateTestPage> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _titleController = TextEditingController();
   List<DynamicField> _fields = [];
 
   Future<void> _pickImage(DynamicField field) async {
-    final pickedFile = await ImagePicker().pickImage(
-        source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
@@ -117,7 +117,7 @@ class _CreateTestPageState extends State<CreateTestPage> {
                   field.option4
                 ],
                 'correctOption': field.correctOption,
-                'score': field.score, // Add this line
+                'score': field.score,
               };
             case FieldType.heading:
               return {'type': 'heading', 'content': field.headingText};
@@ -127,6 +127,7 @@ class _CreateTestPageState extends State<CreateTestPage> {
         }).toList();
 
         await FirebaseFirestore.instance.collection('tests').add({
+          'title': _titleController.text, // Add the test title here
           'fields': fieldData,
         });
 
@@ -147,10 +148,6 @@ class _CreateTestPageState extends State<CreateTestPage> {
   }
 
   @override
-  // In CreateTestPage class
-
-  @override
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -163,6 +160,21 @@ class _CreateTestPageState extends State<CreateTestPage> {
           key: _formKey,
           child: Column(
             children: [
+              // Add the title input field at the top of the form
+              TextFormField(
+                controller: _titleController,
+                decoration: InputDecoration(
+                  labelText: 'Test Title',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a test title';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 20),
               Expanded(
                 child: ListView.builder(
                   itemCount: _fields.length,
@@ -174,8 +186,7 @@ class _CreateTestPageState extends State<CreateTestPage> {
                         title: field.type == FieldType.heading
                             ? TextFormField(
                           decoration: InputDecoration(labelText: 'Heading'),
-                          validator: (value) =>
-                          value!.isEmpty
+                          validator: (value) => value!.isEmpty
                               ? 'Enter heading text'
                               : null,
                           initialValue: field.headingText,
@@ -184,8 +195,7 @@ class _CreateTestPageState extends State<CreateTestPage> {
                             : field.type == FieldType.text
                             ? TextFormField(
                           decoration: InputDecoration(labelText: 'Text'),
-                          validator: (value) =>
-                          value!.isEmpty
+                          validator: (value) => value!.isEmpty
                               ? 'Enter text'
                               : null,
                           initialValue: field.text,
@@ -197,7 +207,8 @@ class _CreateTestPageState extends State<CreateTestPage> {
                             field.image != null
                                 ? Image.file(field.image!)
                                 : ElevatedButton(
-                              onPressed: () => _pickImage(field),
+                              onPressed: () =>
+                                  _pickImage(field),
                               child: Text('Upload Image'),
                             ),
                           ],
@@ -213,22 +224,31 @@ class _CreateTestPageState extends State<CreateTestPage> {
                                   ? 'Enter a question'
                                   : null,
                               initialValue: field.question,
-                              onChanged: (value) => field.question = value,
+                              onChanged: (value) =>
+                              field.question = value,
                             ),
-                            _buildOptionField(field, 'Option 1', 1),
-                            _buildOptionField(field, 'Option 2', 2),
-                            _buildOptionField(field, 'Option 3', 3),
-                            _buildOptionField(field, 'Option 4', 4),
+                            _buildOptionField(
+                                field, 'Option 1', 1),
+                            _buildOptionField(
+                                field, 'Option 2', 2),
+                            _buildOptionField(
+                                field, 'Option 3', 3),
+                            _buildOptionField(
+                                field, 'Option 4', 4),
                             TextFormField(
-                              decoration: InputDecoration(labelText: 'Score'),
-                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                  labelText: 'Score'),
+                              keyboardType:
+                              TextInputType.number,
                               validator: (value) =>
                               value!.isEmpty
                                   ? 'Enter the score'
                                   : null,
-                              initialValue: field.score?.toString(),
+                              initialValue:
+                              field.score?.toString(),
                               onChanged: (value) =>
-                              field.score = int.tryParse(value),
+                              field.score =
+                                  int.tryParse(value),
                             ),
                           ],
                         )
@@ -280,8 +300,7 @@ class _CreateTestPageState extends State<CreateTestPage> {
           onChanged: (int? value) {
             setState(() {
               field.correctOptionNumber = value!;
-              field.correctOption =
-                  _getOptionText(field, optionNumber); // Update correctOption
+              field.correctOption = _getOptionText(field, optionNumber);
             });
           },
         ),
@@ -305,21 +324,19 @@ class _CreateTestPageState extends State<CreateTestPage> {
   }
 
   void _setOptionText(DynamicField field, int optionNumber, String value) {
-    setState(() {
-      switch (optionNumber) {
-        case 1:
-          field.option1 = value;
-          break;
-        case 2:
-          field.option2 = value;
-          break;
-        case 3:
-          field.option3 = value;
-          break;
-        case 4:
-          field.option4 = value;
-          break;
-      }
-    });
+    switch (optionNumber) {
+      case 1:
+        field.option1 = value;
+        break;
+      case 2:
+        field.option2 = value;
+        break;
+      case 3:
+        field.option3 = value;
+        break;
+      case 4:
+        field.option4 = value;
+        break;
+    }
   }
 }
