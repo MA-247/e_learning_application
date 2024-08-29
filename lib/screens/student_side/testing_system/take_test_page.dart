@@ -1,3 +1,4 @@
+import 'package:e_learning_application/screens/student_side/learning_section/student_topics_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_learning_application/screens/student_side/testing_system/result_page.dart';
@@ -5,8 +6,9 @@ import 'package:e_learning_application/screens/student_side/testing_system/resul
 class TestPage extends StatefulWidget {
   final String testId;
   final String userId; // Accept the userId
+  final bool isPreTest;
 
-  TestPage({required this.testId, required this.userId});
+  TestPage({required this.testId, required this.userId, required this.isPreTest});
 
   @override
   _TestPageState createState() => _TestPageState();
@@ -52,11 +54,22 @@ class _TestPageState extends State<TestPage> {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ResultPage(score: totalScore)),
+      if (widget.isPreTest)
+        {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => TopicsListPage()),
+          );
+        }
+      else
+        {
+            Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+            builder: (context) => ResultPage(score: totalScore))
       );
+        }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to submit test: $e')));
     }

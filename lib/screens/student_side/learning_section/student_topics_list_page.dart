@@ -38,19 +38,14 @@ class TopicsListPage extends StatelessWidget {
                   final testCompleted = await _isTestCompleted(testId, userId);
 
                   if (!testCompleted) {
-                    // If the test is not completed, navigate to the TestPage
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TestPage(testId: testId, userId: userId),
-                      ),
-                    );
+                    // Show a warning dialog about the pre-test
+                    _showPreTestWarning(context, testId, userId);
                   } else {
                     // If the test is completed, navigate to the StudentChaptersPage
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => StudentChaptersPage(topicId: topic.id,),
+                        builder: (context) => StudentChaptersPage(topicId: topic.id),
                       ),
                     );
                   }
@@ -73,5 +68,37 @@ class TopicsListPage extends StatelessWidget {
 
     // If there's at least one document, the test is considered completed
     return querySnapshot.docs.isNotEmpty;
+  }
+
+  void _showPreTestWarning(BuildContext context, String testId, String userId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Pre-Test Required'),
+          content: Text('You need to complete the pre-test before accessing the chapters.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+            ),
+            TextButton(
+              child: Text('Start Pre-Test'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TestPage(testId: testId, userId: userId, isPreTest: true),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

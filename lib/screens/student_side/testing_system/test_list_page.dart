@@ -39,7 +39,7 @@ class TestListPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => TestPage(testId: testId, userId: userId),
+                          builder: (context) => TestPage(testId: testId, userId: userId, isPreTest: false,),
                         ),
                       );
                     } else {

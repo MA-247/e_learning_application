@@ -24,19 +24,31 @@ class _RegisterPageState extends State<RegisterPage> {
   final FirebaseFirestore _db_firestore = FirebaseFirestore.instance;
 
   // University drop-down menu options
-  final List<String> universities = [
-    "Aga Khan University (AKU)",
-    "Allama Iqbal Medical College (AIMC)",
-    "Army Medical College (AMC)",
-    // Add other universities...
-    "Other"
-  ];
+  List<String> universities = [];
   String? selectedUniversity;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // Loading state
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUniversities(); // Fetch universities from Firebase
+  }
+
+  Future<void> _fetchUniversities() async {
+    try {
+      QuerySnapshot snapshot = await _db_firestore.collection('universities').get();
+      List<String> fetchedUniversities = snapshot.docs.map((doc) => doc['name'] as String).toList();
+      setState(() {
+        universities = fetchedUniversities;
+      });
+    } catch (e) {
+      displayMessage('Failed to load universities: ${e.toString()}');
+    }
+  }
 
   void signUp() async {
     if (passwordTextController.text != confirmPasswordTextController.text) {
