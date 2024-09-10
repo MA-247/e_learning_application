@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_learning_application/screens/faculty_side/testing_system/edit_test_page.dart';
-import 'package:e_learning_application/screens/faculty_side/testing_system/create_test_page.dart';  // Import your CreateTestPage
+import 'package:e_learning_application/screens/faculty_side/testing_system/create_test_page.dart';
 
 class TestListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Test List'),
+        title: Text('Test List', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blue[300],
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -23,7 +23,17 @@ class TestListPage extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No tests available.'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.assignment_late, color: Colors.blue[300], size: 80),
+                  SizedBox(height: 20),
+                  Text('No tests available.',
+                      style: TextStyle(fontSize: 18, color: Colors.grey[700])),
+                ],
+              ),
+            );
           }
 
           var tests = snapshot.data!.docs;
@@ -33,9 +43,14 @@ class TestListPage extends StatelessWidget {
             itemBuilder: (context, index) {
               var test = tests[index];
               return Card(
-                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: ListTile(
-                  title: Text('Test ${index + 1}'),
+                  leading: Icon(Icons.description, color: Colors.blue[300]),
+                  title: Text('Test ${index + 1}', style: TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text('ID: ${test.id}'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -55,10 +70,19 @@ class TestListPage extends StatelessWidget {
                         icon: Icon(Icons.delete, color: Colors.red),
                         onPressed: () async {
                           try {
-                            await FirebaseFirestore.instance.collection('tests').doc(test.id).delete();
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Test deleted')));
+                            await FirebaseFirestore.instance
+                                .collection('tests')
+                                .doc(test.id)
+                                .delete();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('Test deleted'),
+                              backgroundColor: Colors.green,
+                            ));
                           } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to delete test: $e')));
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('Failed to delete test: $e'),
+                              backgroundColor: Colors.red,
+                            ));
                           }
                         },
                       ),
@@ -77,8 +101,9 @@ class TestListPage extends StatelessWidget {
             MaterialPageRoute(builder: (context) => CreateTestPage()),
           );
         },
-        child: Icon(Icons.add),
-        backgroundColor: Colors.blue,
+        child: Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colors.blue[400],
+        tooltip: 'Create New Test',
       ),
     );
   }

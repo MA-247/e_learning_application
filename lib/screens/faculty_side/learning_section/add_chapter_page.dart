@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:e_learning_application/widgets/loading_screen.dart';
 
 class AddChapterPage extends StatefulWidget {
   final String topicId;
@@ -38,20 +39,39 @@ class _AddChapterPageState extends State<AddChapterPage> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      String? imageUrl;
-      if (_imageFile != null) {
-        imageUrl = await _uploadImageToFirebase(_imageFile!);
+      // Show the loading screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LoadingScreen()),
+      );
+
+      try {
+        String? imageUrl;
+        if (_imageFile != null) {
+          imageUrl = await _uploadImageToFirebase(_imageFile!);
+        }
+
+        await FirebaseFirestore.instance.collection('topics').doc(widget.topicId).collection('chapters').add({
+          'title': _title,
+          'description': _description,
+          'modelUrl': imageUrl,
+        });
+
+        // Close the loading screen
+        Navigator.pop(context); // Dismiss the loading screen
+
+        Navigator.of(context).pop(); // Return to the previous screen
+      } catch (e) {
+        // Close the loading screen
+        Navigator.pop(context); // Dismiss the loading screen
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add chapter: $e')),
+        );
       }
-
-      await FirebaseFirestore.instance.collection('topics').doc(widget.topicId).collection('chapters').add({
-        'title': _title,
-        'description': _description,
-        'modelUrl': imageUrl,
-      });
-
-      Navigator.of(context).pop(); // Return to the previous screen
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

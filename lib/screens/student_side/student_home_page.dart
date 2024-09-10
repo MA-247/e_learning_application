@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_learning_application/screens/student_side/testing_system/test_list_page.dart';
-import 'package:e_learning_application/screens/student_side/learning_section/learning_section.dart';
 import 'package:e_learning_application/screens/student_side/learning_section/student_topics_list_page.dart';
 
 class StudentHomePage extends StatelessWidget {
@@ -10,7 +8,7 @@ class StudentHomePage extends StatelessWidget {
 
   StudentHomePage({required this.user});
 
-  void signOut(){
+  void signOut() {
     FirebaseAuth.instance.signOut();
   }
 
@@ -20,89 +18,104 @@ class StudentHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome back, ${user.displayName}', style: TextStyle(color: Colors.white)),
+        title: Text(
+          'Welcome back, ${user.displayName}',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.blue[300],
+        backgroundColor: Colors.blue[400],
         actions: [
           IconButton(
-            onPressed: (){},
-            icon: Icon(Icons.supervised_user_circle),
+            onPressed: () {},
+            icon: Icon(Icons.account_circle_outlined, size: 28),
             color: Colors.white,
           ),
         ],
         leading: Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                icon: Icon(Icons.menu),
-                color: Colors.white,
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              );
-            }
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: Icon(Icons.menu),
+              color: Colors.white,
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
         ),
       ),
       drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                decoration: BoxDecoration(color: Colors.white),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'assets/logos/logo1.png',
-                        width: 75,
-                        height: 75,
-                        fit: BoxFit.contain,
-                      ),
-                      Text(
-                        'AppName',
-                        style: TextStyle(
-                          color: Colors.blue[300],
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )
-                    ],
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountName: Text(
+                user.displayName ?? 'Student',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              accountEmail: Text(user.email ?? ''),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Text(
+                  user.displayName?.substring(0, 1).toUpperCase() ?? '',
+                  style: TextStyle(
+                    fontSize: 40.0,
+                    color: Colors.blue,
                   ),
                 ),
               ),
-              ListTile(
-                  title: Text('Home'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => StudentHomePage(user: user)),
-                    );
-                  }
+              decoration: BoxDecoration(
+                color: Colors.blue[400],
               ),
-              ListTile(
-                  title: Text('Log Out', style: TextStyle(color: Colors.red)),
-                  onTap: () {
-                    signOut();
-                  }
-              ),
-            ],
-          )
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StudentHomePage(user: user),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.exit_to_app, color: Colors.red),
+              title: Text('Log Out', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                signOut();
+              },
+            ),
+          ],
+        ),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Other UI elements
             Expanded(
-              flex: 1,
               child: Container(
+                margin: EdgeInsets.symmetric(vertical: 8.0),
+                padding: EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
                 ),
-                margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                 child: ListTile(
-                  title: Text('Learning Section'),
-                  subtitle: Text('Tap to go to the learning secition'),
+                  leading: Icon(Icons.book, size: 40, color: Colors.blue[400]),
+                  title: Text(
+                    'Learning Section',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                  ),
+                  subtitle: Text('Tap to explore learning materials'),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -113,15 +126,27 @@ class StudentHomePage extends StatelessWidget {
               ),
             ),
             Expanded(
-              flex: 1,
               child: Container(
+                margin: EdgeInsets.symmetric(vertical: 8.0),
+                padding: EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
                 ),
-                margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                 child: ListTile(
-                  title: Text('Available Tests'),
+                  leading: Icon(Icons.assignment, size: 40, color: Colors.blue[400]),
+                  title: Text(
+                    'Available Tests',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                  ),
                   subtitle: Text('Tap to view and take tests'),
                   onTap: () {
                     Navigator.push(

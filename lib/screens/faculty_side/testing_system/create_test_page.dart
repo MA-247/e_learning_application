@@ -7,6 +7,7 @@ import 'package:e_learning_application/screens/faculty_side/testing_system/test_
 import 'package:e_learning_application/widgets/loading_screen.dart';
 import 'package:e_learning_application/widgets/dynamic_field_type.dart';
 
+
 class CreateTestPage extends StatefulWidget {
   @override
   _CreateTestPageState createState() => _CreateTestPageState();
@@ -85,12 +86,14 @@ class _CreateTestPageState extends State<CreateTestPage> {
 
   Future<void> _uploadTest() async {
     if (_formKey.currentState!.validate()) {
+      // Show the loading screen
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => LoadingScreen()),
       );
 
       try {
+        // Upload images to Firebase Storage
         for (var field in _fields) {
           if (field.type == FieldType.image && field.image != null) {
             final storageRef = FirebaseStorage.instance.ref().child(
@@ -100,6 +103,7 @@ class _CreateTestPageState extends State<CreateTestPage> {
           }
         }
 
+        // Prepare field data for Firestore
         List<Map<String, dynamic>> fieldData = _fields.map((field) {
           switch (field.type) {
             case FieldType.text:
@@ -126,26 +130,29 @@ class _CreateTestPageState extends State<CreateTestPage> {
           }
         }).toList();
 
+        // Add test data to Firestore
         await FirebaseFirestore.instance.collection('tests').add({
-          'title': _titleController.text, // Add the test title here
+          'title': _titleController.text,
           'fields': fieldData,
         });
 
-        Navigator.pop(context);
-
+        // Pop the loading screen and navigate to the confirmation screen
+        Navigator.pop(context); // Close the loading screen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
               builder: (context) => TestUploadConfirmationScreen()),
         );
       } catch (e) {
-        Navigator.pop(context);
+        // Pop the loading screen and show an error message
+        Navigator.pop(context); // Close the loading screen
 
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to upload test: $e')));
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

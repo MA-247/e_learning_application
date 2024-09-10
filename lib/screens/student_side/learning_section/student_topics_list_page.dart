@@ -1,10 +1,8 @@
-import 'package:e_learning_application/screens/student_side/student_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'student_chapters_page.dart';
 import 'package:e_learning_application/screens/student_side/testing_system/take_test_page.dart'; // Import the TestPage
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:e_learning_application/screens/student_side/testing_system/take_test_page.dart';
 
 class TopicsListPage extends StatelessWidget {
   @override
@@ -14,42 +12,63 @@ class TopicsListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Topics'),
-        backgroundColor: Colors.blue[300],
+        backgroundColor: Colors.purple[300], // Changed theme color
+        elevation: 0,
+        centerTitle: true,
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('topics').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(color: Colors.purple[300]));
           }
 
           var topics = snapshot.data!.docs;
 
           return ListView.builder(
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             itemCount: topics.length,
             itemBuilder: (context, index) {
               var topic = topics[index];
-              return ListTile(
-                title: Text(topic['title']),
-                subtitle: Text('placeholder'),
-                onTap: () async {
-                  // Check if the test has been completed by the user
-                  final testId = topic['pretestId'];
-                  final testCompleted = await _isTestCompleted(testId, userId);
+              return Card(
+                margin: EdgeInsets.symmetric(vertical: 8),
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ListTile(
+                  contentPadding: EdgeInsets.all(16),
+                  title: Text(
+                    topic['title'],
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.purple[700], // Color to match theme
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Tap to view chapters',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                  onTap: () async {
+                    // Check if the test has been completed by the user
+                    final testId = topic['pretestId'];
+                    final testCompleted = await _isTestCompleted(testId, userId);
 
-                  if (!testCompleted) {
-                    // Show a warning dialog about the pre-test
-                    _showPreTestWarning(context, testId, userId);
-                  } else {
-                    // If the test is completed, navigate to the StudentChaptersPage
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => StudentChaptersPage(topicId: topic.id),
-                      ),
-                    );
-                  }
-                },
+                    if (!testCompleted) {
+                      // Show a warning dialog about the pre-test
+                      _showPreTestWarning(context, testId, userId);
+                    } else {
+                      // If the test is completed, navigate to the StudentChaptersPage
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StudentChaptersPage(topicId: topic.id),
+                        ),
+                      );
+                    }
+                  },
+                ),
               );
             },
           );

@@ -11,13 +11,12 @@ class StudentChaptersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userId = FirebaseAuth
-        .instance.currentUser!.uid; // Get the userId from FirebaseAuth
+    final userId = FirebaseAuth.instance.currentUser!.uid; // Get the userId from FirebaseAuth
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Chapters'),
-        backgroundColor: Colors.blue[300],
+        backgroundColor: Colors.teal[300], // Changed theme color
         actions: [
           IconButton(
             icon: Icon(Icons.checklist),
@@ -33,7 +32,7 @@ class StudentChaptersPage extends StatelessWidget {
               if (postTestId != null) {
                 // Check if the post-test has already been completed
                 final postTestCompleted =
-                    await _isTestCompleted(postTestId, userId);
+                await _isTestCompleted(postTestId, userId);
 
                 if (!postTestCompleted) {
                   // Show a warning dialog about the post-test
@@ -43,7 +42,7 @@ class StudentChaptersPage extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                         content:
-                            Text('You have already completed the post-test.')),
+                        Text('You have already completed the post-test.')),
                   );
                 }
               } else {
@@ -65,29 +64,48 @@ class StudentChaptersPage extends StatelessWidget {
             .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(color: Colors.teal[300]));
           }
 
           var chapters = snapshot.data!.docs;
 
           return ListView.builder(
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             itemCount: chapters.length,
             itemBuilder: (context, index) {
               var chapter = chapters[index];
-              return ListTile(
-                title: Text(chapter['title']),
-                subtitle: Text(chapter['description']),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChapterDetailPage(
-                        chapterId: chapter.id,
-                        topicId: topicId,
-                      ),
+              return Card(
+                margin: EdgeInsets.symmetric(vertical: 8),
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  contentPadding: EdgeInsets.all(16),
+                  title: Text(
+                    chapter['title'],
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[700], // Color to match theme
                     ),
-                  );
-                },
+                  ),
+                  subtitle: Text(
+                    chapter['description'],
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChapterDetailPage(
+                          chapterId: chapter.id,
+                          topicId: topicId,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               );
             },
           );
@@ -108,15 +126,13 @@ class StudentChaptersPage extends StatelessWidget {
     return querySnapshot.docs.isNotEmpty;
   }
 
-  void _showPostTestWarning(
-      BuildContext context, String testId, String userId) {
+  void _showPostTestWarning(BuildContext context, String testId, String userId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Post-Test Required'),
-          content:
-              Text('You need to complete the post-test to finish the topic.'),
+          content: Text('You need to complete the post-test to finish the topic.'),
           actions: <Widget>[
             TextButton(
               child: Text('Cancel'),

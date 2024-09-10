@@ -9,7 +9,7 @@ class FacultyHomePage extends StatelessWidget {
 
   FacultyHomePage({required this.user});
 
-  void signOut(){
+  void signOut() {
     FirebaseAuth.instance.signOut();
   }
 
@@ -17,124 +17,139 @@ class FacultyHomePage extends StatelessWidget {
 
   Future<void> fetchFieldFromDocument() async {
     if (user != null) {
-        DocumentSnapshot doc = await FirebaseFirestore.instance
-            .collection("users")
-            .doc(user.uid)
-            .get();
+      DocumentSnapshot doc = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(user.uid)
+          .get();
 
-        if (doc != null && doc!.exists) {
-          // Replace "fieldName" with the name of the field you want to retrieve
-          String? fieldValue = doc!.get('name');
-          print("Field Value: $fieldValue");
-          user.updateDisplayName(fieldValue);
-        } else {
-          print("Document does not exist.");
-        }
+      if (doc != null && doc.exists) {
+        String? fieldValue = doc.get('name');
+        print("Field Value: $fieldValue");
+        user.updateDisplayName(fieldValue);
       } else {
-        print("No user is signed in.");
+        print("Document does not exist.");
       }
+    } else {
+      print("No user is signed in.");
+    }
   }
 
-
   @override
-
   Widget build(BuildContext context) {
-    if (user.displayName == null)
-      fetchFieldFromDocument();
+    if (user.displayName == null) fetchFieldFromDocument();
+
     return Scaffold(
-      appBar: AppBar(title: Text('Welcome back, ${user.displayName}',
-        style: TextStyle(color: Colors.white),),
+      appBar: AppBar(
+        title: Text(
+          'Welcome back, ${user.displayName}',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         backgroundColor: Colors.blue[300],
         toolbarHeight: 75,
         actions: [
-          IconButton(onPressed: (){}, icon: Icon(Icons.supervised_user_circle), color: Colors.white,),
-
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.supervised_user_circle),
+            color: Colors.white,
+          ),
         ],
-        leading: Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                icon: Icon(Icons.menu),
-                color: Colors.white, // Change this to your desired color
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              );
-            }
-        ),
+        leading: Builder(builder: (BuildContext context) {
+          return IconButton(
+            icon: Icon(Icons.menu),
+            color: Colors.white,
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          );
+        }),
       ),
       drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                ),
-                child:  Align(
-                  alignment: Alignment.topLeft,
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'assets/logos/logo1.png',
-                        width: 75,
-                        height: 75,
-                        fit: BoxFit.contain,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: AssetImage('assets/logos/logo1.png'),
+                      radius: 40,
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Pulpath',
+                      style: TextStyle(
+                        color: Colors.blue[300],
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
-                      Text(
-                        'Pulpath',
-                        style: TextStyle(
-                          color: Colors.blue[300],
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )
-                    ],
-                  ),
-
+                    ),
+                  ],
                 ),
               ),
-              ListTile(
-                  title: Text('Home'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => FacultyHomePage(user: user)),
-                    );
-                  }
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => FacultyHomePage(user: user)),
+                );
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.logout, color: Colors.red),
+              title: Text(
+                'Log Out',
+                style: TextStyle(color: Colors.red),
               ),
-              ListTile(
-                  title: Text('Log Out',
-                    style: TextStyle(color: Colors.red),),
-                  onTap: () {
-                    signOut();
-                  }
-              ),
-            ],
-          )
+              onTap: () {
+                signOut();
+              },
+            ),
+          ],
+        ),
       ),
       body: Center(
         child: Column(
           children: [
-
             // Other UI elements
-
             Expanded(
               flex: 1,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1), // Adjust the opacity and color as needed
-                  borderRadius: BorderRadius.circular(10.0), // Optional: Add border radius for rounded corners
+                  color: Colors.blue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(15.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blue.withOpacity(0.2),
+                      spreadRadius: 3,
+                      blurRadius: 7,
+                    ),
+                  ],
                 ),
-                margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Optional: Adjust margins
+                margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
                 child: ListTile(
-                  title: Text('Learning Section'),
+                  leading: Icon(Icons.book, color: Colors.blue[300]),
+                  title: Text(
+                    'Learning Section',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text('Manage Lectures'),
                   onTap: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ManageTopicsPage(user: user))
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ManageTopicsPage(user: user)),
                     );
                   },
                 ),
@@ -144,17 +159,29 @@ class FacultyHomePage extends StatelessWidget {
               flex: 1,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1), // Adjust the opacity and color as needed
-                  borderRadius: BorderRadius.circular(10.0), // Optional: Add border radius for rounded corners
+                  color: Colors.blue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(15.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blue.withOpacity(0.2),
+                      spreadRadius: 3,
+                      blurRadius: 7,
+                    ),
+                  ],
                 ),
-                margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Optional: Adjust margins
+                margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
                 child: ListTile(
-                  title: Text('Test Section'),
+                  leading: Icon(Icons.assignment, color: Colors.blue[300]),
+                  title: Text(
+                    'Test Section',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text('Manage Tests'),
                   onTap: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => TestListPage())
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => TestListPage()),
                     );
                   },
                 ),

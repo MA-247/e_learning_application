@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:e_learning_application/widgets/text_field.dart';
 import 'package:e_learning_application/widgets/button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_learning_application/widgets/drop_down_menu.dart'; // Import the updated dropdown widget
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -95,6 +96,12 @@ class _RegisterPageState extends State<RegisterPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("OK"),
+          ),
+        ],
       ),
     );
   }
@@ -102,7 +109,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey.shade100, // Light grey background for a soft look
       body: SingleChildScrollView(
         child: SafeArea(
           child: Center(
@@ -117,24 +124,25 @@ class _RegisterPageState extends State<RegisterPage> {
                   // Logo
                   Image.asset(
                     'assets/logos/logo1.png',
-                    height: 100,
+                    height: 120,
                   ),
                   const SizedBox(height: 25),
                   Text(
-                    "Let's Create an Account!",
+                    "Create Your Account",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      color: Colors.blue.shade800,
+                      fontSize: 28,
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 20),
                   // TextFields
                   MyTextField(
                     controller: nameTextController,
-                    hintText: 'Your Name',
+                    hintText: 'Full Name',
                     obscureText: false,
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   MyTextField(
                     controller: emailTextController,
                     hintText: 'Email',
@@ -143,7 +151,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   const SizedBox(height: 10),
                   MyTextField(
                     controller: cityTextController,
-                    hintText: 'Your City',
+                    hintText: 'City',
                     obscureText: false,
                   ),
                   const SizedBox(height: 10),
@@ -153,15 +161,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     obscureText: false,
                   ),
                   const SizedBox(height: 10),
-                  DropdownButtonFormField<String>(
-                    value: selectedUniversity,
-                    hint: const Text('Select University'),
-                    items: universities.map((String university) {
-                      return DropdownMenuItem<String>(
-                        value: university,
-                        child: Text(university),
-                      );
-                    }).toList(),
+                  // Enhanced Dropdown for University
+                  EnhancedDropdown(
+                    selectedValue: selectedUniversity,
+                    items: universities,
                     onChanged: (String? newValue) {
                       setState(() {
                         selectedUniversity = newValue;
@@ -180,35 +183,51 @@ class _RegisterPageState extends State<RegisterPage> {
                     hintText: 'Confirm Password',
                     obscureText: true,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   MyButton(onTap: signUp, text: 'Sign Up'),
-                  const SizedBox(height: 5),
-                  // Registration option
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Already a Member?",
-                        style: TextStyle(color: Colors.grey[700]),
+                  const SizedBox(height: 20),
+                  // Login option
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                Text(
+                "Already a Member?",
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: widget.onTap,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.blue.shade300),
+                      color: Colors.blue.shade50,
+                    ),
+                    child: Text(
+                      "Login",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue.shade800,
+                        fontSize: 16,
+                        decoration: TextDecoration.underline,
                       ),
-                      const SizedBox(width: 4),
-                      GestureDetector(
-                        onTap: widget.onTap,
-                        child: const Text(
-                          "Login In",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
+                ),
+              ),
                 ],
               ),
+              ],
             ),
           ),
         ),
+      ),
       ),
     );
   }
