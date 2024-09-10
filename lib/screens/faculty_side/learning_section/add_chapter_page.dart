@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:e_learning_application/widgets/loading_screen.dart';
 
 class AddChapterPage extends StatefulWidget {
   final String topicId;
@@ -19,6 +18,7 @@ class _AddChapterPageState extends State<AddChapterPage> {
   String _title = '';
   String _description = '';
   File? _imageFile;
+  bool _isLoading = false; // Added loading state
 
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -39,11 +39,9 @@ class _AddChapterPageState extends State<AddChapterPage> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      // Show the loading screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => LoadingScreen()),
-      );
+      setState(() {
+        _isLoading = true; // Show loading state
+      });
 
       try {
         String? imageUrl;
@@ -57,28 +55,25 @@ class _AddChapterPageState extends State<AddChapterPage> {
           'modelUrl': imageUrl,
         });
 
-        // Close the loading screen
-        Navigator.pop(context); // Dismiss the loading screen
-
         Navigator.of(context).pop(); // Return to the previous screen
       } catch (e) {
-        // Close the loading screen
-        Navigator.pop(context); // Dismiss the loading screen
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to add chapter: $e')),
         );
+      } finally {
+        setState(() {
+          _isLoading = false; // Hide loading state
+        });
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Add Chapter'),
-        backgroundColor: Colors.blue[300],
+        backgroundColor: Colors.teal[300], // Updated color
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -87,42 +82,92 @@ class _AddChapterPageState extends State<AddChapterPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Title'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _title = value!;
-                },
+              Card(
+                elevation: 2,
+                margin: EdgeInsets.only(bottom: 16),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Title',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a title';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      _title = value!;
+                    },
+                  ),
+                ),
               ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Description'),
-                maxLines: 5,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _description = value!;
-                },
+              Card(
+                elevation: 2,
+                margin: EdgeInsets.only(bottom: 16),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Description',
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLines: 5,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a description';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      _description = value!;
+                    },
+                  ),
+                ),
               ),
-              SizedBox(height: 10),
               _imageFile != null
-                  ? Image.file(_imageFile!)
-                  : ElevatedButton(
+                  ? Column(
+                children: [
+                  Container(
+                    height: 200,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Image.file(_imageFile!, fit: BoxFit.cover),
+                  ),
+                  SizedBox(height: 10),
+                  TextButton.icon(
+                    onPressed: _pickImage,
+                    icon: Icon(Icons.image),
+                    label: Text('Change Image/3D Model'),
+                  ),
+                ],
+              )
+                  : ElevatedButton.icon(
                 onPressed: _pickImage,
-                child: Text('Pick an Image/3D Model'),
+                icon: Icon(Icons.image),
+                label: Text('Pick an Image/3D Model'),
               ),
               Spacer(),
-              ElevatedButton(
-                onPressed: _addChapter,
-                child: Text('Add Chapter'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _addChapter, // Disable button when loading
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    backgroundColor: Colors.teal[300], // Consistent theme color
+                  ),
+                  child: _isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                    'Add Chapter',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
               ),
             ],
           ),

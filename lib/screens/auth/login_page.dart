@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:e_learning_application/widgets/button.dart';
 import 'package:e_learning_application/widgets/text_field.dart';
+import 'package:e_learning_application/widgets/password_text_field.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
@@ -81,10 +82,9 @@ class _LoginPageState extends State<LoginPage> {
                     obscureText: false,
                   ),
                   const SizedBox(height: 10),
-                  MyTextField(
+                  PasswordTextField(
                     controller: passwordTextController,
                     hintText: 'Password',
-                    obscureText: true,
                   ),
                   const SizedBox(height: 15),
                   // Sign in button

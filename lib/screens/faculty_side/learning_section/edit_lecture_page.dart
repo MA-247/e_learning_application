@@ -29,6 +29,7 @@ class _EditLecturePageState extends State<EditLecturePage> {
   late String _description;
   File? _imageFile;
   bool _isImageUpdated = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -55,8 +56,11 @@ class _EditLecturePageState extends State<EditLecturePage> {
 
   Future<void> _editChapter() async {
     if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+      setState(() {
+        _isLoading = true;
+      });
 
+      _formKey.currentState!.save();
       String? imageUrl = widget.initialImageUrl;
 
       if (_isImageUpdated && _imageFile != null) {
@@ -74,6 +78,10 @@ class _EditLecturePageState extends State<EditLecturePage> {
         'modelUrl': imageUrl,
       });
 
+      setState(() {
+        _isLoading = false;
+      });
+
       Navigator.of(context).pop(); // Return to the previous screen
     }
   }
@@ -83,7 +91,7 @@ class _EditLecturePageState extends State<EditLecturePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Lecture'),
-        backgroundColor: Colors.blue[300],
+        backgroundColor: Colors.teal[300],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -91,47 +99,103 @@ class _EditLecturePageState extends State<EditLecturePage> {
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
-                initialValue: _title,
-                decoration: InputDecoration(labelText: 'Title'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _title = value!;
-                },
-              ),
-              TextFormField(
-                initialValue: _description,
-                decoration: InputDecoration(labelText: 'Description'),
-                maxLines: 3,
-                onSaved: (value) {
-                  _description = value!;
-                },
+              // Title and Description Fields in Card
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        initialValue: _title,
+                        decoration: InputDecoration(
+                          labelText: 'Title',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a title';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _title = value!;
+                        },
+                      ),
+                      SizedBox(height: 16),
+                      TextFormField(
+                        initialValue: _description,
+                        decoration: InputDecoration(
+                          labelText: 'Description',
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 3,
+                        onSaved: (value) {
+                          _description = value!;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
               SizedBox(height: 20),
-              Text('Current Image:'),
-              if (widget.initialImageUrl != null)
-                Image.network(widget.initialImageUrl!),
+
+              // Image Preview and Update
+              Text('Current Image:', style: TextStyle(fontWeight: FontWeight.bold)),
               SizedBox(height: 10),
-              ElevatedButton(
+              if (widget.initialImageUrl != null)
+                Image.network(
+                  widget.initialImageUrl!,
+                  height: 150,
+                  fit: BoxFit.cover,
+                )
+              else
+                Container(
+                  height: 150,
+                  color: Colors.grey[200],
+                  child: Center(
+                    child: Text('No Image Available', style: TextStyle(color: Colors.grey[700])),
+                  ),
+                ),
+              SizedBox(height: 10),
+
+              // Button to Update Image
+              ElevatedButton.icon(
                 onPressed: _pickImage,
-                child: Text('Update Image'),
+                icon: Icon(Icons.image),
+                label: Text('Update Image'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal[300],
+                ),
               ),
               if (_imageFile != null)
-                Image.file(_imageFile!),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Image.file(
+                    _imageFile!,
+                    height: 150,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _editChapter,
-                child: Text('Save Changes'),
-              ),
             ],
           ),
         ),
       ),
+
+      // Floating Action Button for Save
+      floatingActionButton: _isLoading
+          ? CircularProgressIndicator()
+          : FloatingActionButton.extended(
+        onPressed: _editChapter,
+        icon: Icon(Icons.save),
+        label: Text('Save Changes'),
+        backgroundColor: Colors.teal[300],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

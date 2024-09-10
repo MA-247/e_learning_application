@@ -9,17 +9,23 @@ class TestListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Test List', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.blue[300],
+        backgroundColor: Colors.teal[400], // Different theme color
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(15),
+          ),
+        ),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('tests').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(color: Colors.teal));
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.red)));
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -27,7 +33,7 @@ class TestListPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.assignment_late, color: Colors.blue[300], size: 80),
+                  Icon(Icons.assignment_late, color: Colors.teal[300], size: 80),
                   SizedBox(height: 20),
                   Text('No tests available.',
                       style: TextStyle(fontSize: 18, color: Colors.grey[700])),
@@ -44,19 +50,20 @@ class TestListPage extends StatelessWidget {
               var test = tests[index];
               return Card(
                 margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                elevation: 5,
+                elevation: 6,
+                shadowColor: Colors.teal.withOpacity(0.2),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.description, color: Colors.blue[300]),
+                  leading: Icon(Icons.description, color: Colors.teal[300]),
                   title: Text('Test ${index + 1}', style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('ID: ${test.id}'),
+                  subtitle: Text('ID: ${test.id}', style: TextStyle(color: Colors.grey[600])),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.edit, color: Colors.blue),
+                        icon: Icon(Icons.edit, color: Colors.teal[700]),
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -102,7 +109,7 @@ class TestListPage extends StatelessWidget {
           );
         },
         child: Icon(Icons.add, color: Colors.white),
-        backgroundColor: Colors.blue[400],
+        backgroundColor: Colors.teal[400],
         tooltip: 'Create New Test',
       ),
     );

@@ -7,7 +7,6 @@ import 'package:e_learning_application/screens/faculty_side/testing_system/test_
 import 'package:e_learning_application/widgets/loading_screen.dart';
 import 'package:e_learning_application/widgets/dynamic_field_type.dart';
 
-
 class CreateTestPage extends StatefulWidget {
   @override
   _CreateTestPageState createState() => _CreateTestPageState();
@@ -153,27 +152,27 @@ class _CreateTestPageState extends State<CreateTestPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create Test'),
-        backgroundColor: Colors.blue[300],
+        title: Text('Create Test', style: TextStyle(fontWeight: FontWeight.bold)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        backgroundColor: Colors.teal,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Add the title input field at the top of the form
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(
-                  labelText: 'Test Title',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: _inputDecoration('Test Title'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a test title';
@@ -189,10 +188,14 @@ class _CreateTestPageState extends State<CreateTestPage> {
                     final field = _fields[index];
                     return Card(
                       margin: EdgeInsets.symmetric(vertical: 5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 5,
                       child: ListTile(
                         title: field.type == FieldType.heading
                             ? TextFormField(
-                          decoration: InputDecoration(labelText: 'Heading'),
+                          decoration: _inputDecoration('Heading'),
                           validator: (value) => value!.isEmpty
                               ? 'Enter heading text'
                               : null,
@@ -201,7 +204,7 @@ class _CreateTestPageState extends State<CreateTestPage> {
                         )
                             : field.type == FieldType.text
                             ? TextFormField(
-                          decoration: InputDecoration(labelText: 'Text'),
+                          decoration: _inputDecoration('Text'),
                           validator: (value) => value!.isEmpty
                               ? 'Enter text'
                               : null,
@@ -212,11 +215,31 @@ class _CreateTestPageState extends State<CreateTestPage> {
                             ? Column(
                           children: [
                             field.image != null
-                                ? Image.file(field.image!)
-                                : ElevatedButton(
+                                ? ClipRRect(
+                              borderRadius:
+                              BorderRadius.circular(8),
+                              child: Image.file(
+                                field.image!,
+                                height: 150,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                                : ElevatedButton.icon(
                               onPressed: () =>
                                   _pickImage(field),
-                              child: Text('Upload Image'),
+                              icon: Icon(Icons.upload_file),
+                              label: Text('Upload Image'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.teal,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 5,
+                                textStyle: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ],
                         )
@@ -224,38 +247,26 @@ class _CreateTestPageState extends State<CreateTestPage> {
                             ? Column(
                           children: [
                             TextFormField(
-                              decoration: InputDecoration(
-                                  labelText: 'Question'),
-                              validator: (value) =>
-                              value!.isEmpty
+                              decoration: _inputDecoration('Question'),
+                              validator: (value) => value!.isEmpty
                                   ? 'Enter a question'
                                   : null,
                               initialValue: field.question,
                               onChanged: (value) =>
                               field.question = value,
                             ),
-                            _buildOptionField(
-                                field, 'Option 1', 1),
-                            _buildOptionField(
-                                field, 'Option 2', 2),
-                            _buildOptionField(
-                                field, 'Option 3', 3),
-                            _buildOptionField(
-                                field, 'Option 4', 4),
+                            _buildOptionField(field, 'Option 1', 1),
+                            _buildOptionField(field, 'Option 2', 2),
+                            _buildOptionField(field, 'Option 3', 3),
+                            _buildOptionField(field, 'Option 4', 4),
                             TextFormField(
-                              decoration: InputDecoration(
-                                  labelText: 'Score'),
-                              keyboardType:
-                              TextInputType.number,
+                              decoration: _inputDecoration('Score'),
+                              keyboardType: TextInputType.number,
                               validator: (value) =>
-                              value!.isEmpty
-                                  ? 'Enter the score'
-                                  : null,
-                              initialValue:
-                              field.score?.toString(),
+                              value!.isEmpty ? 'Enter the score' : null,
+                              initialValue: field.score?.toString(),
                               onChanged: (value) =>
-                              field.score =
-                                  int.tryParse(value),
+                              field.score = int.tryParse(value),
                             ),
                           ],
                         )
@@ -269,19 +280,47 @@ class _CreateTestPageState extends State<CreateTestPage> {
                   },
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: _showAddFieldDialog,
-                    child: Text('Add Field'),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _showAddFieldDialog,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add, size: 18),
+                    SizedBox(width: 8),
+                    Text('Add Field'),
+                  ],
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepOrange,
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ],
+                  elevation: 5,
+                  textStyle: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _uploadTest,
-                child: Text('Submit Test'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.upload, size: 18),
+                    SizedBox(width: 8),
+                    Text('Submit Test'),
+                  ],
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 5,
+                  textStyle: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
@@ -290,12 +329,27 @@ class _CreateTestPageState extends State<CreateTestPage> {
     );
   }
 
+  InputDecoration _inputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.tealAccent),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.teal),
+      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    );
+  }
+
   Widget _buildOptionField(DynamicField field, String label, int optionNumber) {
     return Row(
       children: [
         Expanded(
           child: TextFormField(
-            decoration: InputDecoration(labelText: label),
+            decoration: _inputDecoration(label),
             validator: (value) => value!.isEmpty ? 'Enter $label' : null,
             initialValue: _getOptionText(field, optionNumber),
             onChanged: (value) => _setOptionText(field, optionNumber, value),

@@ -75,14 +75,12 @@ class ManageTopicsPage extends StatelessWidget {
                 final title = topicTitleController.text;
                 if (title.isNotEmpty) {
                   if (topicId == null) {
-                    // Add new topic with pretest and post-test
                     await FirebaseFirestore.instance.collection('topics').add({
                       'title': title,
                       'pretestId': selectedPretestId,
                       'posttestId': selectedPosttestId,
                     });
                   } else {
-                    // Edit existing topic
                     await FirebaseFirestore.instance.collection('topics').doc(topicId).update({
                       'title': title,
                       'pretestId': selectedPretestId,
@@ -90,6 +88,8 @@ class ManageTopicsPage extends StatelessWidget {
                     });
                   }
                   Navigator.of(context).pop();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Title cannot be empty')));
                 }
               },
               child: Text(topicId == null ? 'Add' : 'Save'),
@@ -126,7 +126,6 @@ class ManageTopicsPage extends StatelessWidget {
     );
 
     if (confirmation == true) {
-      // Delete topic
       await FirebaseFirestore.instance.collection('topics').doc(topicId).delete();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Topic deleted')));
     }
@@ -137,7 +136,7 @@ class ManageTopicsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Manage Topics'),
-        backgroundColor: Colors.blue[300],
+        backgroundColor: Colors.teal[300], // Updated color
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('topics').snapshots(),
@@ -152,30 +151,48 @@ class ManageTopicsPage extends StatelessWidget {
             itemCount: topics.length,
             itemBuilder: (context, index) {
               var topic = topics[index];
-              return ListTile(
-                title: Text(topic['title']),
-                subtitle: Text('Pretest: ${topic['pretestId'] ?? 'None'}, Post-test: ${topic['posttestId'] ?? 'None'}'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit),
-                      onPressed: () => _addOrEditTopic(context, topicId: topic.id, initialTitle: topic['title'], initialPretestId: topic['pretestId'], initialPosttestId: topic['posttestId']),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => _deleteTopic(context, topic.id),
-                    ),
-                  ],
+              return Card(
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EditChaptersPage(topicId: topic.id),
-                    ),
-                  );
-                },
+                child: ListTile(
+                  title: Text(
+                    topic['title'],
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    'Pretest: ${topic['pretestId'] ?? 'None'}, Post-test: ${topic['posttestId'] ?? 'None'}',
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () => _addOrEditTopic(
+                          context,
+                          topicId: topic.id,
+                          initialTitle: topic['title'],
+                          initialPretestId: topic['pretestId'],
+                          initialPosttestId: topic['posttestId'],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _deleteTopic(context, topic.id),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditChaptersPage(topicId: topic.id),
+                      ),
+                    );
+                  },
+                ),
               );
             },
           );
@@ -184,7 +201,8 @@ class ManageTopicsPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _addOrEditTopic(context),
         child: Icon(Icons.add),
-        backgroundColor: Colors.blue[300],
+        backgroundColor: Colors.teal[300], // Matching theme color
+        tooltip: 'Add New Topic', // Added tooltip
       ),
     );
   }

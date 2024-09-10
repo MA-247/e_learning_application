@@ -19,7 +19,7 @@ class EditTestPage extends StatefulWidget {
 class _EditTestPageState extends State<EditTestPage> {
   final _formKey = GlobalKey<FormState>();
   List<DynamicField> _fields = [];
-  String _testTitle = ''; // Add a variable to hold the test title
+  String _testTitle = '';
 
   @override
   void initState() {
@@ -35,7 +35,7 @@ class _EditTestPageState extends State<EditTestPage> {
         var fieldsData = testData['fields'] as List<dynamic>;
 
         setState(() {
-          _testTitle = testData['title'] ?? ''; // Load the test title
+          _testTitle = testData['title'] ?? '';
           _fields = fieldsData.map<DynamicField>((fieldData) {
             switch (fieldData['type']) {
               case 'text':
@@ -50,7 +50,7 @@ class _EditTestPageState extends State<EditTestPage> {
                   ..option3 = fieldData['options'][2]
                   ..option4 = fieldData['options'][3]
                   ..correctOption = fieldData['correctOption']
-                  ..score = fieldData['score']; // Load the score
+                  ..score = fieldData['score'];
               case 'heading':
                 return DynamicField(type: FieldType.heading)..headingText = fieldData['content'];
               default:
@@ -92,7 +92,7 @@ class _EditTestPageState extends State<EditTestPage> {
                 'question': field.question,
                 'options': [field.option1, field.option2, field.option3, field.option4],
                 'correctOption': field.correctOption,
-                'score': field.score, // Include score
+                'score': field.score,
               };
             case FieldType.heading:
               return {'type': 'heading', 'content': field.headingText};
@@ -102,7 +102,7 @@ class _EditTestPageState extends State<EditTestPage> {
         }).toList();
 
         await FirebaseFirestore.instance.collection('tests').doc(widget.testId).update({
-          'title': _testTitle, // Update the test title
+          'title': _testTitle,
           'fields': fieldData,
         });
 
@@ -123,21 +123,23 @@ class _EditTestPageState extends State<EditTestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Test'),
-        backgroundColor: Colors.blue[300],
+        title: Text('Edit Test', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.teal,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Test Title'),
+                decoration: _inputDecoration('Test Title'),
                 validator: (value) => value!.isEmpty ? 'Enter a test title' : null,
                 initialValue: _testTitle,
                 onChanged: (value) => _testTitle = value,
               ),
+              SizedBox(height: 20),
               Expanded(
                 child: ListView.builder(
                   itemCount: _fields.length,
@@ -145,18 +147,22 @@ class _EditTestPageState extends State<EditTestPage> {
                     final field = _fields[index];
                     return Card(
                       margin: EdgeInsets.symmetric(vertical: 5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 5,
                       child: ListTile(
                         title: field.type == FieldType.heading
                             ? TextFormField(
-                          decoration: InputDecoration(labelText: 'Heading'),
+                          decoration: _inputDecoration('Heading'),
                           validator: (value) => value!.isEmpty ? 'Enter a heading' : null,
                           initialValue: field.headingText,
                           onChanged: (value) => field.headingText = value,
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18), // Style for heading
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                         )
                             : field.type == FieldType.text
                             ? TextFormField(
-                          decoration: InputDecoration(labelText: 'Text'),
+                          decoration: _inputDecoration('Text'),
                           validator: (value) => value!.isEmpty ? 'Enter text' : null,
                           initialValue: field.text,
                           onChanged: (value) => field.text = value,
@@ -165,10 +171,27 @@ class _EditTestPageState extends State<EditTestPage> {
                             ? Column(
                           children: [
                             field.image != null
-                                ? Image.file(field.image!)
-                                : ElevatedButton(
+                                ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                field.image!,
+                                height: 150,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                                : ElevatedButton.icon(
                               onPressed: () => _pickImage(field),
-                              child: Text('Upload Image'),
+                              icon: Icon(Icons.upload_file),
+                              label: Text('Upload Image'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.deepOrange,
+                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 5,
+                                textStyle: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ],
                         )
@@ -176,7 +199,7 @@ class _EditTestPageState extends State<EditTestPage> {
                             ? Column(
                           children: [
                             TextFormField(
-                              decoration: InputDecoration(labelText: 'Question'),
+                              decoration: _inputDecoration('Question'),
                               validator: (value) => value!.isEmpty ? 'Enter a question' : null,
                               initialValue: field.question,
                               onChanged: (value) => field.question = value,
@@ -186,7 +209,7 @@ class _EditTestPageState extends State<EditTestPage> {
                             _buildOptionField(field, 'Option 3', 3),
                             _buildOptionField(field, 'Option 4', 4),
                             TextFormField(
-                              decoration: InputDecoration(labelText: 'Score'),
+                              decoration: _inputDecoration('Score'),
                               keyboardType: TextInputType.number,
                               validator: (value) => value!.isEmpty ? 'Enter the score' : null,
                               initialValue: field.score?.toString(),
@@ -204,19 +227,47 @@ class _EditTestPageState extends State<EditTestPage> {
                   },
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: _showAddFieldDialog,
-                    child: Text('Add Field'),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _showAddFieldDialog,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add, size: 18),
+                    SizedBox(width: 8),
+                    Text('Add Field'),
+                  ],
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepOrange,
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ],
+                  elevation: 5,
+                  textStyle: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _uploadTest,
-                child: Text('Update Test'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.update, size: 18),
+                    SizedBox(width: 8),
+                    Text('Update Test'),
+                  ],
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 5,
+                  textStyle: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
@@ -225,12 +276,27 @@ class _EditTestPageState extends State<EditTestPage> {
     );
   }
 
+  InputDecoration _inputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.tealAccent),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.teal),
+      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    );
+  }
+
   Widget _buildOptionField(DynamicField field, String label, int optionNumber) {
     return Row(
       children: [
         Expanded(
           child: TextFormField(
-            decoration: InputDecoration(labelText: label),
+            decoration: _inputDecoration(label),
             validator: (value) => value!.isEmpty ? 'Enter $label' : null,
             initialValue: _getOptionText(field, optionNumber),
             onChanged: (value) => _setOptionText(field, optionNumber, value),
@@ -242,7 +308,7 @@ class _EditTestPageState extends State<EditTestPage> {
           onChanged: (int? value) {
             setState(() {
               field.correctOptionNumber = value!;
-              field.correctOption = _getOptionText(field, optionNumber); // Update correctOption
+              field.correctOption = _getOptionText(field, optionNumber);
             });
           },
         ),
