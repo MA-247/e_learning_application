@@ -1,5 +1,5 @@
 Yo, Sheheryar, listen up, it’s time to get real,  
-You’re flexin’ vegan, but your meat’s the deal,  
+You’re flexin’ vegan, but meat’s your deal,  
 Talkin’ plant-based but you’re grillin’ steaks,  
 You’re a walking contradiction, man, that’s the breaks.
 
