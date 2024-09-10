@@ -1,16 +1,31 @@
-# e_learning_application
+Yo, Sheheryar, listen up, it’s time to get real,  
+You’re flexin’ vegan, but your meat’s the deal,  
+Talkin’ plant-based but you’re grillin’ steaks,  
+You’re a walking contradiction, man, that’s the breaks.
 
-A new Flutter project.
+E-bike vibes, but you’re cruising in gas,  
+Preachin’ eco love while you’re movin’ ass,  
+You’re a wannabe green with your greenwashed scene,  
+But your car’s a beast, ain’t nothin’ clean.
 
-## Getting Started
+You rock the e-bike like it’s brand new gold,  
+But your petrol ride’s the one that’s bold,  
+Postin’ on the ‘Gram like you’re savin’ the day,  
+But your emissions got us all in dismay.
 
-This project is a starting point for a Flutter application.
+E-bike vibes, but you’re cruising in gas,  
+Preachin’ eco love while you’re movin’ ass,  
+You’re a wannabe green with your greenwashed scene,  
+But your car’s a beast, ain’t nothin’ clean.
 
-A few resources to get you started if this is your first Flutter project:
+Yeah, your vegan game’s a whole charade,  
+In your fridge, it’s the meaty parade,  
+Talkin’ ‘bout the Earth like you’re the chosen one,  
+But your carbon footprint’s second to none.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+So keep that e-bike, keep up the charade,  
+But we see through your fake eco-grade,  
+Sheheryar, man, you’re just a greenwashed flop,  
+Step back, take a seat, time for you to stop.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### salute 
