@@ -1,4 +1,5 @@
 import 'package:e_learning_application/screens/about.dart';
+import 'package:e_learning_application/screens/student_side/student_profile/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:e_learning_application/screens/student_side/testing_system/test_list_page.dart';
@@ -18,26 +19,38 @@ class StudentHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Welcome back, ${user.displayName}',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            color: Theme.of(context).textTheme.titleLarge?.color,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.blue[400],
+        backgroundColor: Theme.of(context).primaryColor,
+        elevation: 10.0,  // Adding shadow to the AppBar
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(context,
+              MaterialPageRoute(
+              builder: (context) => UserProfilePage(user: user)
+              )
+              );
+            },
             icon: Icon(Icons.account_circle_outlined, size: 28),
-            color: Colors.white,
+            color: Theme.of(context).iconTheme.color,
           ),
         ],
         leading: Builder(
           builder: (BuildContext context) {
             return IconButton(
               icon: Icon(Icons.menu),
-              color: Colors.white,
+              color: Theme.of(context).iconTheme.color,
               onPressed: () {
                 Scaffold.of(context).openDrawer();
               },
@@ -61,12 +74,16 @@ class StudentHomePage extends StatelessWidget {
                   user.displayName?.substring(0, 1).toUpperCase() ?? '',
                   style: TextStyle(
                     fontSize: 40.0,
-                    color: Colors.blue,
+                    color: Theme.of(context).primaryColor,
                   ),
                 ),
               ),
               decoration: BoxDecoration(
-                color: Colors.blue[400],
+                gradient: LinearGradient(
+                  colors: [Theme.of(context).primaryColor, Colors.blueGrey],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
             ),
             ListTile(
@@ -119,71 +136,71 @@ class StudentHomePage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Expanded(
-              child: Container(
-                margin: EdgeInsets.symmetric(vertical: 8.0),
-                padding: EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 2,
-                      blurRadius: 8,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: Icon(Icons.book, size: 40, color: Colors.blue[400]),
-                  title: Text(
-                    'Learning Section',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                  ),
-                  subtitle: Text('Tap to explore learning materials'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => TopicsListPage()),
-                    );
-                  },
-                ),
-              ),
+            _buildSectionTile(
+              context: context,
+              icon: Icons.book,
+              title: 'Learning Section',
+              subtitle: 'Tap to explore learning materials',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TopicsListPage()),
+                );
+              },
             ),
-            Expanded(
-              child: Container(
-                margin: EdgeInsets.symmetric(vertical: 8.0),
-                padding: EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 2,
-                      blurRadius: 8,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: Icon(Icons.assignment, size: 40, color: Colors.blue[400]),
-                  title: Text(
-                    'Available Tests',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                  ),
-                  subtitle: Text('Tap to view and take tests'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => TestListPage()),
-                    );
-                  },
-                ),
-              ),
+            _buildSectionTile(
+              context: context,
+              icon: Icons.assignment,
+              title: 'Available Tests',
+              subtitle: 'Tap to view and take tests',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TestListPage()),
+                );
+              },
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTile({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Function() onTap,
+  }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDarkMode ? Colors.grey[850] : Colors.white;
+    final iconColor = Theme.of(context).primaryColor;
+
+    return Expanded(
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 8.0),
+        padding: EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(15.0),
+          boxShadow: [
+            BoxShadow(
+              color: isDarkMode ? Colors.black54 : Colors.grey.withOpacity(0.3),
+              spreadRadius: 2,
+              blurRadius: 8,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ListTile(
+          leading: Icon(icon, size: 40, color: iconColor),
+          title: Text(
+            title,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          ),
+          subtitle: Text(subtitle),
+          onTap: onTap,
         ),
       ),
     );
