@@ -25,18 +25,32 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailTextController.text.trim(),
         password: passwordTextController.text,
       );
+
+      User? user = userCredential.user;
+
+      // Check if the email is verified
+      if (user != null && !user.emailVerified) {
+        displayMessage("Please verify your email before logging in.");
+        await FirebaseAuth.instance.signOut(); // Sign out the user if email is not verified
+        await user.sendEmailVerification(); // Optionally resend verification email
+        return;
+      }
+
+      // Navigate to the home screen if email is verified
+      // Example: Navigator.pushNamed(context, '/home');
     } on FirebaseAuthException catch (e) {
-      displayMessage(e.message ?? "An error occurred"); // Display user-friendly error message
+      displayMessage(e.message ?? "An error occurred");
     } finally {
       setState(() {
         isLoading = false; // Hide loading indicator
       });
     }
   }
+
 
   void displayMessage(String message) {
     showDialog(

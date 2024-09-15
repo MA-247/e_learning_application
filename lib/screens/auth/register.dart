@@ -62,6 +62,7 @@ class _RegisterPageState extends State<RegisterPage> {
     });
 
     try {
+      // Register the user with email and password
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: emailTextController.text,
         password: passwordTextController.text,
@@ -69,8 +70,13 @@ class _RegisterPageState extends State<RegisterPage> {
 
       User? user = userCredential.user;
       if (user != null) {
+        // Update display name
         await user.updateDisplayName(nameTextController.text);
-        await user.reload();
+
+        // Send email verification
+        await user.sendEmailVerification();
+
+        // Store user information in Firestore
         await _db_firestore.collection('users').doc(user.uid).set({
           'name': nameTextController.text,
           'email': emailTextController.text,
@@ -80,7 +86,11 @@ class _RegisterPageState extends State<RegisterPage> {
           'faculty': false,
         });
 
-        displayMessage('Registration Successful!');
+        displayMessage(
+            'Registration successful! A verification email has been sent to your email. Please verify your email before logging in.');
+      }
+      else{
+        displayMessage("An error occured with the registration!");
       }
     } on FirebaseAuthException catch (e) {
       displayMessage(e.message ?? 'An error occurred during registration.');
@@ -90,6 +100,7 @@ class _RegisterPageState extends State<RegisterPage> {
       });
     }
   }
+
 
   void displayMessage(String message) {
     showDialog(

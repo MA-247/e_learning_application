@@ -1,7 +1,9 @@
+import 'package:e_learning_application/screens/about.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:e_learning_application/screens/student_side/testing_system/test_list_page.dart';
 import 'package:e_learning_application/screens/student_side/learning_section/student_topics_list_page.dart';
+import 'package:e_learning_application/screens/settings.dart';
 
 class StudentHomePage extends StatelessWidget {
   final User user;
@@ -75,6 +77,30 @@ class StudentHomePage extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => StudentHomePage(user: user),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SettingsPage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.info),
+              title: Text('About'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AboutPage(),
                   ),
                 );
               },

@@ -2,30 +2,74 @@ import 'package:e_learning_application/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:e_learning_application/screens/auth/auth_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MyApp(
-  ));
+  runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+
+  // This method allows access to MyApp's state from other parts of the app
+  static _MyAppState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_MyAppState>();
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.light;
+
+  // Public getter to access _themeMode
+  ThemeMode get themeMode => _themeMode;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTheme();
+  }
+
+  // Load the theme preference from SharedPreferences
+  Future<void> _loadTheme() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    setState(() {
+      _themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
+
+  // Save the theme preference
+  Future<void> _saveTheme(bool isDarkMode) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isDarkMode', isDarkMode);
+  }
+
+  // Method to toggle the theme
+  void toggleTheme(bool isDarkMode) {
+    setState(() {
+      _themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    });
+    _saveTheme(isDarkMode);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'E-Learning App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData.light(),  // Light theme
+      darkTheme: ThemeData.dark(), // Dark theme
+      themeMode: _themeMode, // Choose theme mode based on the toggle
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
     );
   }
 }
 
-class SplashScreen extends StatefulWidget{
+class SplashScreen extends StatefulWidget {
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -58,9 +102,6 @@ class _SplashScreenState extends State<SplashScreen> {
 class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: AuthPage(),
-    );
+    return AuthPage(); // No need to wrap with another MaterialApp
   }
 }

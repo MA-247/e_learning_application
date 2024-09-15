@@ -1,8 +1,10 @@
+import 'package:e_learning_application/screens/about.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_learning_application/screens/faculty_side/testing_system/test_list_faculty_page.dart';
 import 'package:e_learning_application/screens/faculty_side/learning_section/faculty_learning_section.dart';
+import 'package:e_learning_application/screens/settings.dart';
 
 class FacultyHomePage extends StatelessWidget {
   final User user;
@@ -70,7 +72,7 @@ class FacultyHomePage extends StatelessWidget {
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.teal[300], // Updated color for a fresh look.
               ),
               child: Align(
                 alignment: Alignment.topLeft,
@@ -80,13 +82,14 @@ class FacultyHomePage extends StatelessWidget {
                     CircleAvatar(
                       backgroundImage: AssetImage('assets/logos/logo1.png'),
                       radius: 40,
+                      backgroundColor: Colors.grey[200], // Subtle background for avatar.
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 15),
                     Text(
-                      'Pulpath',
+                      'Pulpath', // Left unchanged as per request.
                       style: TextStyle(
-                        color: Colors.blue[300],
-                        fontSize: 24,
+                        color: Colors.teal[900], // Darker shade for better contrast.
+                        fontSize: 26,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -95,8 +98,11 @@ class FacultyHomePage extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
+              leading: Icon(Icons.home, color: Colors.teal[700]), // Updated icon color.
+              title: Text(
+                'Home',
+                style: TextStyle(fontSize: 18, color: Colors.black87), // Slightly larger text.
+              ),
               onTap: () {
                 Navigator.push(
                   context,
@@ -105,12 +111,38 @@ class FacultyHomePage extends StatelessWidget {
                 );
               },
             ),
+            ListTile(
+              leading: Icon(Icons.settings, color: Colors.teal[700]),
+              title: Text(
+                'Settings',
+                style: TextStyle(fontSize: 18, color: Colors.black87),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.info, color: Colors.teal[700]),
+              title: Text(
+                'About',
+                style: TextStyle(fontSize: 18, color: Colors.black87),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AboutPage()),
+                );
+              },
+            ),
             Divider(),
             ListTile(
-              leading: Icon(Icons.logout, color: Colors.red),
+              leading: Icon(Icons.logout, color: Colors.red[700]), // Brighter logout icon for emphasis.
               title: Text(
                 'Log Out',
-                style: TextStyle(color: Colors.red),
+                style: TextStyle(fontSize: 18, color: Colors.red[700]), // Bolder text for logout.
               ),
               onTap: () {
                 signOut();
