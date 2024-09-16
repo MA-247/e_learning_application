@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChapterDetailPage extends StatefulWidget {
   final String chapterId;
@@ -45,6 +46,22 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
     );
   }
 
+  Future<void> _markChapterAsRead(String chapterId) async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('completed_chapters')
+        .add({
+      'chapterId': chapterId,
+      'topicId': widget.topicId,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Chapter marked as completed')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,8 +81,23 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
             }
           },
         ),
-        backgroundColor: Colors.blue[800],
+        backgroundColor: Colors.grey[900], // Dark background
+        iconTheme: IconThemeData(color: Colors.white), // White icons
         actions: [
+          FutureBuilder<DocumentSnapshot>(
+            future: _chapterFuture,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return SizedBox.shrink(); // Placeholder if data is not yet loaded
+              }
+
+              return IconButton(
+                icon: Icon(Icons.check, color: Colors.white),
+                onPressed: () => _markChapterAsRead(widget.chapterId),
+                tooltip: 'Mark as Completed',
+              );
+            },
+          ),
           // Previous Chapter Button
           FutureBuilder<List<DocumentSnapshot>>(
             future: _chaptersFuture,
@@ -74,7 +106,7 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
                 return SizedBox.shrink(); // Placeholder
               } else if (snapshot.hasError || !snapshot.hasData) {
                 return IconButton(
-                  icon: Icon(Icons.navigate_before),
+                  icon: Icon(Icons.navigate_before, color: Colors.white),
                   onPressed: null, // No chapters or error
                   tooltip: 'Previous Chapter',
                 );
@@ -82,7 +114,7 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
                 var chapters = snapshot.data!;
                 var currentIndex = chapters.indexWhere((doc) => doc.id == widget.chapterId);
                 return IconButton(
-                  icon: Icon(Icons.navigate_before),
+                  icon: Icon(Icons.navigate_before, color: Colors.white),
                   onPressed: currentIndex > 0
                       ? () => _navigateToChapter(chapters[currentIndex - 1].id)
                       : null, // Disable if it's the first chapter
@@ -99,7 +131,7 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
                 return SizedBox.shrink(); // Placeholder
               } else if (snapshot.hasError || !snapshot.hasData) {
                 return IconButton(
-                  icon: Icon(Icons.navigate_next),
+                  icon: Icon(Icons.navigate_next, color: Colors.white),
                   onPressed: null, // No chapters or error
                   tooltip: 'Next Chapter',
                 );
@@ -107,7 +139,7 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
                 var chapters = snapshot.data!;
                 var currentIndex = chapters.indexWhere((doc) => doc.id == widget.chapterId);
                 return IconButton(
-                  icon: Icon(Icons.navigate_next),
+                  icon: Icon(Icons.navigate_next, color: Colors.white),
                   onPressed: currentIndex < chapters.length - 1
                       ? () => _navigateToChapter(chapters[currentIndex + 1].id)
                       : null, // Disable if it's the last chapter
@@ -122,7 +154,7 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
         future: _chapterFuture,
         builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(color: Colors.purple[300]));
           }
 
           var chapter = snapshot.data!;
@@ -143,13 +175,13 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
                           return child;
                         } else {
                           return Center(
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(color: Colors.purple[300]),
                           );
                         }
                       },
                     ),
                   )
-                      : Text('No image or model available'),
+                      : Text('No image or model available', style: TextStyle(color: Colors.grey[500])),
                 ),
               ),
               // Description Section
@@ -165,7 +197,7 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: Colors.white, // Light text for dark mode
                         ),
                       ),
                       SizedBox(height: 16),
@@ -173,9 +205,10 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
                         chapter['description'] ?? 'No description available',
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.black54,
+                          color: Colors.grey[300], // Light grey text for dark mode
                         ),
                       ),
+                      SizedBox(height: 16),
                     ],
                   ),
                 ),

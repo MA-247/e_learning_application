@@ -4,12 +4,14 @@ class EnhancedDropdown extends StatelessWidget {
   final String? selectedValue;
   final List<String> items;
   final void Function(String?)? onChanged;
+  final Color? dropdownColor; // Added parameter
 
   const EnhancedDropdown({
     super.key,
     required this.selectedValue,
     required this.items,
     required this.onChanged,
+    this.dropdownColor, // Added parameter
   });
 
   @override
@@ -17,7 +19,7 @@ class EnhancedDropdown extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(50.0), // Match text field radius
-        color: Colors.grey.shade200,
+        color: dropdownColor ?? Colors.grey.shade200, // Use dropdownColor or default to grey
       ),
       child: DropdownButtonFormField<String>(
         value: selectedValue,
@@ -35,7 +37,7 @@ class EnhancedDropdown extends StatelessWidget {
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0), // Match text field padding
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30.0)
+              borderRadius: BorderRadius.circular(30.0)
           ), // Remove border to match text fields
         ),
       ),

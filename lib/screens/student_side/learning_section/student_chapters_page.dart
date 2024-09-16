@@ -1,8 +1,8 @@
+import 'package:e_learning_application/screens/student_side/learning_section/learning_section.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'student_chapter_details_page.dart';
-import 'package:e_learning_application/screens/student_side/testing_system/take_test_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:e_learning_application/screens/student_side/testing_system/take_test_page.dart';
 
 class StudentChaptersPage extends StatelessWidget {
   final String topicId;
@@ -31,8 +31,7 @@ class StudentChaptersPage extends StatelessWidget {
 
               if (postTestId != null) {
                 // Check if the post-test has already been completed
-                final postTestCompleted =
-                await _isTestCompleted(postTestId, userId);
+                final postTestCompleted = await _isTestCompleted(postTestId, userId);
 
                 if (!postTestCompleted) {
                   // Show a warning dialog about the post-test
@@ -41,15 +40,16 @@ class StudentChaptersPage extends StatelessWidget {
                   // Show a message if the post-test is already completed
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                        content:
-                        Text('You have already completed the post-test.')),
+                      content: Text('You have already completed the post-test.'),
+                    ),
                   );
                 }
               } else {
                 // Handle case where there is no post-test ID
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                      content: Text('No post-test available for this topic.')),
+                    content: Text('No post-test available for this topic.'),
+                  ),
                 );
               }
             },
@@ -62,50 +62,96 @@ class StudentChaptersPage extends StatelessWidget {
             .doc(topicId)
             .collection('chapters')
             .snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) {
+        builder: (context, AsyncSnapshot<QuerySnapshot> chaptersSnapshot) {
+          if (!chaptersSnapshot.hasData) {
             return Center(child: CircularProgressIndicator(color: Colors.teal[300]));
           }
 
-          var chapters = snapshot.data!.docs;
+          final totalChapters = chaptersSnapshot.data!.docs.length;
 
-          return ListView.builder(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-            itemCount: chapters.length,
-            itemBuilder: (context, index) {
-              var chapter = chapters[index];
-              return Card(
-                margin: EdgeInsets.symmetric(vertical: 8),
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ListTile(
-                  contentPadding: EdgeInsets.all(16),
-                  title: Text(
-                    chapter['title'],
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.teal[700], // Color to match theme
+          return StreamBuilder(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc(userId)
+                .collection('completed_chapters')
+                .where('topicId', isEqualTo: topicId)
+                .snapshots(),
+            builder: (context, AsyncSnapshot<QuerySnapshot> completedSnapshot) {
+              if (!completedSnapshot.hasData) {
+                return Center(child: CircularProgressIndicator(color: Colors.teal[300]));
+              }
+
+              final completedChapterIds = completedSnapshot.data!.docs
+                  .map((doc) => doc['chapterId'])
+                  .toSet();
+
+              final completedChapters = completedChapterIds.length;
+
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: LinearProgressIndicator(
+                      value: totalChapters > 0 ? completedChapters / totalChapters : 0,
+                      backgroundColor: Colors.grey[300],
+                      color: Colors.teal[300],
                     ),
                   ),
-                  subtitle: Text(
-                    chapter['description'],
-                    style: TextStyle(color: Colors.grey[600]),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      '$completedChapters of $totalChapters chapters completed',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
                   ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChapterDetailPage(
-                          chapterId: chapter.id,
-                          topicId: topicId,
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                      itemCount: chaptersSnapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        var chapter = chaptersSnapshot.data!.docs[index];
+                        bool isCompleted = completedChapterIds.contains(chapter.id);
+
+                        return Card(
+                          margin: EdgeInsets.symmetric(vertical: 8),
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.all(16),
+                            leading: isCompleted
+                                ? Icon(Icons.check_circle, color: Colors.teal[300])
+                                : Icon(Icons.circle_outlined, color: Colors.grey[600]),
+                            title: Text(
+                              chapter['title'],
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.teal[700], // Color to match theme
+                              ),
+                            ),
+                            subtitle: Text(
+                              chapter['description'],
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChapterDetailPage(
+                                    topicId: topicId,
+                                    chapterId: chapter.id,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               );
             },
           );

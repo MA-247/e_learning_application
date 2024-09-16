@@ -112,6 +112,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme; // Access current theme's color scheme
+    var textColor = colorScheme.onSurface; // Dynamic text color
+
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
@@ -140,18 +143,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 controller: nameTextController,
                 hintText: 'Full Name',
                 obscureText: false,
+                textColor: textColor,
+                fillColor: colorScheme.surface,
               ),
               const SizedBox(height: 10),
               MyTextField(
                 controller: emailTextController,
                 hintText: 'Email',
                 obscureText: false,
+                textColor: textColor,
+                fillColor: colorScheme.surface,
               ),
               const SizedBox(height: 10),
               MyTextField(
                 controller: cityTextController,
                 hintText: 'City',
                 obscureText: false,
+                textColor: textColor,
+                fillColor: colorScheme.surface,
               ),
               const SizedBox(height: 10),
               // Enhanced Dropdown for University

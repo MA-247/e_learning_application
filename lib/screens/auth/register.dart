@@ -88,9 +88,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
         displayMessage(
             'Registration successful! A verification email has been sent to your email. Please verify your email before logging in.');
-      }
-      else{
-        displayMessage("An error occured with the registration!");
+      } else {
+        displayMessage("An error occurred with the registration!");
       }
     } on FirebaseAuthException catch (e) {
       displayMessage(e.message ?? 'An error occurred during registration.');
@@ -100,7 +99,6 @@ class _RegisterPageState extends State<RegisterPage> {
       });
     }
   }
-
 
   void displayMessage(String message) {
     showDialog(
@@ -119,8 +117,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme; // Access current theme's color scheme
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade100, // Light grey background for a soft look
+      backgroundColor: colorScheme.background, // Background color for the page
       body: SingleChildScrollView(
         child: SafeArea(
           child: Center(
@@ -142,7 +142,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     "Create Your Account",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue.shade800,
+                      color: colorScheme.primary, // Primary color for text
                       fontSize: 28,
                     ),
                   ),
@@ -152,24 +152,32 @@ class _RegisterPageState extends State<RegisterPage> {
                     controller: nameTextController,
                     hintText: 'Full Name',
                     obscureText: false,
+                    textColor: colorScheme.onSurface, // Text color
+                    fillColor: colorScheme.surface, // Fill color
                   ),
                   const SizedBox(height: 10),
                   MyTextField(
                     controller: emailTextController,
                     hintText: 'Email',
                     obscureText: false,
+                    textColor: colorScheme.onSurface,
+                    fillColor: colorScheme.surface,
                   ),
                   const SizedBox(height: 10),
                   MyTextField(
                     controller: cityTextController,
                     hintText: 'City',
                     obscureText: false,
+                    textColor: colorScheme.onSurface,
+                    fillColor: colorScheme.surface,
                   ),
                   const SizedBox(height: 10),
                   MyTextField(
                     controller: yearOfStudyTextController,
                     hintText: 'Year of Study',
                     obscureText: false,
+                    textColor: colorScheme.onSurface,
+                    fillColor: colorScheme.surface,
                   ),
                   const SizedBox(height: 10),
                   // Enhanced Dropdown for University
@@ -187,58 +195,62 @@ class _RegisterPageState extends State<RegisterPage> {
                     controller: passwordTextController,
                     hintText: 'Password',
                     obscureText: true,
+                    textColor: colorScheme.onSurface,
+                    fillColor: colorScheme.surface,
                   ),
                   const SizedBox(height: 10),
                   MyTextField(
                     controller: confirmPasswordTextController,
                     hintText: 'Confirm Password',
                     obscureText: true,
+                    textColor: colorScheme.onSurface,
+                    fillColor: colorScheme.surface,
                   ),
                   const SizedBox(height: 20),
                   MyButton(onTap: signUp, text: 'Sign Up'),
                   const SizedBox(height: 20),
                   // Login option
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                Text(
-                "Already a Member?",
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: widget.onTap,
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Colors.blue.shade300),
-                      color: Colors.blue.shade50,
-                    ),
-                    child: Text(
-                      "Login",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue.shade800,
-                        fontSize: 16,
-                        decoration: TextDecoration.underline,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Already a Member?",
+                        style: TextStyle(
+                          color: colorScheme.onBackground, // Text color
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: widget.onTap,
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 4.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: colorScheme.primaryContainer), // Border color
+                              color: colorScheme.primaryContainer, // Background color
+                            ),
+                            child: Text(
+                              "Login",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.primary, // Text color
+                                fontSize: 16,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
                 ],
               ),
-              ],
             ),
           ),
         ),
-      ),
       ),
     );
   }

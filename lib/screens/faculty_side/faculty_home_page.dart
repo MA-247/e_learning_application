@@ -40,26 +40,29 @@ class FacultyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     if (user.displayName == null) fetchFieldFromDocument();
 
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Welcome back, ${user.displayName}',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: theme.appBarTheme.titleTextStyle?.color ?? Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Colors.blue[300],
+        backgroundColor: theme.appBarTheme.backgroundColor ?? (isDarkMode ? Colors.grey[900] : Colors.blue[300]),
         toolbarHeight: 75,
         actions: [
           IconButton(
             onPressed: () {},
             icon: Icon(Icons.supervised_user_circle),
-            color: Colors.white,
+            color: theme.iconTheme.color ?? Colors.white,
           ),
         ],
         leading: Builder(builder: (BuildContext context) {
           return IconButton(
             icon: Icon(Icons.menu),
-            color: Colors.white,
+            color: theme.iconTheme.color ?? Colors.white,
             onPressed: () {
               Scaffold.of(context).openDrawer();
             },
@@ -72,7 +75,7 @@ class FacultyHomePage extends StatelessWidget {
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.teal[300], // Updated color for a fresh look.
+                color: theme.primaryColor, // Use primary color for both modes
               ),
               child: Align(
                 alignment: Alignment.topLeft,
@@ -82,13 +85,13 @@ class FacultyHomePage extends StatelessWidget {
                     CircleAvatar(
                       backgroundImage: AssetImage('assets/logos/logo1.png'),
                       radius: 40,
-                      backgroundColor: Colors.grey[200], // Subtle background for avatar.
+                      backgroundColor: theme.colorScheme.surface, // Adapt background color
                     ),
                     SizedBox(height: 15),
                     Text(
                       'Pulpath', // Left unchanged as per request.
                       style: TextStyle(
-                        color: Colors.teal[900], // Darker shade for better contrast.
+                        color: theme.textTheme.titleLarge?.color, // Adapt text color
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
                       ),
@@ -98,10 +101,10 @@ class FacultyHomePage extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.home, color: Colors.teal[700]), // Updated icon color.
+              leading: Icon(Icons.home, color: theme.iconTheme.color),
               title: Text(
                 'Home',
-                style: TextStyle(fontSize: 18, color: Colors.black87), // Slightly larger text.
+                style: TextStyle(fontSize: 18, color: theme.textTheme.bodyLarge?.color),
               ),
               onTap: () {
                 Navigator.push(
@@ -112,10 +115,10 @@ class FacultyHomePage extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.settings, color: Colors.teal[700]),
+              leading: Icon(Icons.settings, color: theme.iconTheme.color),
               title: Text(
                 'Settings',
-                style: TextStyle(fontSize: 18, color: Colors.black87),
+                style: TextStyle(fontSize: 18, color: theme.textTheme.bodyLarge?.color),
               ),
               onTap: () {
                 Navigator.push(
@@ -125,10 +128,10 @@ class FacultyHomePage extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.info, color: Colors.teal[700]),
+              leading: Icon(Icons.info, color: theme.iconTheme.color),
               title: Text(
                 'About',
-                style: TextStyle(fontSize: 18, color: Colors.black87),
+                style: TextStyle(fontSize: 18, color: theme.textTheme.bodyLarge?.color),
               ),
               onTap: () {
                 Navigator.push(
@@ -139,10 +142,10 @@ class FacultyHomePage extends StatelessWidget {
             ),
             Divider(),
             ListTile(
-              leading: Icon(Icons.logout, color: Colors.red[700]), // Brighter logout icon for emphasis.
+              leading: Icon(Icons.logout, color: Colors.red[700]), // Bright logout icon remains unchanged
               title: Text(
                 'Log Out',
-                style: TextStyle(fontSize: 18, color: Colors.red[700]), // Bolder text for logout.
+                style: TextStyle(fontSize: 18, color: Colors.red[700]),
               ),
               onTap: () {
                 signOut();
@@ -154,16 +157,15 @@ class FacultyHomePage extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            // Other UI elements
             Expanded(
               flex: 1,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: theme.cardColor, // Adapt card color
                   borderRadius: BorderRadius.circular(15.0),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blue.withOpacity(0.2),
+                      color: theme.shadowColor.withOpacity(0.2),
                       spreadRadius: 3,
                       blurRadius: 7,
                     ),
@@ -171,12 +173,12 @@ class FacultyHomePage extends StatelessWidget {
                 ),
                 margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
                 child: ListTile(
-                  leading: Icon(Icons.book, color: Colors.blue[300]),
+                  leading: Icon(Icons.book, color: theme.iconTheme.color),
                   title: Text(
                     'Learning Section',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: theme.textTheme.bodyLarge?.color),
                   ),
-                  subtitle: Text('Manage Lectures'),
+                  subtitle: Text('Manage Lectures', style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -191,11 +193,11 @@ class FacultyHomePage extends StatelessWidget {
               flex: 1,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: theme.cardColor, // Adapt card color
                   borderRadius: BorderRadius.circular(15.0),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blue.withOpacity(0.2),
+                      color: theme.shadowColor.withOpacity(0.2),
                       spreadRadius: 3,
                       blurRadius: 7,
                     ),
@@ -203,12 +205,12 @@ class FacultyHomePage extends StatelessWidget {
                 ),
                 margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
                 child: ListTile(
-                  leading: Icon(Icons.assignment, color: Colors.blue[300]),
+                  leading: Icon(Icons.assignment, color: theme.iconTheme.color),
                   title: Text(
                     'Test Section',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: theme.textTheme.bodyLarge?.color),
                   ),
-                  subtitle: Text('Manage Tests'),
+                  subtitle: Text('Manage Tests', style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
                   onTap: () {
                     Navigator.push(
                       context,

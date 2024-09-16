@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 class PasswordTextField extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
+  final Color textColor; // Added parameter for text color
+  final Color fillColor; // Added parameter for fill color
 
   const PasswordTextField({
     super.key,
     required this.controller,
     required this.hintText,
+    required this.textColor,
+    required this.fillColor,
   });
 
   @override
@@ -25,43 +29,64 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
 
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
+
     return TextField(
       controller: widget.controller,
       obscureText: _obscureText,
+      style: TextStyle(color: widget.textColor), // Apply the text color
       decoration: InputDecoration(
         filled: true,
-        fillColor: Colors.grey.shade200,
+        fillColor: widget.fillColor, // Apply the fill color
         hintText: widget.hintText,
-        hintStyle: TextStyle(color: Colors.grey[600]),
+        hintStyle: TextStyle(
+          color: widget.textColor.withOpacity(0.7), // Apply text color with opacity for hint text
+        ),
         contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
-          borderSide: BorderSide(color: Colors.grey.shade400),
+          borderSide: BorderSide(
+            color: widget.textColor.withOpacity(0.5), // Apply text color with opacity for border
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
-          borderSide: BorderSide(color: Colors.blue, width: 2.0),
+          borderSide: BorderSide(
+            color: colorScheme.primary, // Use theme primary color for focused border
+            width: 2.0,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
-          borderSide: BorderSide(color: Colors.grey.shade400),
+          borderSide: BorderSide(
+            color: widget.textColor.withOpacity(0.5), // Apply text color with opacity for enabled border
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
-          borderSide: BorderSide(color: Colors.red, width: 2.0),
+          borderSide: BorderSide(
+            color: colorScheme.error, // Use theme error color for error border
+            width: 2.0,
+          ),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
-          borderSide: BorderSide(color: Colors.red, width: 2.0),
+          borderSide: BorderSide(
+            color: colorScheme.error, // Use theme error color for focused error border
+            width: 2.0,
+          ),
         ),
         suffixIcon: IconButton(
           icon: Icon(
             _obscureText ? Icons.visibility : Icons.visibility_off,
-            color: Colors.grey[600],
+            color: widget.textColor.withOpacity(0.7), // Apply text color with opacity for suffix icon
           ),
           onPressed: _toggleVisibility,
         ),
-        prefixIcon: Icon(Icons.lock, color: Colors.grey[600]),
+        prefixIcon: Icon(
+          Icons.lock,
+          color: widget.textColor.withOpacity(0.7), // Apply text color with opacity for prefix icon
+        ),
       ),
     );
   }
