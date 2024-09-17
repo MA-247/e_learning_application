@@ -77,15 +77,9 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/donut.glb
-    - assets/donut1.mtl
-    - assets/donut1.obj
     - assets/logos/logo1.png
     - assets/logos/PULPATH_logo.jpg
-    - assets/pHTooth.obj
-    - assets/pHTooth.mtl
-    - assets/3d_Models/healthyToothL1obj.obj
-    - assets/3d_Models/healthyToothL1obj.mtl
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
