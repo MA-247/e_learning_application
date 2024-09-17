@@ -1,5 +1,7 @@
 import 'package:e_learning_application/screens/about.dart';
 import 'package:e_learning_application/screens/student_side/student_profile/profile_page.dart';
+import 'package:e_learning_application/screens/student_side/testing_system/scores_pages/test_score_page.dart';
+import 'package:e_learning_application/screens/student_side/testing_system/scores_pages/topics_list.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:e_learning_application/screens/student_side/testing_system/test_list_page.dart';
@@ -146,12 +148,13 @@ class StudentHomePage extends StatelessWidget {
             _buildSectionTile(
               context: context,
               icon: Icons.assignment,
-              title: 'Available Tests',
-              subtitle: 'Tap to view and take tests',
+              title: 'Test Scores',
+              subtitle: 'Tap to view your test scores',
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => TestListPage()),
+                  MaterialPageRoute(builder: (context) => ScoresTopicsListPage(),
+                  )
                 );
               },
             ),

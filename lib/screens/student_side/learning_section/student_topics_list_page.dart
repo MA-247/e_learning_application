@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'student_chapters_page.dart';
+import 'package:e_learning_application/screens/student_side/testing_system/take_test_page.dart'; // Make sure to create this page
 
 class TopicsListPage extends StatefulWidget {
   @override
@@ -106,13 +107,63 @@ class _TopicsListPageState extends State<TopicsListPage> {
                             ),
                           ],
                         ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => StudentChaptersPage(topicId: topic.id),
-                            ),
-                          );
+                        onTap: () async {
+                          // Fetch the pretestId and posttestId for the topic
+                          final topicData = await FirebaseFirestore.instance.collection('topics').doc(topic.id).get();
+                          final pretestId = topicData['pretestId'] as String?;
+
+                          // Check if the user has taken the pretest
+                          if (pretestId != null) {
+                            final completedTestsSnapshot = await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(userId)
+                                .collection('completed_tests')
+                                .where('testId', isEqualTo: pretestId)
+                                .get();
+
+                            if (completedTestsSnapshot.docs.isEmpty) {
+                              // Show a message and redirect to the pre-test page
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text('Pre-Test Required'),
+                                    content: Text('You must complete the pre-test before accessing this topic.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => TestPage(testId: pretestId, isPreTest: true, userId: userId,),
+                                            ),
+                                          );
+                                        },
+                                        child: Text('Take Pre-Test'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            } else {
+                              // User has completed the pre-test, navigate to chapters
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => StudentChaptersPage(topicId: topic.id),
+                                ),
+                              );
+                            }
+                          } else {
+                            // No pre-test required, navigate to chapters
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => StudentChaptersPage(topicId: topic.id),
+                              ),
+                            );
+                          }
                         },
                       ),
                     );
@@ -165,13 +216,63 @@ class _TopicsListPageState extends State<TopicsListPage> {
                                 ),
                               ],
                             ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => StudentChaptersPage(topicId: topic.id),
-                                ),
-                              );
+                            onTap: () async {
+                              // Fetch the pretestId and posttestId for the topic
+                              final topicData = await FirebaseFirestore.instance.collection('topics').doc(topic.id).get();
+                              final pretestId = topicData['pretestId'] as String?;
+
+                              // Check if the user has taken the pretest
+                              if (pretestId != null) {
+                                final completedTestsSnapshot = await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(userId)
+                                    .collection('completed_tests')
+                                    .where('testId', isEqualTo: pretestId)
+                                    .get();
+
+                                if (completedTestsSnapshot.docs.isEmpty) {
+                                  // Show a message and redirect to the pre-test page
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text('Pre-Test Required'),
+                                        content: Text('You must complete the pre-test before accessing this topic.'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => TestPage(testId: pretestId, isPreTest: true, userId: userId,),
+                                                ),
+                                              );
+                                            },
+                                            child: Text('Take Pre-Test'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  // User has completed the pre-test, navigate to chapters
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => StudentChaptersPage(topicId: topic.id),
+                                    ),
+                                  );
+                                }
+                              } else {
+                                // No pre-test required, navigate to chapters
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => StudentChaptersPage(topicId: topic.id),
+                                  ),
+                                );
+                              }
                             },
                           ),
                         );
@@ -220,14 +321,65 @@ class _TopicsListPageState extends State<TopicsListPage> {
                               ),
                             ],
                           ),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => StudentChaptersPage(topicId: topic.id),
-                              ),
-                            );
-                          },
+                            onTap: () async {
+                              // Fetch the pretestId and posttestId for the topic
+                              final topicData = await FirebaseFirestore.instance.collection('topics').doc(topic.id).get();
+                              final pretestId = topicData['pretestId'] as String?;
+
+                              if (pretestId != null) {
+                                // Access the 'student_responses' collection for the current user
+                                final completedTestsSnapshot = await FirebaseFirestore.instance
+                                    .collection('student_responses')
+                                    .where('testId', isEqualTo: pretestId)
+                                    .where('userId', isEqualTo: userId)
+                                    .get();
+
+                                if (completedTestsSnapshot.docs.isEmpty) {
+                                  // Show a message and redirect to the pre-test page
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text('Pre-Test Required'),
+                                        content: Text('You must complete the pre-test before accessing this topic.'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => TestPage(testId: pretestId, userId: userId, isPreTest: true,),
+                                                ),
+                                              );
+                                            },
+                                            child: Text('Take Pre-Test'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  // User has completed the pre-test, navigate to chapters
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => StudentChaptersPage(topicId: topic.id),
+                                    ),
+                                  );
+                                }
+                              } else {
+                                // No pre-test required, navigate to chapters
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => StudentChaptersPage(topicId: topic.id),
+                                  ),
+                                );
+                              }
+                            }
+
+
                         ),
                       );
                     },
