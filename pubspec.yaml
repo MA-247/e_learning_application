@@ -46,6 +46,7 @@ dependencies:
   shared_preferences: ^2.3.2
   loading_btn: ^1.0.3
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -54,7 +55,7 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/logos/PULPATH_logo.png"
+  image_path: "assets/logos/PULPATH_logo.jpg"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -80,6 +81,7 @@ flutter:
     - assets/donut1.mtl
     - assets/donut1.obj
     - assets/logos/logo1.png
+    - assets/logos/PULPATH_logo.jpg
     - assets/pHTooth.obj
     - assets/pHTooth.mtl
     - assets/3d_Models/healthyToothL1obj.obj
