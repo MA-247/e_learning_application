@@ -3,7 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'student_chapters_page.dart';
 
-class TopicsListPage extends StatelessWidget {
+class TopicsListPage extends StatefulWidget {
+  @override
+  _TopicsListPageState createState() => _TopicsListPageState();
+}
+
+class _TopicsListPageState extends State<TopicsListPage> {
+  String searchQuery = '';
+
   @override
   Widget build(BuildContext context) {
     final userId = FirebaseAuth.instance.currentUser!.uid;
@@ -14,6 +21,30 @@ class TopicsListPage extends StatelessWidget {
         backgroundColor: Colors.purple[300],
         elevation: 0,
         centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(60),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value.toLowerCase();
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Search topics...',
+                prefixIcon: Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+              ),
+            ),
+          ),
+        ),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('topics').snapshots(),
@@ -22,7 +53,9 @@ class TopicsListPage extends StatelessWidget {
             return Center(child: CircularProgressIndicator(color: Colors.purple[300]));
           }
 
-          var topics = topicsSnapshot.data!.docs;
+          var topics = topicsSnapshot.data!.docs.where((topic) {
+            return (topic['title'] as String).toLowerCase().contains(searchQuery);
+          }).toList();
 
           return ListView.builder(
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),

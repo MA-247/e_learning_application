@@ -90,12 +90,7 @@ class StudentHomePage extends StatelessWidget {
               leading: Icon(Icons.home),
               title: Text('Home'),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => StudentHomePage(user: user),
-                  ),
-                );
+                Navigator.pop(context);
               },
             ),
             ListTile(

@@ -4,10 +4,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:e_learning_application/screens/student_side/testing_system/take_test_page.dart';
 
-class StudentChaptersPage extends StatelessWidget {
+class StudentChaptersPage extends StatefulWidget {
   final String topicId;
 
   StudentChaptersPage({required this.topicId});
+
+  @override
+  State<StudentChaptersPage> createState() => _StudentChaptersPageState();
+}
+
+class _StudentChaptersPageState extends State<StudentChaptersPage> {
+  String searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -16,16 +23,41 @@ class StudentChaptersPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Chapters'),
-        backgroundColor: Colors.teal[300], // Changed theme color
+        backgroundColor: Colors.teal[300],
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(60),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value.toLowerCase();
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Search chapters...',
+                prefixIcon: Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+              ),
+            ),
+          ),
+        ),// Changed theme color
         actions: [
           IconButton(
-            icon: Icon(Icons.checklist),
+            icon: Text('Take Test'),
             tooltip: 'Take Post-Test',
             onPressed: () async {
               // Fetch the post-test ID from the topic document
               final topicDoc = await FirebaseFirestore.instance
                   .collection('topics')
-                  .doc(topicId)
+                  .doc(widget.topicId)
                   .get();
               final postTestId = topicDoc['posttestId'];
 
@@ -59,7 +91,7 @@ class StudentChaptersPage extends StatelessWidget {
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('topics')
-            .doc(topicId)
+            .doc(widget.topicId)
             .collection('chapters')
             .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> chaptersSnapshot) {
@@ -74,7 +106,7 @@ class StudentChaptersPage extends StatelessWidget {
                 .collection('users')
                 .doc(userId)
                 .collection('completed_chapters')
-                .where('topicId', isEqualTo: topicId)
+                .where('topicId', isEqualTo: widget.topicId)
                 .snapshots(),
             builder: (context, AsyncSnapshot<QuerySnapshot> completedSnapshot) {
               if (!completedSnapshot.hasData) {
@@ -140,7 +172,7 @@ class StudentChaptersPage extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ChapterDetailPage(
-                                    topicId: topicId,
+                                    topicId: widget.topicId,
                                     chapterId: chapter.id,
                                   ),
                                 ),

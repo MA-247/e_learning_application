@@ -1,9 +1,10 @@
+import 'package:e_learning_application/widgets/password_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:e_learning_application/widgets/text_field.dart';
 import 'package:e_learning_application/widgets/button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_learning_application/widgets/drop_down_menu.dart'; // Import the updated dropdown widget
+import 'package:e_learning_application/widgets/drop_down_menu.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -22,6 +23,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final confirmPasswordTextController = TextEditingController();
   final cityTextController = TextEditingController();
   final yearOfStudyTextController = TextEditingController();
+  final otherUniversityController = TextEditingController();
   final FirebaseFirestore _db_firestore = FirebaseFirestore.instance;
 
   // University drop-down menu options
@@ -33,10 +35,16 @@ class _RegisterPageState extends State<RegisterPage> {
   // Loading state
   bool _isLoading = false;
 
+  // University selection
+  bool isOtherSelected = false;
+
+  // Page controller for PageView
+  final PageController _pageController = PageController();
+
   @override
   void initState() {
     super.initState();
-    _fetchUniversities(); // Fetch universities from Firebase
+    _fetchUniversities();
   }
 
   Future<void> _fetchUniversities() async {
@@ -51,11 +59,47 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  void signUp() async {
-    if (passwordTextController.text != confirmPasswordTextController.text) {
-      displayMessage("Passwords Don't Match. Try Again.");
-      return;
+  // Function to check if fields are empty or invalid
+  bool _areFieldsValid() {
+    if (nameTextController.text.isEmpty || nameTextController.text.length < 3) {
+      displayMessage("Name must be at least 3 characters.");
+      return false;
     }
+    if (emailTextController.text.isEmpty) {
+      displayMessage("Email cannot be empty.");
+      return false;
+    }
+    return true;
+  }
+
+  // Password validation based on industry standards
+  bool _isPasswordValid() {
+    String password = passwordTextController.text;
+    if (password.length < 8) {
+      displayMessage("Password must be at least 8 characters long.");
+      return false;
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(password)) {
+      displayMessage("Password must contain at least one uppercase letter.");
+      return false;
+    }
+    if (!RegExp(r'[0-9]').hasMatch(password)) {
+      displayMessage("Password must contain at least one digit.");
+      return false;
+    }
+    if (!RegExp(r'[!@#\$&*~]').hasMatch(password)) {
+      displayMessage("Password must contain at least one special character.");
+      return false;
+    }
+    if (password != confirmPasswordTextController.text) {
+      displayMessage("Passwords don't match.");
+      return false;
+    }
+    return true;
+  }
+
+  void signUp() async {
+    if (!_isPasswordValid()) return;
 
     setState(() {
       _isLoading = true;
@@ -71,6 +115,8 @@ class _RegisterPageState extends State<RegisterPage> {
       User? user = userCredential.user;
       if (user != null) {
         // Update display name
+        Navigator.of(context).popUntil((route) => route.isFirst); // Navigate back to the login screen
+
         await user.updateDisplayName(nameTextController.text);
 
         // Send email verification
@@ -81,13 +127,15 @@ class _RegisterPageState extends State<RegisterPage> {
           'name': nameTextController.text,
           'email': emailTextController.text,
           'city': cityTextController.text,
-          'university': selectedUniversity,
+          'university': isOtherSelected ? otherUniversityController.text : selectedUniversity,
           'yearOfStudy': yearOfStudyTextController.text,
           'faculty': false,
         });
 
-        displayMessage(
-            'Registration successful! A verification email has been sent to your email. Please verify your email before logging in.');
+        // Show success message and navigate to login page
+        displayMessage('Registration successful! A verification email has been sent to your email. Please verify your email before logging in.', () {
+          Navigator.of(context).popUntil((route) => route.isFirst); // Navigate back to the login screen
+        });
       } else {
         displayMessage("An error occurred with the registration!");
       }
@@ -100,15 +148,18 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  void displayMessage(String message) {
+  void displayMessage(String message, [VoidCallback? onDismiss]) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(message),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text("OK"),
+            onPressed: () {
+              Navigator.of(context).pop();
+              onDismiss?.call(); // Call the optional callback if provided
+            },
+            child: const Text("OK"),
           ),
         ],
       ),
@@ -117,139 +168,227 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    var colorScheme = Theme.of(context).colorScheme; // Access current theme's color scheme
+    var colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background, // Background color for the page
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: _isLoading
-                  ? const CircularProgressIndicator() // Display loading indicator
-                  : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 50),
-                  // Logo
-                  Image.asset(
-                    'assets/logos/logo1.png',
-                    height: 120,
-                  ),
-                  const SizedBox(height: 25),
-                  Text(
-                    "Create Your Account",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.primary, // Primary color for text
-                      fontSize: 28,
+      backgroundColor: colorScheme.background,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : PageView(
+        controller: _pageController,
+        physics: NeverScrollableScrollPhysics(), // Disable swipe navigation
+        children: [
+          // First page
+          _buildFirstPage(colorScheme),
+          // Second page
+          _buildSecondPage(colorScheme),
+          // Third page (password)
+          _buildPasswordPage(colorScheme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFirstPage(ColorScheme colorScheme) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Registration'),
+        backgroundColor: colorScheme.primary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: widget.onTap, // Back to login screen
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(25.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 50),
+                    Text(
+                      "Create Your Account",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
+                        fontSize: 28,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  // TextFields
-                  MyTextField(
-                    controller: nameTextController,
-                    hintText: 'Full Name',
-                    obscureText: false,
-                    textColor: colorScheme.onSurface, // Text color
-                    fillColor: colorScheme.surface, // Fill color
-                  ),
-                  const SizedBox(height: 10),
-                  MyTextField(
-                    controller: emailTextController,
-                    hintText: 'Email',
-                    obscureText: false,
-                    textColor: colorScheme.onSurface,
-                    fillColor: colorScheme.surface,
-                  ),
-                  const SizedBox(height: 10),
-                  MyTextField(
-                    controller: cityTextController,
-                    hintText: 'City',
-                    obscureText: false,
-                    textColor: colorScheme.onSurface,
-                    fillColor: colorScheme.surface,
-                  ),
-                  const SizedBox(height: 10),
-                  MyTextField(
-                    controller: yearOfStudyTextController,
-                    hintText: 'Year of Study',
-                    obscureText: false,
-                    textColor: colorScheme.onSurface,
-                    fillColor: colorScheme.surface,
-                  ),
-                  const SizedBox(height: 10),
-                  // Enhanced Dropdown for University
-                  EnhancedDropdown(
-                    selectedValue: selectedUniversity,
-                    items: universities,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedUniversity = newValue;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  MyTextField(
-                    controller: passwordTextController,
-                    hintText: 'Password',
-                    obscureText: true,
-                    textColor: colorScheme.onSurface,
-                    fillColor: colorScheme.surface,
-                  ),
-                  const SizedBox(height: 10),
-                  MyTextField(
-                    controller: confirmPasswordTextController,
-                    hintText: 'Confirm Password',
-                    obscureText: true,
-                    textColor: colorScheme.onSurface,
-                    fillColor: colorScheme.surface,
-                  ),
-                  const SizedBox(height: 20),
-                  MyButton(onTap: signUp, text: 'Sign Up'),
-                  const SizedBox(height: 20),
-                  // Login option
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Already a Member?",
-                        style: TextStyle(
-                          color: colorScheme.onBackground, // Text color
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: widget.onTap,
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: colorScheme.primaryContainer), // Border color
-                              color: colorScheme.primaryContainer, // Background color
-                            ),
-                            child: Text(
-                              "Login",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.primary, // Text color
-                                fontSize: 16,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                    const SizedBox(height: 20),
+                    MyTextField(
+                      controller: nameTextController,
+                      hintText: 'Full Name',
+                      obscureText: false,
+                      textColor: colorScheme.onSurface,
+                      fillColor: colorScheme.surface,
+                    ),
+                    const SizedBox(height: 10),
+                    MyTextField(
+                      controller: emailTextController,
+                      hintText: 'Email',
+                      obscureText: false,
+                      textColor: colorScheme.onSurface,
+                      fillColor: colorScheme.surface,
+                    ),
+                    const SizedBox(height: 20),
+                    MyButton(
+                      onTap: () {
+                        if (_areFieldsValid()) {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        }
+                      },
+                      text: 'Next',
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSecondPage(ColorScheme colorScheme) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Details'),
+        backgroundColor: colorScheme.primary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            _pageController.previousPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          },
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(25.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 50),
+                    MyTextField(
+                      controller: cityTextController,
+                      hintText: 'City',
+                      obscureText: false,
+                      textColor: colorScheme.onSurface,
+                      fillColor: colorScheme.surface,
+                    ),
+                    const SizedBox(height: 10),
+                    MyTextField(
+                      controller: yearOfStudyTextController,
+                      hintText: 'Year of Study',
+                      obscureText: false,
+                      textColor: colorScheme.onSurface,
+                      fillColor: colorScheme.surface,
+                    ),
+                    const SizedBox(height: 10),
+                    EnhancedDropdown(
+                      selectedValue: selectedUniversity,
+                      items: universities,
+                      onChanged: (String? value) {
+                        setState(() {
+                          if (value == 'Other') {
+                            isOtherSelected = true;
+                          } else {
+                            isOtherSelected = false;
+                            selectedUniversity = value;
+                          }
+                        });
+                      },
+                    ),
+                    if (isOtherSelected)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: MyTextField(
+                          controller: otherUniversityController,
+                          hintText: 'Enter your university',
+                          obscureText: false,
+                          textColor: colorScheme.onSurface,
+                          fillColor: colorScheme.surface,
+                        ),
+                      ),
+                    const SizedBox(height: 20),
+                    MyButton(
+                      onTap: () {
+                        _pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                      text: 'Next',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordPage(ColorScheme colorScheme) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Password'),
+        backgroundColor: colorScheme.primary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            _pageController.previousPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          },
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(25.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 50),
+                    PasswordTextField(
+                      controller: passwordTextController,
+                      hintText: 'Password',
+                      textColor: colorScheme.onSurface,
+                      fillColor: colorScheme.surface,
+                    ),
+                    const SizedBox(height: 10),
+                    PasswordTextField(
+                      controller: confirmPasswordTextController,
+                      hintText: 'Confirm Password',
+                      textColor: colorScheme.onSurface,
+                      fillColor: colorScheme.surface,
+                    ),
+                    const SizedBox(height: 20),
+                    MyButton(
+                      onTap: signUp,
+                      text: 'Sign Up',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
