@@ -15,7 +15,10 @@ class _TopicsListPageState extends State<TopicsListPage> {
   @override
   Widget build(BuildContext context) {
     final userId = FirebaseAuth.instance.currentUser!.uid;
-
+    var colorScheme = Theme
+        .of(context)
+        .colorScheme; // Access current theme's color scheme
+    var textColor = colorScheme.onSurface;
     return Scaffold(
       appBar: AppBar(
         title: Text('Topics'),
@@ -36,7 +39,7 @@ class _TopicsListPageState extends State<TopicsListPage> {
                 hintText: 'Search topics...',
                 prefixIcon: Icon(Icons.search),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: colorScheme.surface,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,

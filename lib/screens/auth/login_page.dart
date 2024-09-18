@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:e_learning_application/widgets/button.dart';
 import 'package:e_learning_application/widgets/text_field.dart';
 import 'package:e_learning_application/widgets/password_text_field.dart';
-import 'package:loading_btn/loading_btn.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
@@ -53,119 +52,117 @@ class _LoginPageState extends State<LoginPage> {
   void displayMessage(String message) {
     showDialog(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: const Text("Error"),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text("OK"),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text("Error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("OK"),
           ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    var colorScheme = Theme
-        .of(context)
-        .colorScheme; // Access current theme's color scheme
+    var colorScheme = Theme.of(context).colorScheme; // Access current theme's color scheme
     var textColor = colorScheme.onSurface; // Dynamic text color
 
     return Scaffold(
-        backgroundColor: colorScheme.surface, // Dynamic background color
-        body: SafeArea(
-            child: Center(
-            child: Padding(
+      backgroundColor: colorScheme.surface, // Dynamic background color
+      body: SafeArea(
+        child: Center(
+          child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25.0),
-        child: SingleChildScrollView(
-        child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-        const SizedBox(height: 50),
-    // Logo
-    Image.asset(
-    'assets/logos/logo1.png',
-    height: 200,
-    width: 300,
-    ),
-    const SizedBox(height: 10),
-    // Text fields
-    MyTextField(
-    controller: emailTextController,
-    hintText: 'Email',
-    obscureText: false,
-    // Use theme colors
-    textColor: textColor,
-    fillColor: colorScheme.surface,
-    ),
-    const SizedBox(height: 10),
-    PasswordTextField(
-    controller: passwordTextController,
-    hintText: 'Password',
-    textColor: textColor,
-    fillColor: colorScheme.surface,
-    ),
-    const SizedBox(height: 15),
-    // Sign in button
-          isLoading
-              ? CircularProgressIndicator()
-              : GestureDetector(
-            onTap: signIn,
-            child: InkWell(
-              onTap: signIn, // Handle tap
-              borderRadius: BorderRadius.circular(10.0), // Add some border radius
-              splashColor: Colors.teal.withOpacity(0.5), // Change the splash color to match the design
-              child: MyButton(
-                onTap: signIn,
-                text: 'Sign In',
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 50),
+                  // Logo
+                  Image.asset(
+                    'assets/logos/logo1.png',
+                    height: 200,
+                    width: 300,
+                  ),
+                  const SizedBox(height: 10),
+                  // Email text field
+                  MyTextField(
+                    controller: emailTextController,
+                    hintText: 'Email',
+                    obscureText: false,
+                    textColor: textColor,
+                    fillColor: colorScheme.surface,
+                  ),
+                  const SizedBox(height: 10),
+                  // Password text field
+                  PasswordTextField(
+                    controller: passwordTextController,
+                    hintText: 'Password',
+                    textColor: textColor,
+                    fillColor: colorScheme.surface,
+                  ),
+                  const SizedBox(height: 15),
+                  // Sign in button with loading state
+                  isLoading
+                      ? CircularProgressIndicator(
+                    color: colorScheme.primary, // Loading spinner color
+                  )
+                      : MyButton(
+                    onTap: signIn,
+                    text: 'Sign In',
+                    primaryColor: Colors.blue,
+                    secondaryColor: colorScheme.primaryContainer,
+                    textColor: Colors.white,
+                    rippleColor: Colors.blue, // Adjust ripple color
+                    isLoading: isLoading, // Update based on loading
+                  ),
+                  const SizedBox(height: 25),
+                  // Registration option
+                  GestureDetector(
+                    onTap: widget.onTap,
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Not a member? ",
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 16,
+                            ),
+                          ),
+                          TextSpan(
+                            text: "Register Now",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.blue, // Dynamic primary color
+                              fontSize: 16,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 50),
+                  // Footer
+                  Text(
+                    "Pulpath",
+                    style: TextStyle(
+                      color: textColor, // Dynamic text color
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-    const SizedBox(height: 25),
-    // Registration option
-    GestureDetector(
-    onTap: widget.onTap,
-    child: RichText(
-    text: TextSpan(
-    children: [
-    TextSpan(
-    text: "Not a member? ",
-    style: TextStyle(
-    color: Colors.grey[700],
-    fontSize: 16,
-    ),
-    ),
-    TextSpan(
-    text: "Register Now",
-    style: TextStyle(
-    fontWeight: FontWeight.bold,
-    color: colorScheme.primary, // Dynamic primary color
-    fontSize: 16,
-    decoration: TextDecoration.underline,
-    ),
-    ),
-    ],
-    ),
-    ),
-    ),
-    const SizedBox(height: 50),
-    Text(
-    "Pulpath",
-    style: TextStyle(
-    color: textColor, // Dynamic text color
-    fontSize: 18,
-    fontWeight: FontWeight.bold,
-    ),
-    ),
-    ],
-    ),
-    ),
-    ),
-    ),
-    ),
+        ),
+      ),
     );
-    }
   }
+}

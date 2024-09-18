@@ -20,7 +20,7 @@ class _ScoresListPageState extends State<ScoresListPage> {
         centerTitle: true,
         elevation: 0,
       ),
-      body: FutureBuilder<Map<String, int>>(
+      body: FutureBuilder<Map<String, dynamic>>(
         future: _fetchScores(widget.topicId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -30,7 +30,11 @@ class _ScoresListPageState extends State<ScoresListPage> {
           } else if (!snapshot.hasData) {
             return Center(child: Text('No scores available.', style: TextStyle(fontSize: 18, color: Colors.grey[600])));
           } else {
-            var scores = snapshot.data!;
+            var data = snapshot.data!;
+            bool postTestAvailable = data['postTestAvailable'] as bool;
+            int preTestScore = data['preTestScore'] as int;
+            int postTestScore = data['postTestScore'] as int;
+
             return Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -41,9 +45,16 @@ class _ScoresListPageState extends State<ScoresListPage> {
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.teal[700]),
                   ),
                   SizedBox(height: 20),
-                  _buildScoreCard('Pre-Test Score', scores['preTestScore'] ?? 0),
+                  if (postTestAvailable)
+                    _buildScoreCard('Pre-Test Score', preTestScore)
+                  else
+                    Text(
+                      'Complete the post-test to view the scores.',
+                      style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                    ),
                   SizedBox(height: 10),
-                  _buildScoreCard('Post-Test Score', scores['postTestScore'] ?? 0),
+                  if (postTestAvailable)
+                    _buildScoreCard('Post-Test Score', postTestScore)
                 ],
               ),
             );
@@ -53,13 +64,23 @@ class _ScoresListPageState extends State<ScoresListPage> {
     );
   }
 
-  Future<Map<String, int>> _fetchScores(String topicId) async {
+  Future<Map<String, dynamic>> _fetchScores(String topicId) async {
     final topicData = await FirebaseFirestore.instance.collection('topics').doc(topicId).get();
     final pretestId = topicData['pretestId'] as String?;
     final posttestId = topicData['posttestId'] as String?;
 
+    bool postTestAvailable = false;
     int preTestScore = 0;
     int postTestScore = 0;
+
+    if (posttestId != null) {
+      postTestAvailable = true;
+      final postTestResponsesSnapshot = await FirebaseFirestore.instance
+          .collection('student_responses')
+          .where('testId', isEqualTo: posttestId)
+          .get();
+      postTestScore = postTestResponsesSnapshot.docs.fold(0, (sum, doc) => sum + (doc['score'] as int? ?? 0));
+    }
 
     if (pretestId != null) {
       final preTestResponsesSnapshot = await FirebaseFirestore.instance
@@ -69,17 +90,10 @@ class _ScoresListPageState extends State<ScoresListPage> {
       preTestScore = preTestResponsesSnapshot.docs.fold(0, (sum, doc) => sum + (doc['score'] as int? ?? 0));
     }
 
-    if (posttestId != null) {
-      final postTestResponsesSnapshot = await FirebaseFirestore.instance
-          .collection('student_responses')
-          .where('testId', isEqualTo: posttestId)
-          .get();
-      postTestScore = postTestResponsesSnapshot.docs.fold(0, (sum, doc) => sum + (doc['score'] as int? ?? 0));
-    }
-
     return {
       'preTestScore': preTestScore,
       'postTestScore': postTestScore,
+      'postTestAvailable': postTestAvailable,
     };
   }
 

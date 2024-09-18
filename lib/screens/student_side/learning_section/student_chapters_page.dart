@@ -20,6 +20,11 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
   Widget build(BuildContext context) {
     final userId = FirebaseAuth.instance.currentUser!.uid; // Get the userId from FirebaseAuth
 
+    var colorScheme = Theme
+        .of(context)
+        .colorScheme; // Access current theme's color scheme
+    var textColor = colorScheme.onSurface;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Chapters'),

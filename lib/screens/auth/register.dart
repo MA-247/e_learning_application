@@ -171,7 +171,7 @@ class _RegisterPageState extends State<RegisterPage> {
     var colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : PageView(
@@ -194,6 +194,7 @@ class _RegisterPageState extends State<RegisterPage> {
       appBar: AppBar(
         title: const Text('Registration'),
         backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.surface,// AppBar color matching the theme
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onTap, // Back to login screen
@@ -244,6 +245,10 @@ class _RegisterPageState extends State<RegisterPage> {
                         }
                       },
                       text: 'Next',
+                        primaryColor: colorScheme.primary,
+                        secondaryColor: colorScheme.primaryContainer,
+                        textColor: Colors.white,
+                        rippleColor: Colors.teal, // Adjust ripple color
                     ),
                   ],
                 ),
@@ -256,10 +261,14 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _buildSecondPage(ColorScheme colorScheme) {
+    // Define the list of year options
+    final List<String> yearOptions = ['1', '2', '3', '4', '5'];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Details'),
         backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.surface,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -275,64 +284,95 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Column(
           children: [
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 50),
-                    MyTextField(
-                      controller: cityTextController,
-                      hintText: 'City',
-                      obscureText: false,
-                      textColor: colorScheme.onSurface,
-                      fillColor: colorScheme.surface,
-                    ),
-                    const SizedBox(height: 10),
-                    MyTextField(
-                      controller: yearOfStudyTextController,
-                      hintText: 'Year of Study',
-                      obscureText: false,
-                      textColor: colorScheme.onSurface,
-                      fillColor: colorScheme.surface,
-                    ),
-                    const SizedBox(height: 10),
-                    EnhancedDropdown(
-                      selectedValue: selectedUniversity,
-                      items: universities,
-                      onChanged: (String? value) {
-                        setState(() {
-                          if (value == 'Other') {
-                            isOtherSelected = true;
-                          } else {
-                            isOtherSelected = false;
-                            selectedUniversity = value;
-                          }
-                        });
-                      },
-                    ),
-                    if (isOtherSelected)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10.0),
-                        child: MyTextField(
-                          controller: otherUniversityController,
-                          hintText: 'Enter your university',
-                          obscureText: false,
-                          textColor: colorScheme.onSurface,
-                          fillColor: colorScheme.surface,
-                        ),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 50),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
+                            child: MyTextField(
+                              controller: cityTextController,
+                              hintText: 'City',
+                              obscureText: false,
+                              textColor: colorScheme.onSurface,
+                              fillColor: colorScheme.surface,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
+                            child: EnhancedDropdown(
+                              hintText: "Year of Study",
+                              selectedValue: yearOfStudyTextController.text.isEmpty
+                                  ? null
+                                  : yearOfStudyTextController.text,
+                              items: yearOptions,
+                              onChanged: (String? value) {
+                                setState(() {
+                                  yearOfStudyTextController.text = value ?? '';
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
+                            child: EnhancedDropdown(
+                              hintText: "University",
+                              selectedValue: selectedUniversity,
+                              items: universities,
+                              onChanged: (String? value) {
+                                setState(() {
+                                  if (value == 'Other') {
+                                    isOtherSelected = true;
+                                  } else {
+                                    isOtherSelected = false;
+                                    selectedUniversity = value;
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                          if (isOtherSelected) // Conditionally render the additional field
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
+                              child: MyTextField(
+                                controller: otherUniversityController,
+                                hintText: 'Enter your university',
+                                obscureText: false,
+                                textColor: colorScheme.onSurface,
+                                fillColor: colorScheme.surface,
+                              ),
+                            ),
+                          SizedBox(height: 10),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
+                            child: MyButton(
+                              onTap: () {
+                                if (_areFieldsValid()) {
+                                  _pageController.nextPage(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                }
+                              },
+                              text: 'Next',
+                              primaryColor: colorScheme.primary,
+                              secondaryColor: colorScheme.primaryContainer,
+                              textColor: Colors.white,
+                              rippleColor: Colors.teal, // Adjust ripple color
+                            ),
+                          ),
+                        ],
                       ),
-                    const SizedBox(height: 20),
-                    MyButton(
-                      onTap: () {
-                        _pageController.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        );
-                      },
-                      text: 'Next',
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -340,6 +380,8 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
+
+
 
   Widget _buildPasswordPage(ColorScheme colorScheme) {
     return Scaffold(
@@ -382,7 +424,11 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 20),
                     MyButton(
                       onTap: signUp,
-                      text: 'Sign Up',
+                      text: 'Register',
+                        primaryColor: colorScheme.primary,
+                        secondaryColor: colorScheme.primaryContainer,
+                        textColor: Colors.white,
+                        rippleColor: Colors.teal, // Adjust ripple color
                     ),
                   ],
                 ),

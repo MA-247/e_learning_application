@@ -5,6 +5,7 @@ class EnhancedDropdown extends StatelessWidget {
   final List<String> items;
   final void Function(String?)? onChanged;
   final Color? dropdownColor; // Added parameter
+  final String hintText; // Added parameter for hint text
 
   const EnhancedDropdown({
     super.key,
@@ -12,6 +13,7 @@ class EnhancedDropdown extends StatelessWidget {
     required this.items,
     required this.onChanged,
     this.dropdownColor, // Added parameter
+    this.hintText = 'Select an option', // Default hint text
   });
 
   @override
@@ -23,12 +25,12 @@ class EnhancedDropdown extends StatelessWidget {
       ),
       child: DropdownButtonFormField<String>(
         value: selectedValue,
-        hint: const Text('Select University'),
-        items: items.map((String university) {
+        hint: Text(hintText), // Use hintText parameter
+        items: items.map((String item) {
           return DropdownMenuItem<String>(
-            value: university,
+            value: item,
             child: Text(
-              university,
+              item,
               style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
           );

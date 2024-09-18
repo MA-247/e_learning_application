@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_learning_application/widgets/text_field.dart'; // Your custom text field widget
-import 'package:e_learning_application/widgets/button.dart'; // Your custom button widget
 import 'package:e_learning_application/widgets/drop_down_menu.dart'; // Your custom dropdown widget
 
 class EditProfilePage extends StatefulWidget {
@@ -22,9 +20,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final nameTextController = TextEditingController();
   final emailTextController = TextEditingController();
   final cityTextController = TextEditingController();
-  final universityTextController = TextEditingController(); // Replace with dropdown in UI
+  final passwordTextController = TextEditingController();
+  final confirmPasswordTextController = TextEditingController();
   final List<String> universities = [];
   String? selectedUniversity;
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
 
   @override
@@ -64,6 +65,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _updateProfile() async {
+    if (passwordTextController.text != confirmPasswordTextController.text) {
+      _showMessage('Passwords do not match.');
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -72,6 +78,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
       User? user = _auth.currentUser;
       if (user != null) {
         // Update Firebase Authentication user details
+        if (passwordTextController.text.isNotEmpty) {
+          await user.updatePassword(passwordTextController.text);
+        }
         await user.updateDisplayName(nameTextController.text);
 
         // Update Firestore user details
@@ -116,22 +125,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
     var textColor = colorScheme.onSurface; // Dynamic text color
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        backgroundColor: colorScheme.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 20),
               // Profile Picture
               CircleAvatar(
                 radius: 60,
-                backgroundColor: Colors.blue.shade800,
+                backgroundColor: colorScheme.primary,
                 child: Text(
                   widget.user.displayName?.substring(0, 1) ?? '',
                   style: const TextStyle(fontSize: 40, color: Colors.white),
@@ -139,52 +149,119 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               const SizedBox(height: 20),
               // TextFields
-              MyTextField(
-                controller: nameTextController,
-                hintText: 'Full Name',
-                obscureText: false,
-                textColor: textColor,
-                fillColor: colorScheme.surface,
-              ),
+              _buildTextField(controller: nameTextController, hintText: 'Full Name', textColor: textColor, colorScheme: colorScheme),
               const SizedBox(height: 10),
-              MyTextField(
-                controller: emailTextController,
-                hintText: 'Email',
-                obscureText: false,
-                textColor: textColor,
-                fillColor: colorScheme.surface,
-              ),
+              _buildTextField(controller: emailTextController, hintText: 'Email', textColor: textColor, colorScheme: colorScheme),
               const SizedBox(height: 10),
-              MyTextField(
-                controller: cityTextController,
-                hintText: 'City',
-                obscureText: false,
-                textColor: textColor,
-                fillColor: colorScheme.surface,
-              ),
+              _buildTextField(controller: cityTextController, hintText: 'City', textColor: textColor, colorScheme: colorScheme),
               const SizedBox(height: 10),
-              // Enhanced Dropdown for University
+              // Password Fields
+              _buildPasswordField(controller: passwordTextController, hintText: 'New Password (leave empty to keep current)', textColor: textColor, colorScheme: colorScheme, isVisible: _isPasswordVisible, onToggle: () {
+                setState(() {
+                  _isPasswordVisible = !_isPasswordVisible;
+                });
+              }),
+              const SizedBox(height: 10),
+              _buildPasswordField(controller: confirmPasswordTextController, hintText: 'Confirm New Password', textColor: textColor, colorScheme: colorScheme, isVisible: _isConfirmPasswordVisible, onToggle: () {
+                setState(() {
+                  _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                });
+              }),
+              const SizedBox(height: 10),
+              // University Dropdown
               EnhancedDropdown(
-                selectedValue: selectedUniversity,
                 items: universities,
-                onChanged: (String? newValue) {
+                selectedValue: selectedUniversity,
+                onChanged: (value) {
                   setState(() {
-                    selectedUniversity = newValue;
+                    selectedUniversity = value;
                   });
                 },
               ),
               const SizedBox(height: 20),
-              // Save Button
               _isLoading
-                  ? CircularProgressIndicator()
-                  : MyButton(
-                onTap: _updateProfile,
-                text: 'Save Changes',
+                  ? Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                onPressed: _updateProfile,
+                child: const Text('Update Profile'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: colorScheme.onPrimary,
+                  backgroundColor: colorScheme.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required Color textColor,
+    required ColorScheme colorScheme,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
+        fillColor: colorScheme.surface,
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide(color: textColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide(color: textColor.withOpacity(0.5)),
+        ),
+      ),
+      style: TextStyle(color: textColor),
+    );
+  }
+
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String hintText,
+    required Color textColor,
+    required ColorScheme colorScheme,
+    required bool isVisible,
+    required VoidCallback onToggle,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: !isVisible,
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
+        fillColor: colorScheme.surface,
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide(color: textColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide(color: textColor.withOpacity(0.5)),
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(isVisible ? Icons.visibility : Icons.visibility_off),
+          onPressed: onToggle,
+        ),
+      ),
+      style: TextStyle(color: textColor),
     );
   }
 }

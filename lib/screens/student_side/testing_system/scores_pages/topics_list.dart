@@ -9,9 +9,10 @@ class ScoresTopicsListPage extends StatefulWidget {
 
 class _ScoresTopicsListPageState extends State<ScoresTopicsListPage> {
   String searchQuery = '';
-
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Topics'),
@@ -32,7 +33,7 @@ class _ScoresTopicsListPageState extends State<ScoresTopicsListPage> {
                 hintText: 'Search topics...',
                 prefixIcon: Icon(Icons.search),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: colorScheme.surface,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
