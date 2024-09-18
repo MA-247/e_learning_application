@@ -75,7 +75,7 @@ class FacultyHomePage extends StatelessWidget {
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: theme.primaryColor, // Use primary color for both modes
+                color: Colors.blue, // Use primary color for both modes
               ),
               child: Align(
                 alignment: Alignment.topLeft,
