@@ -153,7 +153,7 @@ class StudentHomePage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ScoresTopicsListPage(),
+                  MaterialPageRoute(builder: (context) => ScoresTopicsListPage(userId: user.uid),
                   )
                 );
               },

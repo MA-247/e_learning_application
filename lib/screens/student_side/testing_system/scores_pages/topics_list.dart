@@ -3,12 +3,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_learning_application/screens/student_side/testing_system/scores_pages/test_score_page.dart';
 
 class ScoresTopicsListPage extends StatefulWidget {
+  final String userId;  // Add userId parameter
+
+  ScoresTopicsListPage({required this.userId});  // Update the constructor
+
   @override
   _ScoresTopicsListPageState createState() => _ScoresTopicsListPageState();
 }
 
 class _ScoresTopicsListPageState extends State<ScoresTopicsListPage> {
   String searchQuery = '';
+
   @override
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
@@ -83,7 +88,10 @@ class _ScoresTopicsListPageState extends State<ScoresTopicsListPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ScoresListPage(topicId: topic.id),
+                          builder: (context) => ScoresListPage(
+                            topicId: topic.id,
+                            userId: widget.userId,  // Pass the userId
+                          ),
                         ),
                       );
                     },

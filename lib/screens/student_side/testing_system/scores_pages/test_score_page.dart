@@ -3,8 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ScoresListPage extends StatefulWidget {
   final String topicId;
+  final String userId;  // Add userId here
 
-  ScoresListPage({required this.topicId});
+  ScoresListPage({required this.topicId, required this.userId});  // Update the constructor
 
   @override
   _ScoresListPageState createState() => _ScoresListPageState();
@@ -21,7 +22,7 @@ class _ScoresListPageState extends State<ScoresListPage> {
         elevation: 0,
       ),
       body: FutureBuilder<Map<String, dynamic>>(
-        future: _fetchScores(widget.topicId),
+        future: _fetchScores(widget.topicId, widget.userId),  // Pass the userId
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator(color: Colors.teal));
@@ -64,7 +65,7 @@ class _ScoresListPageState extends State<ScoresListPage> {
     );
   }
 
-  Future<Map<String, dynamic>> _fetchScores(String topicId) async {
+  Future<Map<String, dynamic>> _fetchScores(String topicId, String userId) async {
     final topicData = await FirebaseFirestore.instance.collection('topics').doc(topicId).get();
     final pretestId = topicData['pretestId'] as String?;
     final posttestId = topicData['posttestId'] as String?;
@@ -74,18 +75,22 @@ class _ScoresListPageState extends State<ScoresListPage> {
     int postTestScore = 0;
 
     if (posttestId != null) {
-      postTestAvailable = true;
       final postTestResponsesSnapshot = await FirebaseFirestore.instance
           .collection('student_responses')
           .where('testId', isEqualTo: posttestId)
+          .where('userId', isEqualTo: userId)
           .get();
-      postTestScore = postTestResponsesSnapshot.docs.fold(0, (sum, doc) => sum + (doc['score'] as int? ?? 0));
+      if (postTestResponsesSnapshot.docs.isNotEmpty) {
+        postTestAvailable = true;
+        postTestScore = postTestResponsesSnapshot.docs.fold(0, (sum, doc) => sum + (doc['score'] as int? ?? 0));
+      }
     }
 
     if (pretestId != null) {
       final preTestResponsesSnapshot = await FirebaseFirestore.instance
           .collection('student_responses')
           .where('testId', isEqualTo: pretestId)
+          .where('userId', isEqualTo: userId)
           .get();
       preTestScore = preTestResponsesSnapshot.docs.fold(0, (sum, doc) => sum + (doc['score'] as int? ?? 0));
     }
