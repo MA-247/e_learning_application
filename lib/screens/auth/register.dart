@@ -102,7 +102,7 @@ class _RegisterPageState extends State<RegisterPage> {
     if (!_isPasswordValid()) return;
 
     setState(() {
-      _isLoading = true;
+      _isLoading = true; // Show loading
     });
 
     try {
@@ -115,8 +115,6 @@ class _RegisterPageState extends State<RegisterPage> {
       User? user = userCredential.user;
       if (user != null) {
         // Update display name
-        Navigator.of(context).popUntil((route) => route.isFirst); // Navigate back to the login screen
-
         await user.updateDisplayName(nameTextController.text);
 
         // Send email verification
@@ -129,10 +127,13 @@ class _RegisterPageState extends State<RegisterPage> {
           'city': cityTextController.text,
           'university': isOtherSelected ? otherUniversityController.text : selectedUniversity,
           'yearOfStudy': yearOfStudyTextController.text,
-          'faculty': false,
+          'role': 1,
         });
 
-        // Show success message and navigate to login page
+        // Sign out the user after saving the data
+        await _auth.signOut();
+
+        // Show success message and navigate to login page after user is fully signed out
         displayMessage('Registration successful! A verification email has been sent to your email. Please verify your email before logging in.', () {
           Navigator.of(context).popUntil((route) => route.isFirst); // Navigate back to the login screen
         });
@@ -143,10 +144,12 @@ class _RegisterPageState extends State<RegisterPage> {
       displayMessage(e.message ?? 'An error occurred during registration.');
     } finally {
       setState(() {
-        _isLoading = false;
+        _isLoading = false; // Stop loading only after all actions are complete
       });
     }
   }
+
+
 
   void displayMessage(String message, [VoidCallback? onDismiss]) {
     showDialog(
@@ -338,6 +341,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               },
                             ),
                           ),
+                          SizedBox(height: 10,),
                           if (isOtherSelected) // Conditionally render the additional field
                             SizedBox(
                               width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width

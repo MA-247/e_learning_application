@@ -48,6 +48,8 @@ class TestListPage extends StatelessWidget {
             itemCount: tests.length,
             itemBuilder: (context, index) {
               var test = tests[index];
+              var testTitle = test['title'] ?? 'Untitled Test'; // Fetch test title, with a fallback
+
               return Card(
                 margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 elevation: 6,
@@ -57,7 +59,10 @@ class TestListPage extends StatelessWidget {
                 ),
                 child: ListTile(
                   leading: Icon(Icons.description, color: Colors.teal[300]),
-                  title: Text('Test ${index + 1}', style: TextStyle(fontWeight: FontWeight.bold)),
+                  title: Text(
+                    testTitle, // Display the actual test title
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text('ID: ${test.id}', style: TextStyle(color: Colors.grey[600])),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,

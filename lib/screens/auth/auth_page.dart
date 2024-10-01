@@ -13,29 +13,28 @@ class AuthPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder(
+      body: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
-          // user logged in
+          // User logged in
           if (snapshot.hasData) {
             User user = snapshot.data!;
-            return FutureBuilder<bool?>(
-              future: _authService.isFaculty(user.uid),
+            return FutureBuilder<int?>(
+              future: _authService.getUserRole(user.uid), // Updated method name
               builder: (context, roleSnapshot) {
                 if (roleSnapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 } else if (roleSnapshot.hasError) {
                   return Center(child: Text('Error: ${roleSnapshot.error}'));
                 } else {
-                  bool? isFaculty = roleSnapshot.data;
-                  if (isFaculty == true) {
+                  int? userRole = roleSnapshot.data;
+                  if (userRole == 2) { // Check for faculty
                     print(user.displayName);
                     return FacultyHomePage(user: user);
-                  } else if (isFaculty == false) {
+                  } else if (userRole == 1) { // Check for student
                     return StudentHomePage(user: user);
-                  }
-                  else{
-                    print("error in role based login");
+                  } else {
+                    print("Error in role-based login");
                     return LoginOrRegister();
                   }
                 }

@@ -3,14 +3,17 @@ import 'package:flutter/material.dart';
 class TestUploadConfirmationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Upload Confirmation'),
-        backgroundColor: Colors.blue[400], // Slightly different shade for a fresher look
-        elevation: 4.0, // Add elevation for a subtle shadow
+        backgroundColor: theme.primaryColor, // Use theme's primary color
+        elevation: 4.0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0), // Add padding for better spacing
+        padding: const EdgeInsets.all(16.0),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -19,16 +22,16 @@ class TestUploadConfirmationScreen extends StatelessWidget {
               Icon(
                 Icons.check_circle_outline,
                 size: 100.0,
-                color: Colors.green[400], // Green check icon for success
+                color: isDarkMode ? Colors.greenAccent : Colors.green[400], // Adaptive color for success icon
               ),
               SizedBox(height: 20),
               Text(
                 'Test has been successfully uploaded!',
-                textAlign: TextAlign.center, // Center align the text
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87, // Darker text for better readability
+                  color: theme.textTheme.titleLarge!.color, // Use theme's text color
                 ),
               ),
               SizedBox(height: 30),
@@ -38,21 +41,28 @@ class TestUploadConfirmationScreen extends StatelessWidget {
                   Navigator.popUntil(context, (route) => route.isFirst);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[500], // Matching button color
+                  backgroundColor: theme.primaryColor, // Use theme's primary color for button
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0), // Rounded corners
+                    borderRadius: BorderRadius.circular(30.0),
                   ),
+                  elevation: isDarkMode ? 6.0 : 3.0, // Slightly different shadow for dark mode
                 ),
                 child: Text(
                   'Go to Home',
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(
+                    fontSize: 18, // Slightly larger font for better readability
+                    fontWeight: FontWeight.w600, // Semi-bold font for emphasis
+                    letterSpacing: 1.2, // Slight letter spacing for improved legibility
+                    color: theme.buttonTheme.colorScheme?.onPrimary ?? Colors.white, // Ensure good contrast with the button color
+                  ),
                 ),
               ),
             ],
           ),
         ),
       ),
+      backgroundColor: theme.scaffoldBackgroundColor, // Adapt background color to theme
     );
   }
 }

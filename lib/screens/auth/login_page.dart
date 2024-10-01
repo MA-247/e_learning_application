@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:e_learning_application/widgets/button.dart';
 import 'package:e_learning_application/widgets/text_field.dart';
 import 'package:e_learning_application/widgets/password_text_field.dart';
+import 'package:e_learning_application/services/auth_service.dart';
+import 'package:e_learning_application/screens/student_side/student_home_page.dart';
+import 'package:e_learning_application/screens/faculty_side/faculty_home_page.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
@@ -16,6 +19,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final emailTextController = TextEditingController();
   final passwordTextController = TextEditingController();
+  final AuthService _authService = AuthService();
 
   bool isLoading = false; // Track login progress
 
@@ -32,13 +36,37 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       User? user = userCredential.user;
-      if (user != null && !user.emailVerified) {
-        displayMessage("Please verify your email before logging in.");
-        await FirebaseAuth.instance
-            .signOut(); // Sign out the user if email is not verified
-        await user
-            .sendEmailVerification(); // Optionally resend verification email
-        return;
+      if (user != null) {
+        // DEBUG: Check if the user is authenticated
+        print("User authenticated: ${user.email}");
+
+        // Check if the email is verified
+        if (!user.emailVerified) {
+          displayMessage("Please verify your email before logging in.");
+          await FirebaseAuth.instance.signOut(); // Sign out if not verified
+          await user.sendEmailVerification(); // Resend verification email
+          return;
+        }
+
+        // Get user role
+        int? userRole = await _authService.getUserRole(user.uid);
+        if (userRole != null) {
+          print("User role: $userRole");
+          if (userRole == 2) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => FacultyHomePage(user: user)),
+            );
+          } else if (userRole == 1) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => StudentHomePage(user: user)),
+            );
+          } else {
+            displayMessage("User role not recognized.");
+            await FirebaseAuth.instance.signOut();
+          }
+        } else {
+          displayMessage("Unable to retrieve user role.");
+        }
       }
     } on FirebaseAuthException catch (e) {
       displayMessage(e.message ?? "An error occurred");
@@ -48,6 +76,7 @@ class _LoginPageState extends State<LoginPage> {
       });
     }
   }
+
 
   void displayMessage(String message) {
     showDialog(

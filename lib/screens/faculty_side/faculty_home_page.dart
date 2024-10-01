@@ -73,53 +73,40 @@ class FacultyHomePage extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue, // Use primary color for both modes
+            UserAccountsDrawerHeader(
+              accountName: Text(
+                user.displayName ?? 'Student',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CircleAvatar(
-                      backgroundImage: AssetImage('assets/logos/logo1.png'),
-                      radius: 40,
-                      backgroundColor: theme.colorScheme.surface, // Adapt background color
-                    ),
-                    SizedBox(height: 15),
-                    Text(
-                      'Pulpath', // Left unchanged as per request.
-                      style: TextStyle(
-                        color: theme.textTheme.titleLarge?.color, // Adapt text color
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+              accountEmail: Text(user.email ?? ''),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Text(
+                  user.displayName?.substring(0, 1).toUpperCase() ?? '',
+                  style: TextStyle(
+                    fontSize: 40.0,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Theme.of(context).primaryColor, Colors.blueGrey],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
             ),
             ListTile(
-              leading: Icon(Icons.home, color: theme.iconTheme.color),
-              title: Text(
-                'Home',
-                style: TextStyle(fontSize: 18, color: theme.textTheme.bodyLarge?.color),
-              ),
+              leading: Icon(Icons.home),
+              title: Text('Home'),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => FacultyHomePage(user: user)),
-                );
+                Navigator.pop(context);
               },
             ),
             ListTile(
-              leading: Icon(Icons.settings, color: theme.iconTheme.color),
-              title: Text(
-                'Settings',
-                style: TextStyle(fontSize: 18, color: theme.textTheme.bodyLarge?.color),
-              ),
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
               onTap: () {
                 Navigator.push(
                   context,
@@ -128,11 +115,8 @@ class FacultyHomePage extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.info, color: theme.iconTheme.color),
-              title: Text(
-                'About',
-                style: TextStyle(fontSize: 18, color: theme.textTheme.bodyLarge?.color),
-              ),
+              leading: Icon(Icons.info),
+              title: Text('About'),
               onTap: () {
                 Navigator.push(
                   context,
@@ -142,11 +126,8 @@ class FacultyHomePage extends StatelessWidget {
             ),
             Divider(),
             ListTile(
-              leading: Icon(Icons.logout, color: Colors.red[700]), // Bright logout icon remains unchanged
-              title: Text(
-                'Log Out',
-                style: TextStyle(fontSize: 18, color: Colors.red[700]),
-              ),
+              leading: Icon(Icons.exit_to_app, color: Colors.red),
+              title: Text('Log Out', style: TextStyle(color: Colors.red)),
               onTap: () {
                 signOut();
               },
@@ -154,6 +135,11 @@ class FacultyHomePage extends StatelessWidget {
           ],
         ),
       ),
+
+
+
+
+
       body: Center(
         child: Column(
           children: [

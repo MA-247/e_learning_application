@@ -45,6 +45,7 @@ dependencies:
   file_picker: ^8.0.7
   shared_preferences: ^2.3.2
   loading_btn: ^1.0.3
+  model_viewer_plus: ^1.8.0
 
 
 dev_dependencies:
@@ -79,6 +80,7 @@ flutter:
   assets:
     - assets/logos/logo1.png
     - assets/logos/PULPATH_logo.jpg
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
