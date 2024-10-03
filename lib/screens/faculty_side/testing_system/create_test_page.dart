@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -92,6 +93,16 @@ class _CreateTestPageState extends State<CreateTestPage> {
       );
 
       try {
+        // Get current faculty member info
+        final User? currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser == null) {
+          throw 'No faculty member is logged in';
+        }
+
+        String facultyId = currentUser.uid;
+        String facultyEmail = currentUser.email ?? '';
+        String facultyName = currentUser.displayName ?? 'Anonymous';  // If display name is set
+
         // Upload images to Firebase Storage
         for (var field in _fields) {
           if (field.type == FieldType.image && field.image != null) {
@@ -129,28 +140,34 @@ class _CreateTestPageState extends State<CreateTestPage> {
           }
         }).toList();
 
-        // Add test data to Firestore
+        // Add test data to Firestore, including faculty info
         await FirebaseFirestore.instance.collection('tests').add({
           'title': _titleController.text,
           'fields': fieldData,
+          'createdBy': {
+            'facultyId': facultyId,
+            'facultyEmail': facultyEmail,
+            'facultyName': facultyName,
+          },
+          'createdAt': DateTime.now(),
         });
 
         // Pop the loading screen and navigate to the confirmation screen
         Navigator.pop(context); // Close the loading screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) => TestUploadConfirmationScreen()),
+          MaterialPageRoute(builder: (context) => TestUploadConfirmationScreen()),
         );
       } catch (e) {
         // Pop the loading screen and show an error message
         Navigator.pop(context); // Close the loading screen
 
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to upload test: $e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to upload test: $e')));
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

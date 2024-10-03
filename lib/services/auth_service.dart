@@ -5,15 +5,17 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // Fetch user role based on Firestore integer field 'role'
   Future<int?> getUserRole(String uid) async {
     try {
       DocumentSnapshot snapshot = await _firestore.collection('users').doc(uid).get();
 
-      // Assuming 'faculty' is a boolean field in Firestore
-      // You may need to adjust this based on your Firestore schema
       if (snapshot.exists) {
-        bool isFaculty = snapshot['role'];
-        return isFaculty ? 2 : 1; // 2 for faculty, 1 for student
+        // Get the role from the Firestore document
+        int role = snapshot['role'];
+
+        // Return the role directly since it's already stored as an int
+        return role; // Example: 1 for student, 2 for faculty, 3 for admin
       } else {
         print("User document does not exist");
         return null;

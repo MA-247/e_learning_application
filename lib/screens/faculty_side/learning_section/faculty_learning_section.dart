@@ -75,16 +75,24 @@ class ManageTopicsPage extends StatelessWidget {
                 final title = topicTitleController.text;
                 if (title.isNotEmpty) {
                   if (topicId == null) {
+                    // Adding a new topic
                     await FirebaseFirestore.instance.collection('topics').add({
                       'title': title,
                       'pretestId': selectedPretestId,
                       'posttestId': selectedPosttestId,
+                      'addedBy': user.uid, // Store the faculty member's ID
+                      'addedByEmail': user.email, // Optionally store their email
+                      'timestamp': FieldValue.serverTimestamp(), // To track when it was added
                     });
                   } else {
+                    // Editing an existing topic
                     await FirebaseFirestore.instance.collection('topics').doc(topicId).update({
                       'title': title,
                       'pretestId': selectedPretestId,
                       'posttestId': selectedPosttestId,
+                      'lastEditedBy': user.uid, // Track who last edited the topic
+                      'lastEditedByEmail': user.email, // Optionally store their email
+                      'lastEditedTimestamp': FieldValue.serverTimestamp(), // To track when it was last edited
                     });
                   }
                   Navigator.of(context).pop();
@@ -139,7 +147,10 @@ class ManageTopicsPage extends StatelessWidget {
         backgroundColor: Colors.teal[300], // Updated color
       ),
       body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('topics').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('topics')
+            .where('addedBy', isEqualTo: user.uid) // Filter topics by the faculty ID (current user)
+            .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());

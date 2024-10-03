@@ -1,5 +1,7 @@
+import 'package:e_learning_application/screens/faculty_side/learning_section/add_chapter_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CreateTestPage extends StatefulWidget {
   @override
@@ -11,6 +13,21 @@ class _CreateTestPageState extends State<CreateTestPage> {
   String _testTitle = '';
   bool _isLoading = false;
 
+  // Method to get current user's details
+  Future<Map<String, String>> _getFacultyInfo() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('faculty')
+          .doc(currentUser.uid)
+          .get();
+      String name = userDoc['name'];
+      String email = currentUser.email!;
+      return {'name': name, 'email': email};
+    }
+    return {'name': 'Unknown', 'email': 'Unknown'};
+  }
+
   Future<void> _createTest() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -20,9 +37,14 @@ class _CreateTestPageState extends State<CreateTestPage> {
       });
 
       try {
+        // Retrieve faculty info
+        Map<String, String> facultyInfo = await _getFacultyInfo();
+
         await FirebaseFirestore.instance.collection('tests').add({
           'title': _testTitle,
-          // Add other test fields here
+          'createdBy': facultyInfo['name'],
+          'creatorEmail': facultyInfo['email'],
+          'createdAt': Timestamp.now(),
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -102,116 +124,6 @@ class _CreateTestPageState extends State<CreateTestPage> {
                   ),
                   child: Text(
                     'Add Chapter',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class AddChapterPage extends StatefulWidget {
-  @override
-  _AddChapterPageState createState() => _AddChapterPageState();
-}
-
-class _AddChapterPageState extends State<AddChapterPage> {
-  final _formKey = GlobalKey<FormState>();
-  String _title = '';
-  String _description = '';
-  bool _isLoading = false;
-
-  Future<void> _addChapter() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-
-      setState(() {
-        _isLoading = true; // Show loading state
-      });
-
-      try {
-        await FirebaseFirestore.instance.collection('chapters').add({
-          'title': _title,
-          'description': _description,
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Chapter added successfully!')),
-        );
-
-        Navigator.of(context).pop(); // Navigate back to the previous screen
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add chapter: $e')),
-        );
-      } finally {
-        setState(() {
-          _isLoading = false; // Hide loading state
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Chapter'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Chapter Title',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a chapter title';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _title = value!;
-                },
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 5,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _description = value!;
-                },
-              ),
-              Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _addChapter,
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 14),
-                    backgroundColor: Colors.teal[300],
-                  ),
-                  child: Text(
-                    _isLoading ? 'Adding...' : 'Add Chapter',
                     style: TextStyle(fontSize: 18),
                   ),
                 ),

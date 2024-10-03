@@ -22,12 +22,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final cityTextController = TextEditingController();
   final passwordTextController = TextEditingController();
   final confirmPasswordTextController = TextEditingController();
+  final customUniversityController = TextEditingController();
   final List<String> universities = [];
   String? selectedUniversity;
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
+  bool _isOtherUniversitySelected = false;
 
+  @override
   @override
   void initState() {
     super.initState();
@@ -45,6 +48,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
           emailTextController.text = data['email'] ?? '';
           cityTextController.text = data['city'] ?? '';
           selectedUniversity = data['university'];
+          if (selectedUniversity == 'Other') {
+            _isOtherUniversitySelected = true;
+            customUniversityController.text = data['customUniversity'] ?? '';
+          }
         });
       }
     } catch (e) {
@@ -57,12 +64,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
       QuerySnapshot snapshot = await _db_firestore.collection('universities').get();
       List<String> fetchedUniversities = snapshot.docs.map((doc) => doc['name'] as String).toList();
       setState(() {
+        universities.clear(); // Clear any previous data
         universities.addAll(fetchedUniversities);
+        universities.add('Other'); // Add the "Other" option
       });
     } catch (e) {
       _showMessage('Failed to load universities: ${e.toString()}');
     }
   }
+
+
 
   Future<void> _updateProfile() async {
     if (passwordTextController.text != confirmPasswordTextController.text) {
@@ -83,13 +94,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
         }
         await user.updateDisplayName(nameTextController.text);
 
-        // Update Firestore user details
-        await _db_firestore.collection('users').doc(user.uid).update({
+        // Prepare the data to update
+        Map<String, dynamic> updateData = {
           'name': nameTextController.text,
           'email': emailTextController.text,
           'city': cityTextController.text,
           'university': selectedUniversity,
-        });
+        };
+
+        if (selectedUniversity == 'Other') {
+          updateData['customUniversity'] = customUniversityController.text;
+        }
+
+        // Update Firestore user details
+        await _db_firestore.collection('users').doc(user.uid).update(updateData);
 
         _showMessage('Profile updated successfully!');
       } else {
@@ -112,7 +130,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("OK"),
+            child: const Text("OK"),
           ),
         ],
       ),
@@ -127,7 +145,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         backgroundColor: colorScheme.primary,
       ),
@@ -156,17 +174,31 @@ class _EditProfilePageState extends State<EditProfilePage> {
               _buildTextField(controller: cityTextController, hintText: 'City', textColor: textColor, colorScheme: colorScheme),
               const SizedBox(height: 10),
               // Password Fields
-              _buildPasswordField(controller: passwordTextController, hintText: 'New Password (leave empty to keep current)', textColor: textColor, colorScheme: colorScheme, isVisible: _isPasswordVisible, onToggle: () {
-                setState(() {
-                  _isPasswordVisible = !_isPasswordVisible;
-                });
-              }),
+              _buildPasswordField(
+                controller: passwordTextController,
+                hintText: 'New Password (leave empty to keep current)',
+                textColor: textColor,
+                colorScheme: colorScheme,
+                isVisible: _isPasswordVisible,
+                onToggle: () {
+                  setState(() {
+                    _isPasswordVisible = !_isPasswordVisible;
+                  });
+                },
+              ),
               const SizedBox(height: 10),
-              _buildPasswordField(controller: confirmPasswordTextController, hintText: 'Confirm New Password', textColor: textColor, colorScheme: colorScheme, isVisible: _isConfirmPasswordVisible, onToggle: () {
-                setState(() {
-                  _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                });
-              }),
+              _buildPasswordField(
+                controller: confirmPasswordTextController,
+                hintText: 'Confirm New Password',
+                textColor: textColor,
+                colorScheme: colorScheme,
+                isVisible: _isConfirmPasswordVisible,
+                onToggle: () {
+                  setState(() {
+                    _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                  });
+                },
+              ),
               const SizedBox(height: 10),
               // University Dropdown
               EnhancedDropdown(
@@ -175,12 +207,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 onChanged: (value) {
                   setState(() {
                     selectedUniversity = value;
+                    _isOtherUniversitySelected = value == 'Other';
                   });
                 },
               ),
+              const SizedBox(height: 10),
+              // Custom University TextField
+              if (_isOtherUniversitySelected)
+                _buildTextField(
+                  controller: customUniversityController,
+                  hintText: 'Enter University Name',
+                  textColor: textColor,
+                  colorScheme: colorScheme,
+                ),
               const SizedBox(height: 20),
               _isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
                 onPressed: _updateProfile,
                 child: const Text('Update Profile'),
@@ -245,6 +287,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
         hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
         fillColor: colorScheme.surface,
         filled: true,
+        suffixIcon: IconButton(
+          icon: Icon(isVisible ? Icons.visibility : Icons.visibility_off, color: textColor),
+          onPressed: onToggle,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
@@ -255,10 +301,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
           borderSide: BorderSide(color: textColor.withOpacity(0.5)),
-        ),
-        suffixIcon: IconButton(
-          icon: Icon(isVisible ? Icons.visibility : Icons.visibility_off),
-          onPressed: onToggle,
         ),
       ),
       style: TextStyle(color: textColor),

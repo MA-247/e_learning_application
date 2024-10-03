@@ -50,6 +50,7 @@ class _LoginPageState extends State<LoginPage> {
 
         // Get user role
         int? userRole = await _authService.getUserRole(user.uid);
+        print(userRole);
         if (userRole != null) {
           print("User role: $userRole");
           if (userRole == 2) {

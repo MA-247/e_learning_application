@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
 import 'package:e_learning_application/screens/faculty_side/testing_system/edit_test_page.dart';
 import 'package:e_learning_application/screens/faculty_side/testing_system/create_test_page.dart';
 
 class TestListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser; // Get current user
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Test List', style: TextStyle(color: Colors.white)),
@@ -13,19 +16,23 @@ class TestListPage extends StatelessWidget {
         elevation: 5,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(15),
-          ),
+              bottom: Radius.circular(15)),
         ),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('tests').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('tests')
+            .where('createdBy.facultyId', isEqualTo: currentUser?.uid) // Filter by current user ID in the nested 'createdBy' map
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator(color: Colors.teal));
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.red)));
+            return Center(
+              child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.red)),
+            );
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
