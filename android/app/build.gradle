@@ -44,21 +44,31 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        // Application ID for your app
         applicationId "com.example.e_learning_application"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
+
+        // Flutter SDK versions
+        minSdkVersion 19 // You can set this to flutter.minSdkVersion if needed
         targetSdkVersion flutter.targetSdkVersion
+
+        // Versioning
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+
+        // Optional: Add support for cleartext traffic (if required)
+        manifestPlaceholders = [
+                usesCleartextTraffic: "true"
+        ]
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Using debug signing config for now
             signingConfig signingConfigs.debug
+            // Optional: Enable ProGuard to shrink code
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -67,4 +77,7 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    // Firebase BOM (Bill of Materials) for version management
+    implementation platform('com.google.firebase:firebase-bom:32.1.1')
+}

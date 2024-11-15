@@ -215,27 +215,19 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 50),
                     Text(
                       "Create Your Account",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary,
-                        fontSize: 28,
-                      ),
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 20),
                     MyTextField(
                       controller: nameTextController,
                       hintText: 'Full Name',
                       obscureText: false,
-                      textColor: colorScheme.onSurface,
-                      fillColor: colorScheme.surface,
                     ),
                     const SizedBox(height: 10),
                     MyTextField(
                       controller: emailTextController,
                       hintText: 'Email',
                       obscureText: false,
-                      textColor: colorScheme.onSurface,
-                      fillColor: colorScheme.surface,
                     ),
                     const SizedBox(height: 20),
                     MyButton(
@@ -248,10 +240,6 @@ class _RegisterPageState extends State<RegisterPage> {
                         }
                       },
                       text: 'Next',
-                        primaryColor: colorScheme.primary,
-                        secondaryColor: colorScheme.primaryContainer,
-                        textColor: Colors.white,
-                        rippleColor: Colors.teal, // Adjust ripple color
                     ),
                   ],
                 ),
@@ -302,8 +290,6 @@ class _RegisterPageState extends State<RegisterPage> {
                               controller: cityTextController,
                               hintText: 'City',
                               obscureText: false,
-                              textColor: colorScheme.onSurface,
-                              fillColor: colorScheme.surface,
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -349,8 +335,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                 controller: otherUniversityController,
                                 hintText: 'Enter your university',
                                 obscureText: false,
-                                textColor: colorScheme.onSurface,
-                                fillColor: colorScheme.surface,
                               ),
                             ),
                           SizedBox(height: 10),
@@ -366,10 +350,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                 }
                               },
                               text: 'Next',
-                              primaryColor: colorScheme.primary,
-                              secondaryColor: colorScheme.primaryContainer,
-                              textColor: Colors.white,
-                              rippleColor: Colors.teal, // Adjust ripple color
                             ),
                           ),
                         ],
@@ -392,6 +372,7 @@ class _RegisterPageState extends State<RegisterPage> {
       appBar: AppBar(
         title: const Text('Password'),
         backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.surface,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -429,10 +410,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     MyButton(
                       onTap: signUp,
                       text: 'Register',
-                        primaryColor: colorScheme.primary,
-                        secondaryColor: colorScheme.primaryContainer,
-                        textColor: Colors.white,
-                        rippleColor: Colors.teal, // Adjust ripple color
                     ),
                   ],
                 ),

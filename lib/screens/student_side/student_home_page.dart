@@ -1,10 +1,8 @@
 import 'package:e_learning_application/screens/about.dart';
 import 'package:e_learning_application/screens/student_side/student_profile/profile_page.dart';
-import 'package:e_learning_application/screens/student_side/testing_system/scores_pages/test_score_page.dart';
 import 'package:e_learning_application/screens/student_side/testing_system/scores_pages/topics_list.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:e_learning_application/screens/student_side/testing_system/test_list_page.dart';
 import 'package:e_learning_application/screens/student_side/learning_section/student_topics_list_page.dart';
 import 'package:e_learning_application/screens/settings.dart';
 
@@ -27,32 +25,28 @@ class StudentHomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Welcome back, ${user.displayName}',
-          style: TextStyle(
-            color: Theme.of(context).textTheme.titleLarge?.color,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
         centerTitle: true,
-        backgroundColor: Theme.of(context).primaryColor,
-        elevation: 10.0,  // Adding shadow to the AppBar
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        elevation: 10.0, // Adding shadow to the AppBar
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push(context,
-              MaterialPageRoute(
-              builder: (context) => UserProfilePage(user: user)
-              )
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserProfilePage(user: user)),
               );
             },
-            icon: Icon(Icons.account_circle_outlined, size: 28),
-            color: Theme.of(context).iconTheme.color,
+            icon: Icon(Icons.account_circle_outlined),
+            color: Theme.of(context).appBarTheme.iconTheme?.color,
           ),
         ],
         leading: Builder(
           builder: (BuildContext context) {
             return IconButton(
               icon: Icon(Icons.menu),
-              color: Theme.of(context).iconTheme.color,
+              color: Theme.of(context).appBarTheme.iconTheme?.color,
               onPressed: () {
                 Scaffold.of(context).openDrawer();
               },
@@ -67,7 +61,10 @@ class StudentHomePage extends StatelessWidget {
             UserAccountsDrawerHeader(
               accountName: Text(
                 user.displayName ?? 'Student',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
               accountEmail: Text(user.email ?? ''),
               currentAccountPicture: CircleAvatar(
@@ -88,43 +85,30 @@ class StudentHomePage extends StatelessWidget {
                 ),
               ),
             ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: () {
-                Navigator.pop(context);
-              },
+            _buildDrawerItem(
+              context,
+              icon: Icons.home,
+              text: 'Home',
+              onTap: () => Navigator.pop(context),
             ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SettingsPage(),
-                  ),
-                );
-              },
+            _buildDrawerItem(
+              context,
+              icon: Icons.settings,
+              text: 'Settings',
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage())),
             ),
-            ListTile(
-              leading: Icon(Icons.info),
-              title: Text('About'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AboutPage(),
-                  ),
-                );
-              },
+            _buildDrawerItem(
+              context,
+              icon: Icons.info,
+              text: 'About',
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AboutPage())),
             ),
-            ListTile(
-              leading: Icon(Icons.exit_to_app, color: Colors.red),
-              title: Text('Log Out', style: TextStyle(color: Colors.red)),
-              onTap: () {
-                signOut();
-              },
+            _buildDrawerItem(
+              context,
+              icon: Icons.exit_to_app,
+              text: 'Log Out',
+              color: Colors.red,
+              onTap: signOut,
             ),
           ],
         ),
@@ -138,29 +122,33 @@ class StudentHomePage extends StatelessWidget {
               icon: Icons.book,
               title: 'Learning Section',
               subtitle: 'Tap to explore learning materials',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TopicsListPage()),
-                );
-              },
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => TopicsListPage())),
             ),
             _buildSectionTile(
               context: context,
               icon: Icons.assignment,
               title: 'Test Scores',
               subtitle: 'Tap to view your test scores',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ScoresTopicsListPage(userId: user.uid),
-                  )
-                );
-              },
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ScoresTopicsListPage(userId: user.uid)),
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDrawerItem(BuildContext context,
+      {required IconData icon, required String text, required Function() onTap, Color? color}) {
+    return ListTile(
+      leading: Icon(icon, color: color ?? Theme.of(context).iconTheme.color),
+      title: Text(
+        text,
+        style: Theme.of(context).textTheme.bodyMedium,
+      ),
+      onTap: onTap,
     );
   }
 
@@ -195,9 +183,9 @@ class StudentHomePage extends StatelessWidget {
           leading: Icon(icon, size: 40, color: iconColor),
           title: Text(
             title,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
           ),
-          subtitle: Text(subtitle),
+          subtitle: Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
           onTap: onTap,
         ),
       ),

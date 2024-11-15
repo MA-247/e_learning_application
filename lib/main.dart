@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:e_learning_application/screens/auth/auth_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:e_learning_application/styling/themeData.dart'; // Import the themeData file
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,9 +61,13 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'E-Learning App',
-      theme: ThemeData.light(),  // Light theme
-      darkTheme: ThemeData.dark(), // Dark theme
-      themeMode: _themeMode, // Choose theme mode based on the toggle
+      theme: dentalAppTheme, // Use your custom light theme
+      darkTheme: ThemeData.dark().copyWith(
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          secondary: const Color(0xFF2E8BC0),
+        ),
+      ), // Fallback to the default dark theme
+      themeMode: _themeMode, // Choose theme mode based on user preference
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
     );

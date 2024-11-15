@@ -123,8 +123,6 @@ class _LoginPageState extends State<LoginPage> {
                     controller: emailTextController,
                     hintText: 'Email',
                     obscureText: false,
-                    textColor: textColor,
-                    fillColor: colorScheme.surface,
                   ),
                   const SizedBox(height: 10),
                   // Password text field
@@ -143,11 +141,6 @@ class _LoginPageState extends State<LoginPage> {
                       : MyButton(
                     onTap: signIn,
                     text: 'Sign In',
-                    primaryColor: Colors.blue,
-                    secondaryColor: colorScheme.primaryContainer,
-                    textColor: Colors.white,
-                    rippleColor: Colors.blue, // Adjust ripple color
-                    isLoading: isLoading, // Update based on loading
                   ),
                   const SizedBox(height: 25),
                   // Registration option
@@ -158,20 +151,11 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           TextSpan(
                             text: "Not a member? ",
-                            style: TextStyle(
-                              color: Colors.grey[700],
-                              fontSize: 16,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
                           ),
                           TextSpan(
                             text: "Register Now",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FontStyle.italic,
-                              color: Colors.blue, // Dynamic primary color
-                              fontSize: 16,
-                              decoration: TextDecoration.underline,
-                            ),
+                            style:Theme.of(context).textTheme.bodyLarge,
                           ),
                         ],
                       ),
@@ -181,11 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                   // Footer
                   Text(
                     "Pulpath",
-                    style: TextStyle(
-                      color: textColor, // Dynamic text color
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ],
               ),

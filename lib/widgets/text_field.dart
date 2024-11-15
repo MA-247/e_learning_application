@@ -4,71 +4,74 @@ class MyTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
   final bool obscureText;
-  final Color textColor; // Added parameter for text color
-  final Color fillColor; // Added parameter for fill color
+  final IconData? prefixIcon; // Optional prefix icon
 
   const MyTextField({
     super.key,
     required this.controller,
     required this.hintText,
-    required this.obscureText,
-    required this.textColor,
-    required this.fillColor,
+    this.obscureText = false,
+    this.prefixIcon,
   });
 
   @override
   Widget build(BuildContext context) {
-    var colorScheme = Theme.of(context).colorScheme;
+    // Get colors from the theme
+    var theme = Theme.of(context);
+    var colorScheme = theme.colorScheme;
+    var inputDecorationTheme = theme.inputDecorationTheme;
 
     return TextField(
       controller: controller,
       obscureText: obscureText,
-      style: TextStyle(color: textColor), // Apply the text color
+      style: theme.textTheme.bodyMedium, // Use theme's text style
       decoration: InputDecoration(
         filled: true,
-        fillColor: fillColor, // Apply the fill color
+        fillColor: inputDecorationTheme.fillColor ?? colorScheme.surface, // Use theme's fill color
         hintText: hintText,
-        hintStyle: TextStyle(
-          color: textColor.withOpacity(0.7), // Apply text color with opacity for hint text
+        hintStyle: theme.textTheme.bodyMedium?.copyWith(
+          color: colorScheme.onSurface.withOpacity(0.6),
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
           borderSide: BorderSide(
-            color: textColor.withOpacity(0.5), // Apply text color with opacity for border
+            color: colorScheme.onSurface.withOpacity(0.4),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
           borderSide: BorderSide(
-            color: colorScheme.primary, // Use theme primary color for focused border
+            color: colorScheme.primary,
             width: 2.0,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
           borderSide: BorderSide(
-            color: textColor.withOpacity(0.5), // Apply text color with opacity for enabled border
+            color: colorScheme.onSurface.withOpacity(0.4),
           ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
           borderSide: BorderSide(
-            color: colorScheme.error, // Use theme error color for error border
+            color: colorScheme.error,
             width: 2.0,
           ),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
           borderSide: BorderSide(
-            color: colorScheme.error, // Use theme error color for focused error border
+            color: colorScheme.error,
             width: 2.0,
           ),
         ),
-        prefixIcon: Icon(
-          Icons.text_fields,
-          color: textColor.withOpacity(0.7), // Apply text color with opacity for prefix icon
-        ),
+        prefixIcon: prefixIcon != null
+            ? Icon(
+          prefixIcon,
+          color: colorScheme.onSurface.withOpacity(0.6),
+        )
+            : null,
       ),
     );
   }

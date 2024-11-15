@@ -4,41 +4,37 @@ class MyButton extends StatelessWidget {
   final Function()? onTap;
   final String text;
   final bool isLoading;
-  final Color primaryColor; // Main color for gradient and ripple
-  final Color secondaryColor; // Second color for gradient
-  final Color textColor; // Text color
-  final Color rippleColor; // Ripple and highlight color
 
   const MyButton({
     super.key,
     required this.onTap,
     required this.text,
     this.isLoading = false,
-    required this.primaryColor, // Required color customization
-    required this.secondaryColor,
-    required this.textColor,
-    required this.rippleColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Access theme colors from the current theme
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return InkWell(
       onTap: isLoading ? null : onTap, // Disable onTap while loading
       borderRadius: BorderRadius.circular(12.0),
-      splashColor: rippleColor.withOpacity(0.2), // Ripple effect color
-      highlightColor: rippleColor.withOpacity(0.3), // Highlight effect
+      splashColor: colorScheme.primary.withOpacity(0.2), // Ripple effect color
+      highlightColor: colorScheme.primary.withOpacity(0.3), // Highlight effect
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 25.0),
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              primaryColor, // Top color for gradient
-              secondaryColor, // Bottom color for gradient
+              colorScheme.primary, // Top color for gradient
+              colorScheme.secondary, // Bottom color for gradient
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(30.0),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.2),
@@ -62,22 +58,21 @@ class MyButton extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10), // Space between spinner and text
-              const Text(
+              Text(
                 'Signing In',
-                style: TextStyle(
-                  color: Colors.white,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onPrimary,
                   fontWeight: FontWeight.w600,
-                  fontSize: 18,
                 ),
               ),
             ],
           )
               : Text(
             text,
-            style: TextStyle(
-              color: textColor, // Custom text color
-              fontWeight: FontWeight.w600, // Font weight
-              fontSize: 18, // Font size
+            style: textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onPrimary, // Use onPrimary for text color
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
             ),
           ),
         ),

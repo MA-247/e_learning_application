@@ -13,7 +13,8 @@ class AuthService {
       if (snapshot.exists) {
         // Get the role from the Firestore document
         int role = snapshot['role'];
-
+        print("user role is: ");
+        print(role);
         // Return the role directly since it's already stored as an int
         return role; // Example: 1 for student, 2 for faculty, 3 for admin
       } else {

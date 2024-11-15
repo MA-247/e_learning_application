@@ -42,7 +42,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
         hintStyle: TextStyle(
           color: widget.textColor.withOpacity(0.7), // Apply text color with opacity for hint text
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
           borderSide: BorderSide(
@@ -83,10 +83,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
           ),
           onPressed: _toggleVisibility,
         ),
-        prefixIcon: Icon(
-          Icons.lock,
-          color: widget.textColor.withOpacity(0.7), // Apply text color with opacity for prefix icon
-        ),
+
       ),
     );
   }

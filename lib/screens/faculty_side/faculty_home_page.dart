@@ -47,7 +47,14 @@ class FacultyHomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Welcome back, ${user.displayName}',
-          style: TextStyle(color: theme.appBarTheme.titleTextStyle?.color ?? Colors.white, fontWeight: FontWeight.bold),
+          style: theme.appBarTheme.titleTextStyle?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.textTheme.bodyLarge?.color, // Use theme text color for title
+          ) ??
+              TextStyle(
+                color: theme.textTheme.bodyLarge?.color, // Fallback text color
+                fontWeight: FontWeight.bold,
+              ),
         ),
         centerTitle: true,
         backgroundColor: theme.appBarTheme.backgroundColor ?? (isDarkMode ? Colors.grey[900] : Colors.blue[300]),
@@ -56,19 +63,21 @@ class FacultyHomePage extends StatelessWidget {
           IconButton(
             onPressed: () {},
             icon: Icon(Icons.supervised_user_circle),
-            color: theme.iconTheme.color ?? Colors.white,
+            color: theme.iconTheme.color, // Use theme icon color
           ),
         ],
         leading: Builder(builder: (BuildContext context) {
           return IconButton(
             icon: Icon(Icons.menu),
-            color: theme.iconTheme.color ?? Colors.white,
+            color: theme.iconTheme.color, // Use theme icon color for the menu button
             onPressed: () {
               Scaffold.of(context).openDrawer();
             },
           );
         }),
       ),
+
+
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -76,7 +85,7 @@ class FacultyHomePage extends StatelessWidget {
             UserAccountsDrawerHeader(
               accountName: Text(
                 user.displayName ?? 'Student',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               accountEmail: Text(user.email ?? ''),
               currentAccountPicture: CircleAvatar(
@@ -85,13 +94,13 @@ class FacultyHomePage extends StatelessWidget {
                   user.displayName?.substring(0, 1).toUpperCase() ?? '',
                   style: TextStyle(
                     fontSize: 40.0,
-                    color: Theme.of(context).primaryColor,
+                    color: theme.primaryColor,
                   ),
                 ),
               ),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Theme.of(context).primaryColor, Colors.blueGrey],
+                  colors: [theme.primaryColor, Colors.blueGrey],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -135,11 +144,6 @@ class FacultyHomePage extends StatelessWidget {
           ],
         ),
       ),
-
-
-
-
-
       body: Center(
         child: Column(
           children: [
@@ -147,7 +151,7 @@ class FacultyHomePage extends StatelessWidget {
               flex: 1,
               child: Container(
                 decoration: BoxDecoration(
-                  color: theme.cardColor, // Adapt card color
+                  color: theme.cardColor, // Use the card color from the theme
                   borderRadius: BorderRadius.circular(15.0),
                   boxShadow: [
                     BoxShadow(
@@ -179,7 +183,7 @@ class FacultyHomePage extends StatelessWidget {
               flex: 1,
               child: Container(
                 decoration: BoxDecoration(
-                  color: theme.cardColor, // Adapt card color
+                  color: theme.cardColor, // Use the card color from the theme
                   borderRadius: BorderRadius.circular(15.0),
                   boxShadow: [
                     BoxShadow(

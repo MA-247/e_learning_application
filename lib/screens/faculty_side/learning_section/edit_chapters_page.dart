@@ -18,7 +18,9 @@ class _EditChaptersPageState extends State<EditChaptersPage> {
   String _title = '';
   String _description = '';
   File? _imageFile;
+  String? _selectedModelUrl;
   bool _isLoading = false;
+  bool _isImageSelected = true; // Toggle between image and 3D model selection
 
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -35,6 +37,11 @@ class _EditChaptersPageState extends State<EditChaptersPage> {
     return downloadUrl;
   }
 
+  Future<List<QueryDocumentSnapshot>> _fetchModelsFromFirebase() async {
+    final modelDocs = await FirebaseFirestore.instance.collection('3d_models').get();
+    return modelDocs.docs;
+  }
+
   Future<void> _addOrEditChapter({String? chapterId}) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -43,15 +50,18 @@ class _EditChaptersPageState extends State<EditChaptersPage> {
         _isLoading = true;
       });
 
-      String? imageUrl;
-      if (_imageFile != null) {
-        imageUrl = await _uploadImageToFirebase(_imageFile!);
+      String? fileUrl;
+      if (_isImageSelected && _imageFile != null) {
+        fileUrl = await _uploadImageToFirebase(_imageFile!);
+      } else if (!_isImageSelected && _selectedModelUrl != null) {
+        fileUrl = _selectedModelUrl;
       }
 
       final chapterData = {
         'title': _title,
         'description': _description,
-        'modelUrl': imageUrl,
+        'fileUrl': fileUrl,
+        'isModel': !_isImageSelected,
       };
 
       if (chapterId != null) {
@@ -75,15 +85,6 @@ class _EditChaptersPageState extends State<EditChaptersPage> {
 
       Navigator.of(context).pop();
     }
-  }
-
-  Future<void> _deleteChapter(String chapterId) async {
-    await FirebaseFirestore.instance
-        .collection('topics')
-        .doc(widget.topicId)
-        .collection('chapters')
-        .doc(chapterId)
-        .delete();
   }
 
   void _showChapterDialog({String? chapterId, String? initialTitle, String? initialDescription}) {
@@ -123,11 +124,27 @@ class _EditChaptersPageState extends State<EditChaptersPage> {
                       maxLines: 3,
                     ),
                     SizedBox(height: 10),
-                    ElevatedButton.icon(
-                      onPressed: _pickImage,
-                      icon: Icon(Icons.image),
-                      label: Text('Choose Image'),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Image'),
+                        Switch(
+                          value: !_isImageSelected,
+                          onChanged: (val) {
+                            setState(() {
+                              _isImageSelected = !val;
+                            });
+                          },
+                        ),
+                        Text('3D Model'),
+                      ],
                     ),
+                    if (_isImageSelected)
+                      ElevatedButton.icon(
+                        onPressed: _pickImage,
+                        icon: Icon(Icons.image),
+                        label: Text('Choose Image'),
+                      ),
                     if (_imageFile != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 10),
@@ -136,6 +153,31 @@ class _EditChaptersPageState extends State<EditChaptersPage> {
                           height: 100,
                           fit: BoxFit.cover,
                         ),
+                      ),
+                    if (!_isImageSelected)
+                      FutureBuilder(
+                        future: _fetchModelsFromFirebase(),
+                        builder: (context, AsyncSnapshot<List<QueryDocumentSnapshot>> snapshot) {
+                          if (!snapshot.hasData) {
+                            return CircularProgressIndicator();
+                          }
+                          var models = snapshot.data!;
+                          return DropdownButton<String>(
+                            value: _selectedModelUrl,
+                            items: models.map((model) {
+                              return DropdownMenuItem<String>(
+                                value: model['model_url'],
+                                child: Text(model['name']),
+                              );
+                            }).toList(),
+                            hint: Text('Select 3D Model'),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedModelUrl = value;
+                              });
+                            },
+                          );
+                        },
                       ),
                   ],
                 ),
@@ -147,17 +189,17 @@ class _EditChaptersPageState extends State<EditChaptersPage> {
                       _deleteChapter(chapterId);
                       Navigator.of(context).pop();
                     },
-                    child: Text('Delete', style: TextStyle(color: Colors.red)),
+                    child: Text('Delete', style: TextStyle(color: Theme.of(context).primaryColor)),
                   ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Cancel'),
+                  child: Text('Cancel', style: TextStyle(color: Theme.of(context).primaryColor)),
                 ),
                 TextButton(
                   onPressed: _isLoading ? null : () => _addOrEditChapter(chapterId: chapterId),
                   child: _isLoading
                       ? CircularProgressIndicator()
-                      : Text(chapterId == null ? 'Add' : 'Save'),
+                      : Text(chapterId == null ? 'Add' : 'Save', style: TextStyle(color: Theme.of(context).primaryColor)),
                 ),
               ],
             );
@@ -172,8 +214,11 @@ class _EditChaptersPageState extends State<EditChaptersPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Manage Chapters'),
-        backgroundColor: Colors.teal[300],
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor ?? Theme.of(context).primaryColor, // use the theme's backgroundColor or fallback to primaryColor
+        elevation: Theme.of(context).appBarTheme.elevation ?? 4.0, // use the elevation defined in the theme, default to 4.0 if not specified
+        iconTheme: Theme.of(context).appBarTheme.iconTheme, // use the appBarTheme's icon theme (like icon color)
       ),
+
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('topics')
@@ -205,7 +250,7 @@ class _EditChaptersPageState extends State<EditChaptersPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
+                    icon: Icon(Icons.delete, color: Theme.of(context).primaryColor),
                     onPressed: () {
                       _deleteChapter(chapter.id);
                     },
@@ -223,9 +268,18 @@ class _EditChaptersPageState extends State<EditChaptersPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showChapterDialog(),
+        backgroundColor: Theme.of(context).primaryColor,
         child: Icon(Icons.add),
-        backgroundColor: Colors.teal[300],
       ),
     );
+  }
+
+  Future<void> _deleteChapter(String chapterId) async {
+    await FirebaseFirestore.instance
+        .collection('topics')
+        .doc(widget.topicId)
+        .collection('chapters')
+        .doc(chapterId)
+        .delete();
   }
 }

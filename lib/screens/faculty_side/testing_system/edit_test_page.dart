@@ -121,10 +121,13 @@ class _EditTestPageState extends State<EditTestPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Fetch the theme data
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Test', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.teal,
+        backgroundColor: theme.primaryColor,  // Use the theme's primary color
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -134,7 +137,7 @@ class _EditTestPageState extends State<EditTestPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
-                decoration: _inputDecoration('Test Title'),
+                decoration: _inputDecoration('Test Title', theme),
                 validator: (value) => value!.isEmpty ? 'Enter a test title' : null,
                 initialValue: _testTitle,
                 onChanged: (value) => _testTitle = value,
@@ -154,7 +157,7 @@ class _EditTestPageState extends State<EditTestPage> {
                       child: ListTile(
                         title: field.type == FieldType.heading
                             ? TextFormField(
-                          decoration: _inputDecoration('Heading'),
+                          decoration: _inputDecoration('Heading', theme),
                           validator: (value) => value!.isEmpty ? 'Enter a heading' : null,
                           initialValue: field.headingText,
                           onChanged: (value) => field.headingText = value,
@@ -162,7 +165,7 @@ class _EditTestPageState extends State<EditTestPage> {
                         )
                             : field.type == FieldType.text
                             ? TextFormField(
-                          decoration: _inputDecoration('Text'),
+                          decoration: _inputDecoration('Text', theme),
                           validator: (value) => value!.isEmpty ? 'Enter text' : null,
                           initialValue: field.text,
                           onChanged: (value) => field.text = value,
@@ -184,7 +187,7 @@ class _EditTestPageState extends State<EditTestPage> {
                               icon: Icon(Icons.upload_file),
                               label: Text('Upload Image'),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.deepOrange,
+                                backgroundColor: theme.scaffoldBackgroundColor,  // Use accent color
                                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -199,17 +202,22 @@ class _EditTestPageState extends State<EditTestPage> {
                             ? Column(
                           children: [
                             TextFormField(
-                              decoration: _inputDecoration('Question'),
+                              decoration: _inputDecoration('Question', theme),
                               validator: (value) => value!.isEmpty ? 'Enter a question' : null,
                               initialValue: field.question,
                               onChanged: (value) => field.question = value,
                             ),
-                            _buildOptionField(field, 'Option 1', 1),
-                            _buildOptionField(field, 'Option 2', 2),
-                            _buildOptionField(field, 'Option 3', 3),
-                            _buildOptionField(field, 'Option 4', 4),
+                            SizedBox(height: 10,),
+                            _buildOptionField(field, 'Option 1', 1, theme),
+                            SizedBox(height: 10,),
+                            _buildOptionField(field, 'Option 2', 2, theme),
+                            SizedBox(height: 10,),
+                            _buildOptionField(field, 'Option 3', 3, theme),
+                            SizedBox(height: 10,),
+                            _buildOptionField(field, 'Option 4', 4, theme),
+                            SizedBox(height: 10,),
                             TextFormField(
-                              decoration: _inputDecoration('Score'),
+                              decoration: _inputDecoration('Score', theme),
                               keyboardType: TextInputType.number,
                               validator: (value) => value!.isEmpty ? 'Enter the score' : null,
                               initialValue: field.score?.toString(),
@@ -219,7 +227,7 @@ class _EditTestPageState extends State<EditTestPage> {
                         )
                             : Container(),
                         trailing: IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
+                          icon: Icon(Icons.delete, color: theme.primaryColor),
                           onPressed: () => _removeField(index),
                         ),
                       ),
@@ -239,34 +247,25 @@ class _EditTestPageState extends State<EditTestPage> {
                   ],
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepOrange,
+                  backgroundColor: theme.scaffoldBackgroundColor,  // Use accent color
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 5,
-                  textStyle: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _uploadTest,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.update, size: 18),
-                    SizedBox(width: 8),
-                    Text('Update Test'),
-                  ],
-                ),
+                child: Text('Save Test'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  backgroundColor: theme.primaryColor,  // Use primary color
+                  padding: EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 5,
-                  textStyle: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -276,138 +275,107 @@ class _EditTestPageState extends State<EditTestPage> {
     );
   }
 
-  InputDecoration _inputDecoration(String labelText) {
+  // Method to build input decoration
+  InputDecoration _inputDecoration(String label, ThemeData theme) {
     return InputDecoration(
-      labelText: labelText,
+      labelText: label,
+      labelStyle: TextStyle(color: theme.textTheme.bodyLarge?.color),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.tealAccent),
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: theme.dividerColor),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.teal),
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: theme.primaryColor),
       ),
-      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     );
   }
 
-  Widget _buildOptionField(DynamicField field, String label, int optionNumber) {
-    return Row(
-      children: [
-        Expanded(
-          child: TextFormField(
-            decoration: _inputDecoration(label),
-            validator: (value) => value!.isEmpty ? 'Enter $label' : null,
-            initialValue: _getOptionText(field, optionNumber),
-            onChanged: (value) => _setOptionText(field, optionNumber, value),
-          ),
-        ),
-        Radio<int>(
-          value: optionNumber,
-          groupValue: field.correctOptionNumber,
-          onChanged: (int? value) {
-            setState(() {
-              field.correctOptionNumber = value!;
-              field.correctOption = _getOptionText(field, optionNumber);
-            });
-          },
-        ),
-      ],
+  // Method to build MCQ option input
+  Widget _buildOptionField(DynamicField field, String label, int optionNumber, ThemeData theme) {
+    return TextFormField(
+      decoration: _inputDecoration(label, theme),
+      validator: (value) => value!.isEmpty ? 'Enter an option' : null,
+      initialValue: optionNumber == 1 ? field.option1 :
+      optionNumber == 2 ? field.option2 :
+      optionNumber == 3 ? field.option3 : field.option4,
+      onChanged: (value) {
+        if (optionNumber == 1) {
+          field.option1 = value;
+        } else if (optionNumber == 2) {
+          field.option2 = value;
+        } else if (optionNumber == 3) {
+          field.option3 = value;
+        } else {
+          field.option4 = value;
+        }
+      },
     );
   }
 
-  String? _getOptionText(DynamicField field, int optionNumber) {
-    switch (optionNumber) {
-      case 1:
-        return field.option1;
-      case 2:
-        return field.option2;
-      case 3:
-        return field.option3;
-      case 4:
-        return field.option4;
-      default:
-        return '';
-    }
-  }
-
-  void _setOptionText(DynamicField field, int optionNumber, String value) {
-    switch (optionNumber) {
-      case 1:
-        field.option1 = value;
-        break;
-      case 2:
-        field.option2 = value;
-        break;
-      case 3:
-        field.option3 = value;
-        break;
-      case 4:
-        field.option4 = value;
-        break;
-    }
-  }
-
+  // Method to pick image for field
   Future<void> _pickImage(DynamicField field) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
       setState(() {
-        field.image = File(pickedFile.path);
+        field.image = File(image.path);
       });
     }
   }
 
+  // Method to remove a field
   void _removeField(int index) {
     setState(() {
       _fields.removeAt(index);
     });
   }
 
+  // Method to show Add Field dialog
   void _showAddFieldDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return AlertDialog(
-          title: Text('Add Field'),
+          title: Text('Select Field Type'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                title: Text('Text'),
-                onTap: () {
+              TextButton(
+                onPressed: () {
                   setState(() {
                     _fields.add(DynamicField(type: FieldType.text));
                   });
                   Navigator.pop(context);
                 },
+                child: Text('Text'),
               ),
-              ListTile(
-                title: Text('Image'),
-                onTap: () {
+              TextButton(
+                onPressed: () {
                   setState(() {
                     _fields.add(DynamicField(type: FieldType.image));
                   });
                   Navigator.pop(context);
                 },
+                child: Text('Image'),
               ),
-              ListTile(
-                title: Text('MCQ'),
-                onTap: () {
+              TextButton(
+                onPressed: () {
                   setState(() {
                     _fields.add(DynamicField(type: FieldType.mcq));
                   });
                   Navigator.pop(context);
                 },
+                child: Text('MCQ'),
               ),
-              ListTile(
-                title: Text('Heading'),
-                onTap: () {
+              TextButton(
+                onPressed: () {
                   setState(() {
                     _fields.add(DynamicField(type: FieldType.heading));
                   });
                   Navigator.pop(context);
                 },
+                child: Text('Heading'),
               ),
             ],
           ),

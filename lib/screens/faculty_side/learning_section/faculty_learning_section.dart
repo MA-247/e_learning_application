@@ -141,10 +141,12 @@ class ManageTopicsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); // Access the current theme
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Manage Topics'),
-        backgroundColor: Colors.teal[300], // Updated color
+        backgroundColor: theme.appBarTheme.backgroundColor, // Use theme color
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
@@ -171,11 +173,9 @@ class ManageTopicsPage extends StatelessWidget {
                 child: ListTile(
                   title: Text(
                     topic['title'],
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.displayMedium, // Use theme text style
                   ),
-                  subtitle: Text(
-                    'Pretest: ${topic['pretestId'] ?? 'None'}, Post-test: ${topic['posttestId'] ?? 'None'}',
-                  ),
+                  //sub-text - to be added
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -190,7 +190,7 @@ class ManageTopicsPage extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
+                        icon: Icon(Icons.delete, color: theme.primaryColor),
                         onPressed: () => _deleteTopic(context, topic.id),
                       ),
                     ],
@@ -212,8 +212,7 @@ class ManageTopicsPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _addOrEditTopic(context),
         child: Icon(Icons.add),
-        backgroundColor: Colors.teal[300], // Matching theme color
-        tooltip: 'Add New Topic', // Added tooltip
+        tooltip: 'Add New Topic',
       ),
     );
   }

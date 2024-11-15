@@ -18,20 +18,17 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
 
   @override
   Widget build(BuildContext context) {
-    final userId = FirebaseAuth.instance.currentUser!.uid; // Get the userId from FirebaseAuth
-
-    var colorScheme = Theme
-        .of(context)
-        .colorScheme; // Access current theme's color scheme
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    var colorScheme = Theme.of(context).colorScheme;
     var textColor = colorScheme.onSurface;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chapters'),
+        title: const Text('Chapters'),
         backgroundColor: Colors.teal[300],
         centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(60),
+          preferredSize: const Size.fromHeight(60),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
@@ -42,94 +39,77 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
               },
               decoration: InputDecoration(
                 hintText: 'Search chapters...',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
               ),
             ),
           ),
-        ),// Changed theme color
+        ),
         actions: [
-          IconButton(
-            icon: Text('Take Test'),
-            tooltip: 'Take Post-Test',
-            onPressed: () async {
-              // Fetch the post-test ID from the topic document
-              final topicDoc = await FirebaseFirestore.instance
-                  .collection('topics')
-                  .doc(widget.topicId)
-                  .get();
-              final postTestId = topicDoc['posttestId'];
-
-              if (postTestId != null) {
-                // Check if the post-test has already been completed
-                final postTestCompleted = await _isTestCompleted(postTestId, userId);
-
-                if (!postTestCompleted) {
-                  // Show a warning dialog about the post-test
-                  _showPostTestWarning(context, postTestId, userId);
-                } else {
-                  // Show a message if the post-test is already completed
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('You have already completed the post-test.'),
-                    ),
-                  );
-                }
-              } else {
-                // Handle case where there is no post-test ID
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('No post-test available for this topic.'),
-                  ),
-                );
-              }
-            },
+          TextButton(
+            onPressed: () async => _handlePostTest(userId),
+            child: const Text(
+              'Take Test',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
-      body: StreamBuilder(
+      body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('topics')
             .doc(widget.topicId)
             .collection('chapters')
             .snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> chaptersSnapshot) {
-          if (!chaptersSnapshot.hasData) {
-            return Center(child: CircularProgressIndicator(color: Colors.teal[300]));
+        builder: (context, chaptersSnapshot) {
+          if (chaptersSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (!chaptersSnapshot.hasData || chaptersSnapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No chapters available.'));
           }
 
-          final totalChapters = chaptersSnapshot.data!.docs.length;
+          final chapters = chaptersSnapshot.data!.docs;
+          final totalChapters = chapters.length;
 
-          return StreamBuilder(
-            stream: FirebaseFirestore.instance
+          return FutureBuilder<QuerySnapshot>(
+            future: FirebaseFirestore.instance
                 .collection('users')
                 .doc(userId)
                 .collection('completed_chapters')
                 .where('topicId', isEqualTo: widget.topicId)
-                .snapshots(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> completedSnapshot) {
-              if (!completedSnapshot.hasData) {
-                return Center(child: CircularProgressIndicator(color: Colors.teal[300]));
+                .get(),
+            builder: (context, completedSnapshot) {
+              if (completedSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
               }
 
               final completedChapterIds = completedSnapshot.data!.docs
                   .map((doc) => doc['chapterId'])
                   .toSet();
-
               final completedChapters = completedChapterIds.length;
+
+              // Filter chapters based on search query
+              final filteredChapters = chapters.where((chapter) {
+                final title = chapter['title'].toString().toLowerCase();
+                return title.contains(searchQuery);
+              }).toList();
 
               return Column(
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: LinearProgressIndicator(
-                      value: totalChapters > 0 ? completedChapters / totalChapters : 0,
+                      value: totalChapters > 0
+                          ? completedChapters / totalChapters
+                          : 0,
                       backgroundColor: Colors.grey[300],
                       color: Colors.teal[300],
                     ),
@@ -142,35 +122,38 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
                     ),
                   ),
                   Expanded(
-                    child: ListView.builder(
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                      itemCount: chaptersSnapshot.data!.docs.length,
+                    child: filteredChapters.isEmpty
+                        ? const Center(child: Text('No chapters found.'))
+                        : ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      itemCount: filteredChapters.length,
                       itemBuilder: (context, index) {
-                        var chapter = chaptersSnapshot.data!.docs[index];
-                        bool isCompleted = completedChapterIds.contains(chapter.id);
+                        final chapter = filteredChapters[index];
+                        final isCompleted =
+                        completedChapterIds.contains(chapter.id);
 
                         return Card(
-                          margin: EdgeInsets.symmetric(vertical: 8),
-                          elevation: 5,
+                          margin: const EdgeInsets.symmetric(vertical: 8),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: ListTile(
-                            contentPadding: EdgeInsets.all(16),
-                            leading: isCompleted
-                                ? Icon(Icons.check_circle, color: Colors.teal[300])
-                                : Icon(Icons.circle_outlined, color: Colors.grey[600]),
+                            contentPadding: const EdgeInsets.all(16),
+                            leading: Icon(
+                              isCompleted
+                                  ? Icons.check_circle
+                                  : Icons.circle_outlined,
+                              color: isCompleted
+                                  ? Colors.teal[300]
+                                  : Colors.grey[600],
+                            ),
                             title: Text(
                               chapter['title'],
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.teal[700], // Color to match theme
+                                color: Colors.teal[700],
                               ),
-                            ),
-                            subtitle: Text(
-                              chapter['description'],
-                              style: TextStyle(color: Colors.grey[600]),
                             ),
                             onTap: () {
                               Navigator.push(
@@ -197,48 +180,64 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
     );
   }
 
+  Future<void> _handlePostTest(String userId) async {
+    final topicDoc = await FirebaseFirestore.instance
+        .collection('topics')
+        .doc(widget.topicId)
+        .get();
+    final postTestId = topicDoc['posttestId'];
+
+    if (postTestId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No post-test available for this topic.')),
+      );
+      return;
+    }
+
+    final postTestCompleted = await _isTestCompleted(postTestId, userId);
+    if (postTestCompleted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You have already completed the post-test.')),
+      );
+    } else {
+      _showPostTestWarning(context, postTestId, userId);
+    }
+  }
+
   Future<bool> _isTestCompleted(String testId, String userId) async {
-    // Check if the student has already completed the test
     final querySnapshot = await FirebaseFirestore.instance
         .collection('student_responses')
         .where('testId', isEqualTo: testId)
-        .where('userId', isEqualTo: userId) // Filter by userId
+        .where('userId', isEqualTo: userId)
         .get();
-
-    // If there's at least one document, the test is considered completed
     return querySnapshot.docs.isNotEmpty;
   }
 
   void _showPostTestWarning(BuildContext context, String testId, String userId) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Post-Test Required'),
-          content: Text('You need to complete the post-test to finish the topic.'),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop(); // Dismiss the dialog
-              },
-            ),
-            TextButton(
-              child: Text('Start Post-Test'),
-              onPressed: () {
-                Navigator.of(context).pop(); // Dismiss the dialog
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TestPage(
-                        testId: testId, userId: userId, isPreTest: false),
-                  ),
-                );
-              },
-            ),
-          ],
-        );
-      },
+      builder: (_) => AlertDialog(
+        title: const Text('Post-Test Required'),
+        content: const Text('You need to complete the post-test to finish the topic.'),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: const Text('Start Post-Test'),
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TestPage(testId: testId, userId: userId, isPreTest: false),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }

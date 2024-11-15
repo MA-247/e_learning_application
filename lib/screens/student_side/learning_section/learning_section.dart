@@ -1,64 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_cube/flutter_cube.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-class StudentLearningSection extends StatelessWidget {
-  final String topicId;
-
-  StudentLearningSection({required this.topicId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Chapters'),
-        backgroundColor: Colors.blue[300],
-      ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('topics')
-            .doc(topicId)
-            .collection('chapters')
-            .snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          var chapters = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: chapters.length,
-            itemBuilder: (context, index) {
-              var chapter = chapters[index];
-              return ListTile(
-                title: Text(chapter['title']),
-                subtitle: Text(chapter['description']),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChapterDetailPage(
-                        chapterId: chapter.id,
-                        topicId: topicId,
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-}
+import 'package:model_viewer_plus/model_viewer_plus.dart';
 
 class ChapterDetailPage extends StatefulWidget {
-  final String chapterId;
   final String topicId;
+  final String chapterId;
 
-  ChapterDetailPage({required this.chapterId, required this.topicId});
+  const ChapterDetailPage({
+    Key? key,
+    required this.topicId,
+    required this.chapterId,
+  }) : super(key: key);
 
   @override
   _ChapterDetailPageState createState() => _ChapterDetailPageState();
@@ -66,81 +20,35 @@ class ChapterDetailPage extends StatefulWidget {
 
 class _ChapterDetailPageState extends State<ChapterDetailPage> {
   bool _isCompleted = false;
+  bool _isLoading = true;
+  late String userId;
 
   @override
   void initState() {
     super.initState();
+    userId = FirebaseAuth.instance.currentUser!.uid;
     _checkIfCompleted();
-  }
-
-  Future<void> _checkIfCompleted() async {
-    final userId = FirebaseAuth.instance.currentUser!.uid;
-    final completedChapters = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('completed_chapters')
-        .where('chapterId', isEqualTo: widget.chapterId)
-        .get();
-
-    setState(() {
-      _isCompleted = completedChapters.docs.isNotEmpty;
-    });
-  }
-
-  Future<void> _toggleCompletion() async {
-    final userId = FirebaseAuth.instance.currentUser!.uid;
-    if (_isCompleted) {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('completed_chapters')
-          .where('chapterId', isEqualTo: widget.chapterId)
-          .get()
-          .then((snapshot) {
-        for (var doc in snapshot.docs) {
-          doc.reference.delete();
-        }
-      });
-    } else {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('completed_chapters')
-          .add({
-        'chapterId': widget.chapterId,
-        'topicId': widget.topicId,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-    }
-
-    setState(() {
-      _isCompleted = !_isCompleted;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_isCompleted
-            ? 'Chapter marked as completed'
-            : 'Chapter marked as not completed'),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chapter Details'),
-        backgroundColor: Colors.blue[300],
+        title: const Text('Chapter Details'),
+        backgroundColor: Colors.teal[300],
         actions: [
-          Checkbox(
-            value: _isCompleted,
-            onChanged: (bool? value) {
-              if (value != null) {
-                _toggleCompletion();
-              }
-            },
-            activeColor: Colors.green,
+          Tooltip(
+            message: _isCompleted ? 'Mark as Incomplete' : 'Mark as Complete',
+            child: Checkbox(
+              value: _isCompleted,
+              onChanged: (bool? value) {
+                if (value != null) {
+                  _toggleCompletion();
+                }
+              },
+              activeColor: Colors.green,
+              checkColor: Colors.white,
+            ),
           ),
         ],
       ),
@@ -152,32 +60,130 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
             .doc(widget.chapterId)
             .get(),
         builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(color: Colors.teal[300]),
+            );
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || !snapshot.data!.exists) {
+            return const Center(child: Text('Chapter not found'));
           }
 
           var chapter = snapshot.data!;
           return Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  chapter['title'],
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10),
-                Text(chapter['description']),
-                SizedBox(height: 20),
-                if (chapter['modelUrl'] != null)
-                  Image.network(chapter['modelUrl'])
-                else
-                  Text('No image or model available'),
-              ],
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Section 1: Chapter Title
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Text(
+                      chapter['title'],
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Section 2: 3D Model Viewer
+                  Container(
+                    height: 400, // Adjusted height for better viewing
+                    child: ModelViewer(
+                      src: 'assets/maxillary_first_molar.glb',
+                      alt: "A 3D model",
+                      autoPlay: true,
+                      autoRotate: false,
+                      cameraControls: true,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Section 3: Chapter Description
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Text(
+                      chapter['description'],
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
       ),
     );
+  }
+
+  // Check if the chapter is already marked as completed by the user
+  Future<void> _checkIfCompleted() async {
+    try {
+      final completedDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('completed_chapters')
+          .doc(widget.chapterId)
+          .get();
+
+      if (completedDoc.exists) {
+        setState(() {
+          _isCompleted = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error checking completion status: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Toggle the completion status of the chapter
+  Future<void> _toggleCompletion() async {
+    final chapterRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('completed_chapters')
+        .doc(widget.chapterId);
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      if (_isCompleted) {
+        // If already completed, mark as incomplete (delete the document)
+        await chapterRef.delete();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Chapter marked as incomplete')),
+        );
+      } else {
+        // If not completed, mark as complete (add the document)
+        await chapterRef.set({
+          'topicId': widget.topicId,
+          'chapterId': widget.chapterId,
+          'completedAt': Timestamp.now(),
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Chapter marked as complete')),
+        );
+      }
+
+      setState(() {
+        _isCompleted = !_isCompleted;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 }

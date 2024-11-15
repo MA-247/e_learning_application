@@ -168,17 +168,16 @@ class _CreateTestPageState extends State<CreateTestPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create Test', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('Create Test', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        backgroundColor: Colors.teal,
+        backgroundColor: Theme.of(context).primaryColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -247,7 +246,7 @@ class _CreateTestPageState extends State<CreateTestPage> {
                               icon: Icon(Icons.upload_file),
                               label: Text('Upload Image'),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.teal,
+                                backgroundColor: Theme.of(context).canvasColor,
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 20,
                                     vertical: 12),
@@ -303,40 +302,31 @@ class _CreateTestPageState extends State<CreateTestPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.add, size: 18),
+                    Icon(Icons.add),
                     SizedBox(width: 8),
                     Text('Add Field'),
                   ],
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepOrange,
+                  backgroundColor: Theme.of(context).canvasColor,
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 5,
-                  textStyle: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _uploadTest,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.upload, size: 18),
-                    SizedBox(width: 8),
-                    Text('Submit Test'),
-                  ],
-                ),
+                child: Text('Save Test'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
+                  backgroundColor: Theme.of(context).primaryColor,
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 5,
-                  textStyle: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -349,15 +339,17 @@ class _CreateTestPageState extends State<CreateTestPage> {
   InputDecoration _inputDecoration(String labelText) {
     return InputDecoration(
       labelText: labelText,
+      labelStyle: TextStyle(color: Theme.of(context).highlightColor),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.tealAccent),
+        borderSide: BorderSide(color: Theme.of(context).highlightColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.teal),
+        borderSide: BorderSide(color: Theme.of(context).primaryColor),
       ),
-      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      filled: true,
+      fillColor: Theme.of(context).scaffoldBackgroundColor,
     );
   }
 
