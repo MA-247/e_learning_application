@@ -43,9 +43,11 @@ dependencies:
   image_picker: ^1.1.2
   firebase_storage: ^11.7.7
   file_picker: ^8.0.7
-  shared_preferences: ^2.3.2
+  shared_preferences: ^2.3.3
   loading_btn: ^1.0.3
-  model_viewer_plus: ^1.5.0
+  model_viewer_plus: ^1.8.0
+  url_launcher: ^6.3.1
+
 
 
 dev_dependencies:
@@ -84,6 +86,11 @@ flutter:
     - assets/healthyTooth.mtl
     - assets/toothDetailed.glb
     - assets/maxillary_first_molar.glb
+    - assets/teeth_pulp.glb
+    - assets/decaying_tooth_1.glb
+    - assets/module_1/emq_1/decaying_tooth.jfif
+    - assets/module_1/emq_1/gum_disease.jfif
+    - assets/module_1/emq_1/tooth_filling.jfif
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

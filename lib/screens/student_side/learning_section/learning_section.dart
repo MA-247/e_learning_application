@@ -91,11 +91,17 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
                   Container(
                     height: 400, // Adjusted height for better viewing
                     child: ModelViewer(
-                      src: 'assets/maxillary_first_molar.glb',
-                      alt: "A 3D model",
-                      autoPlay: true,
+                      src: 'assets/teeth_pulp.glb', // Replace with your model URL
+                      alt: "gs://e-learning-application-7c9a6.appspot.com/3d_models/health_tooth.glb",
                       autoRotate: false,
                       cameraControls: true,
+                      // Enable hotspots
+                      interactionPrompt: InteractionPrompt.auto,
+                      poster: "assets/logos/PULPATH_logo.jpg",
+                      maxHotspotOpacity: 0.25,
+                      minHotspotOpacity: 0.35,
+
+
                     ),
                   ),
 

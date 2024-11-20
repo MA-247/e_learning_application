@@ -199,7 +199,7 @@ class ManageTopicsPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EditChaptersPage(topicId: topic.id),
+                        builder: (context) => AddChapterPage(),
                       ),
                     );
                   },
