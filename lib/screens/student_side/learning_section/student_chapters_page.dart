@@ -25,7 +25,7 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chapters'),
-        backgroundColor: Colors.teal[300],
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),

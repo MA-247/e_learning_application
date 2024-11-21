@@ -6,12 +6,12 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:label="Pulpath"
-        android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="Pulpath"
         android:supportsRtl="true"
-        android:theme="@style/LaunchTheme">
+        android:theme="@style/LaunchTheme"
+        android:usesCleartextTraffic="true"
+        >
 
         <!-- Main Activity -->
         <activity

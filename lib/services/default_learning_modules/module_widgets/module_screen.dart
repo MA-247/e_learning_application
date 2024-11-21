@@ -125,6 +125,8 @@ class _ModuleScreenState extends State<ModuleScreen> {
         return _buildEMQSection(section); // EMQ section
       case SectionType.model3D:
         return _build3DModelSection(section);
+      case SectionType.table:
+        return _buildTableSection(section);
       default:
         return Container();
     }
@@ -209,7 +211,7 @@ class _ModuleScreenState extends State<ModuleScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Display image for this section
-                      Image.network(
+                      Image.asset(
                         section.images![i],
                         width: double.infinity,
                         height: 200,
@@ -316,25 +318,79 @@ class _ModuleScreenState extends State<ModuleScreen> {
 }
 
 Widget _build3DModelSection(ModuleSection section) {
-  return Center(
-    child: Column(
-      children: [
-        Container(
-          height: 400,
-           child:  ModelViewer(
-          src: section.modelUrl ?? 'assets/maxillary_first_molar.glb', // Provide a fallback URL
-          autoRotate: false,
-          cameraControls: true,
-          interactionPrompt: InteractionPrompt.auto,
-          poster: "assets/logos/PULPATH_logo.jpg",
-          maxHotspotOpacity: 0.25,
-          minHotspotOpacity: 0.35,
-        ))
+  final modelUrls = section.modelUrls ?? [];
 
-      ],
-    ),
+  if (modelUrls.isEmpty) {
+    return Center(
+      child: Text(
+        'No 3D models available.',
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  return StatefulBuilder(
+    builder: (context, setState) {
+      // Initialize the current index in the builder
+      int model_currentIndex = 0;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              '3D Models',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Container(
+            height: 400,
+            child: ModelViewer(
+              src: modelUrls[model_currentIndex],
+              autoRotate: false,
+              cameraControls: true,
+              interactionPrompt: InteractionPrompt.auto,
+              poster: "assets/logos/PULPATH_logo.jpg",
+              maxHotspotOpacity: 0.25,
+              minHotspotOpacity: 0.35,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: model_currentIndex > 0
+                    ? () {
+                  setState(() {
+                    model_currentIndex--;
+                  });
+                }
+                    : null,
+                child: const Text('Previous'),
+              ),
+              const SizedBox(width: 16),
+              ElevatedButton(
+                onPressed: model_currentIndex < modelUrls.length - 1
+                    ? () {
+                  setState(() {
+                    model_currentIndex++;
+                  });
+                }
+                    : null,
+                child: const Text('Next'),
+              ),
+            ],
+          ),
+        ],
+      );
+    },
   );
 }
+
+
+
 
 Widget _buildReferencesSection(BuildContext context, List<String> resources) {
   return Column(
@@ -377,4 +433,45 @@ Widget _buildReferencesSection(BuildContext context, List<String> resources) {
     ],
   );
 }
+
+
+Widget _buildTableSection(ModuleSection section) {
+  // Extracting table data from the ModuleSection
+  List<List<String>>? tableData = section.tableData;
+
+  // Ensure that tableData is available and contains the data we need for the table
+  if (tableData == null || tableData.isEmpty) {
+    return SizedBox(); // Return an empty widget if no table data is available
+  }
+
+  // Extracting table headers (the first row is assumed to be headers)
+  List<String> tableHeaders = tableData[0];
+
+  // Extracting rows (data rows are assumed to be all rows except the first one)
+  List<DataRow> rows = [];
+  for (int i = 1; i < tableData.length; i++) {
+    rows.add(DataRow(
+      cells: tableData[i].map((cell) => DataCell(Text(cell))).toList(),
+    ));
+  }
+
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Column(
+      children: [
+        // Check if there are table headers, then create the table
+        if (tableHeaders.isNotEmpty)
+          DataTable(
+            columns: tableHeaders
+                .map((header) => DataColumn(label: Text(header)))
+                .toList(),
+            rows: rows,
+            border: TableBorder.all(color: Colors.teal, width: 1),
+
+          ),
+      ],
+    ),
+  );
+}
+
 

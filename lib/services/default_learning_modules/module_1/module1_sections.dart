@@ -42,17 +42,33 @@ final List<ModuleSection> module1Sections = [
       ],
     labels: [
       "Gum Disease",
-      "Tooth Filling",
+      "Cracked Tooth",
       "Decaying Tooth",
     ],
     correctAnswers: [
       "Decaying Tooth",
-      "Tooth Filling",
+      "Cracked Tooth",
       "Gum Disease",
     ],
   ),
 
-  ModuleSection(
+
+ModuleSection(
+type: SectionType.table,
+content: "Table displaying information",
+tableData: [
+['BACTERIAL', 'TRAUMATIC', 'IATROGENIC'], // Table headers
+['Caries', 'Crown fractures', 'Heat generation'],
+['Cracks in crown', 'Root fractures', '	Depth of preparation'],
+['Periodontal pockets', 'Partial avulsion', 'Dehydration of tubules'],
+  ['Malformed teeth', 'Bruxism', 'Pulp exposure'],
+  ['', 'Abrasion', 'Volatile/toxic disinfectants'],
+  ['', '', '	Filling materials'],
+
+],
+),
+
+ModuleSection(
     type: SectionType.paragraph,
     content: "Testing",
     contentParts: [
@@ -79,7 +95,10 @@ final List<ModuleSection> module1Sections = [
   ModuleSection(
     type: SectionType.model3D,
     content: "Healthy Tooth",
-    modelUrl: "assets/decaying_tooth_1.glb",
+    modelUrls: ["assets/decaying_tooth_1.glb",
+                "assets/maxillary_first_molar.glb",
+      "assets/maxillary_first_molar_with_cusp_of_carabelli.glb",
+    ],
   ),
 
   ModuleSection(

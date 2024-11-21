@@ -3,9 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ScoresListPage extends StatefulWidget {
   final String topicId;
-  final String userId;  // Add userId here
+  final String userId; // Add userId here
 
-  ScoresListPage({required this.topicId, required this.userId});  // Update the constructor
+  ScoresListPage({required this.topicId, required this.userId}); // Update the constructor
 
   @override
   _ScoresListPageState createState() => _ScoresListPageState();
@@ -14,22 +14,41 @@ class ScoresListPage extends StatefulWidget {
 class _ScoresListPageState extends State<ScoresListPage> {
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Scores'),
-        backgroundColor: Colors.teal,
+        title: Text(
+          'Scores',
+          style: Theme.of(context).appBarTheme.titleTextStyle,
+        ),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         centerTitle: true,
-        elevation: 0,
+        elevation: Theme.of(context).appBarTheme.elevation ?? 4.0,
       ),
       body: FutureBuilder<Map<String, dynamic>>(
-        future: _fetchScores(widget.topicId, widget.userId),  // Pass the userId
+        future: _fetchScores(widget.topicId, widget.userId), // Pass the userId
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator(color: Colors.teal));
+            return Center(
+              child: CircularProgressIndicator(
+                color: colorScheme.primary,
+              ),
+            );
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.redAccent)));
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(color: colorScheme.error),
+              ),
+            );
           } else if (!snapshot.hasData) {
-            return Center(child: Text('No scores available.', style: TextStyle(fontSize: 18, color: Colors.grey[600])));
+            return Center(
+              child: Text(
+                'No scores available.',
+                style: TextStyle(fontSize: 18, color: colorScheme.onSurfaceVariant),
+              ),
+            );
           } else {
             var data = snapshot.data!;
             bool postTestAvailable = data['postTestAvailable'] as bool;
@@ -43,19 +62,21 @@ class _ScoresListPageState extends State<ScoresListPage> {
                 children: [
                   Text(
                     'Scores for Topic',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.teal[700]),
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   SizedBox(height: 20),
                   if (postTestAvailable)
-                    _buildScoreCard('Pre-Test Score', preTestScore)
+                    _buildScoreCard('Pre-Test Score', preTestScore, colorScheme)
                   else
                     Text(
                       'Complete the post-test to view the scores.',
-                      style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   SizedBox(height: 10),
                   if (postTestAvailable)
-                    _buildScoreCard('Post-Test Score', postTestScore)
+                    _buildScoreCard('Post-Test Score', postTestScore, colorScheme)
                 ],
               ),
             );
@@ -102,7 +123,7 @@ class _ScoresListPageState extends State<ScoresListPage> {
     };
   }
 
-  Widget _buildScoreCard(String title, int score) {
+  Widget _buildScoreCard(String title, int score, ColorScheme colorScheme) {
     return Card(
       elevation: 5,
       shape: RoundedRectangleBorder(
@@ -112,11 +133,16 @@ class _ScoresListPageState extends State<ScoresListPage> {
         contentPadding: EdgeInsets.all(16),
         title: Text(
           title,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal[700]),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: colorScheme.primary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         trailing: Text(
           '$score',
-          style: TextStyle(fontSize: 18, color: Colors.teal[900]),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: colorScheme.secondary,
+          ),
         ),
       ),
     );

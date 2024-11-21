@@ -20,8 +20,8 @@ class _TopicsListPageState extends State<TopicsListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Topics', style: textTheme.displayLarge),
-        backgroundColor: colorScheme.primary,
+        title: Text('Topics', style: Theme.of(context).appBarTheme.titleTextStyle),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         centerTitle: true,
         bottom: PreferredSize(
@@ -123,7 +123,7 @@ class _TopicsListPageState extends State<TopicsListPage> {
         contentPadding: const EdgeInsets.all(16),
         title: Text(
           topic['title'],
-          style: textTheme.displayLarge!.copyWith(color: colorScheme.primary),
+          style: Theme.of(context).textTheme.displayLarge,
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +136,7 @@ class _TopicsListPageState extends State<TopicsListPage> {
               color: colorScheme.secondary,
             ),
             const SizedBox(height: 4),
-            Text(progressText, style: textTheme.labelMedium),
+            Text(progressText, style: Theme.of(context).textTheme.labelMedium),
           ],
         ),
         onTap: () async {

@@ -33,7 +33,7 @@ final List<ModuleSection> module1Sections = [
     'What do you think about the cause of this pain? (Match each label)',
     options: [
       'Tooth with caries',
-      'Filling tooth',
+      'Cracked Tooth',
       'Gum diseases',
     ],
   ),
@@ -49,7 +49,7 @@ final List<ModuleSection> module1Sections = [
   ModuleSection(
     type: SectionType.model3D,
     content: 'Review the x-ray',
-    modelUrl: 'assets/models/tooth_3d.obj', // Placeholder for 3D model
+    modelUrls: ['assets/models/tooth_3d.obj'], // Placeholder for 3D model
   ),
 
   // References

@@ -34,8 +34,9 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chapter Details'),
-        backgroundColor: Colors.teal[300],
+        title: Text('Chapter Details',
+        style: Theme.of(context).appBarTheme.titleTextStyle,),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         actions: [
           Tooltip(
             message: _isCompleted ? 'Mark as Incomplete' : 'Mark as Complete',
