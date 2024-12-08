@@ -39,7 +39,7 @@ class _ModuleScreenState extends State<ModuleScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Module Screen'),
+        title: Text('Oral Pathology'),
       ),
       body: Column(
         children: [
@@ -329,58 +329,87 @@ Widget _build3DModelSection(ModuleSection section) {
     );
   }
 
+  // Declare the current index outside the StatefulBuilder
+  int modelCurrentIndex = 0;
+
   return StatefulBuilder(
     builder: (context, setState) {
-      // Initialize the current index in the builder
-      int model_currentIndex = 0;
-
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
-              '3D Models',
+              'Caries Progression',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
           Container(
             height: 400,
             child: ModelViewer(
-              src: modelUrls[model_currentIndex],
+              key: ValueKey(modelUrls[modelCurrentIndex]), // Force re-render
+              src: modelUrls[modelCurrentIndex],
               autoRotate: false,
               cameraControls: true,
               interactionPrompt: InteractionPrompt.auto,
               poster: "assets/logos/PULPATH_logo.jpg",
               maxHotspotOpacity: 0.25,
               minHotspotOpacity: 0.35,
+              cameraOrbit: "0deg 75deg 2m",
+              fieldOfView: "45deg",
+
             ),
+
           ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton(
-                onPressed: model_currentIndex > 0
-                    ? () {
-                  setState(() {
-                    model_currentIndex--;
-                  });
-                }
-                    : null,
-                child: const Text('Previous'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: modelCurrentIndex > 0
+                        ? () {
+                      setState(() {
+                        modelCurrentIndex--;
+                      });
+                    }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal, // Button background color
+                      foregroundColor: Colors.white, // Text color
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Padding inside the button
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), // Rounded corners
+                      ),
+                      elevation: 5, // Shadow depth
+                    ),
+                    child: const Icon(Icons.arrow_back, color: Colors.white,),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: modelCurrentIndex < modelUrls.length - 1
+                        ? () {
+                      setState(() {
+                        modelCurrentIndex++;
+                      });
+                    }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal, // Button background color
+                      foregroundColor: Colors.white, // Text color
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Padding inside the button
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), // Rounded corners
+                      ),
+                      elevation: 5, // Shadow depth
+                    ),
+                    child: const Icon(Icons.arrow_forward, color: Colors.white,),
+                  ),
+                ],
               ),
-              const SizedBox(width: 16),
-              ElevatedButton(
-                onPressed: model_currentIndex < modelUrls.length - 1
-                    ? () {
-                  setState(() {
-                    model_currentIndex++;
-                  });
-                }
-                    : null,
-                child: const Text('Next'),
-              ),
+
             ],
           ),
         ],
@@ -388,6 +417,7 @@ Widget _build3DModelSection(ModuleSection section) {
     },
   );
 }
+
 
 
 
@@ -461,13 +491,16 @@ Widget _buildTableSection(ModuleSection section) {
       children: [
         // Check if there are table headers, then create the table
         if (tableHeaders.isNotEmpty)
-          DataTable(
-            columns: tableHeaders
-                .map((header) => DataColumn(label: Text(header)))
-                .toList(),
-            rows: rows,
-            border: TableBorder.all(color: Colors.teal, width: 1),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columns: tableHeaders
+                  .map((header) => DataColumn(label: Text(header)))
+                  .toList(),
+              rows: rows,
+              border: TableBorder.all(color: Colors.teal, width: 1),
 
+            ),
           ),
       ],
     ),

@@ -23,6 +23,10 @@ class DynamicField {
 
 class AddChapterPage extends StatefulWidget {
   @override
+  final String topicId; // Accept topicId as an argument
+
+  const AddChapterPage({required this.topicId, Key? key}) : super(key: key);
+
   _AddChapterPageState createState() => _AddChapterPageState();
 }
 

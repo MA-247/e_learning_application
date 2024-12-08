@@ -49,7 +49,8 @@ final List<ModuleSection> module1Sections = [
   ModuleSection(
     type: SectionType.model3D,
     content: 'Review the x-ray',
-    modelUrls: ['assets/models/tooth_3d.obj'], // Placeholder for 3D model
+    modelUrls: ['assets/models/tooth_3d.obj',
+    'assets/maxillary_first_molar_with_cusp_of_carabelli.glb'], // Placeholder for 3D model
   ),
 
   // References

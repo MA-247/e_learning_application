@@ -91,6 +91,9 @@ flutter:
     - assets/module_1/emq_1/decaying_tooth.jfif
     - assets/module_1/emq_1/gum_disease.jfif
     - assets/module_1/emq_1/tooth_filling.jfif
+    - assets/module_1/3D_models/model1.glb
+    - assets/module_1/3D_models/model2.glb
+    - assets/module_1/3D_models/model5.glb
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

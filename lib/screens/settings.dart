@@ -49,6 +49,10 @@ class _SettingsPageState extends State<SettingsPage> {
               title: Text('Dark Mode'),
               value: isDarkMode,
               onChanged: _toggleTheme,
+              activeColor: Theme.of(context).colorScheme.primary, // Color for the active switch
+              activeTrackColor: Theme.of(context).colorScheme.primary.withOpacity(0.5), // Color for the active track
+              inactiveThumbColor: Theme.of(context).colorScheme.onSurface, // Color for the inactive switch
+              inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.3), // Color for the inactive track
             ),
           ],
         ),

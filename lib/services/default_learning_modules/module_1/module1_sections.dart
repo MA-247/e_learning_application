@@ -95,9 +95,12 @@ ModuleSection(
   ModuleSection(
     type: SectionType.model3D,
     content: "Healthy Tooth",
-    modelUrls: ["assets/decaying_tooth_1.glb",
-                "assets/maxillary_first_molar.glb",
-      "assets/maxillary_first_molar_with_cusp_of_carabelli.glb",
+    modelUrls: [
+      "assets/module_1/3D_models/model1.glb",
+      "assets/module_1/3D_models/model2.glb",
+      "assets/module_1/3D_models/model3.glb",
+      "assets/module_1/3D_models/model4.glb",
+      "assets/module_1/3D_models/model5.glb",
     ],
   ),
 

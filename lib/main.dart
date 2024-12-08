@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:e_learning_application/screens/auth/auth_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:e_learning_application/styling/themeData.dart'; // Import the themeData file
+import 'package:e_learning_application/styling/themeData.dart';
+import 'package:e_learning_application/widgets/notes_taking/notes_taking_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,7 +72,66 @@ class _MyAppState extends State<MyApp> {
       ), // Fallback to the default dark theme
       themeMode: _themeMode, // Choose theme mode based on user preference
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: BaseScaffold(),
+    );
+  }
+}
+
+class BaseScaffold extends StatefulWidget {
+  @override
+  _BaseScaffoldState createState() => _BaseScaffoldState();
+
+  // Add this method to access BaseScaffold's state
+  static _BaseScaffoldState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_BaseScaffoldState>();
+}
+
+class _BaseScaffoldState extends State<BaseScaffold> {
+  bool _isStudent = false; // Default value for user role
+  Widget _currentContent = SplashScreen(); // Initial content is the splash screen
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserRole();
+  }
+
+  Future<void> _fetchUserRole() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        if (doc.exists) {
+          setState(() {
+            _isStudent = doc.data()?['role'] == 1;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching user role: $e');
+    }
+  }
+
+  void navigateToHome() {
+    setState(() {
+      _currentContent = AuthWrapper(); // Replace with AuthWrapper after splash
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          _currentContent, // Dynamically updated content
+        ],
+      ),
+      floatingActionButton: _isStudent
+          ? NotesButton(contextTag: "App") // Show Notes Button only for students
+          : null,
     );
   }
 }
@@ -86,20 +148,16 @@ class _SplashScreenState extends State<SplashScreen> {
     _navigateToHome();
   }
 
-  _navigateToHome() async {
-    await Future.delayed(Duration(seconds: 3), () {});
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => AuthWrapper()),
-    );
+  Future<void> _navigateToHome() async {
+    await Future.delayed(Duration(seconds: 3));
+    // Access BaseScaffold's state to replace the content
+    BaseScaffold.of(context)?.navigateToHome();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Image.asset('assets/logos/logo1.png'), // Ensure this path is correct
-      ),
+    return Center(
+      child: Image.asset('assets/logos/logo1.png'), // Ensure this path is correct
     );
   }
 }
