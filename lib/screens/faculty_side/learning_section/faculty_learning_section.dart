@@ -1,3 +1,4 @@
+import 'package:e_learning_application/screens/faculty_side/learning_section/faculty_lecture_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -173,7 +174,7 @@ class ManageTopicsPage extends StatelessWidget {
                 child: ListTile(
                   title: Text(
                     topic['title'],
-                    style: theme.textTheme.displayMedium, // Use theme text style
+                    style: theme.textTheme.bodyLarge, // Use theme text style
                   ),
                   //sub-text - to be added
                   trailing: Row(
@@ -199,7 +200,7 @@ class ManageTopicsPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => AddChapterPage(topicId: topic.id,),
+                        builder: (context) => ChapterListPage(topicId: topic.id,),
                       ),
                     );
                   },
@@ -213,6 +214,7 @@ class ManageTopicsPage extends StatelessWidget {
         onPressed: () => _addOrEditTopic(context),
         child: Icon(Icons.add),
         tooltip: 'Add New Topic',
+        backgroundColor: Theme.of(context).primaryColor,
       ),
     );
   }

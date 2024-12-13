@@ -115,10 +115,14 @@ class _ModuleScreenState extends State<ModuleScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 )
               else if (part['type'] == 'paragraph')
-                Text(part['text'] ?? '',
-                style: Theme.of(context).textTheme.bodyLarge,),
+                Text(
+                  part['text'] ?? '',
+                  textAlign: TextAlign.justify, // Justify the paragraph text
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
           ],
         );
+
       case SectionType.question:
         return _buildQuestionSection(section);
       case SectionType.emq:
@@ -319,6 +323,8 @@ class _ModuleScreenState extends State<ModuleScreen> {
 
 Widget _build3DModelSection(ModuleSection section) {
   final modelUrls = section.modelUrls ?? [];
+  final allXrayUrls = section.xrayUrls ?? [];
+  final painLevels = section.painLevels ?? (List.filled(modelUrls.length, 0));
 
   if (modelUrls.isEmpty) {
     return Center(
@@ -329,11 +335,13 @@ Widget _build3DModelSection(ModuleSection section) {
     );
   }
 
-  // Declare the current index outside the StatefulBuilder
   int modelCurrentIndex = 0;
 
   return StatefulBuilder(
     builder: (context, setState) {
+      // Get the X-ray images corresponding to the current model index
+      final xrayUrls = allXrayUrls.take(modelCurrentIndex + 1).toList();
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -346,77 +354,164 @@ Widget _build3DModelSection(ModuleSection section) {
           ),
           Container(
             height: 400,
-            child: ModelViewer(
-              key: ValueKey(modelUrls[modelCurrentIndex]), // Force re-render
-              src: modelUrls[modelCurrentIndex],
-              autoRotate: false,
-              cameraControls: true,
-              interactionPrompt: InteractionPrompt.auto,
-              poster: "assets/logos/PULPATH_logo.jpg",
-              maxHotspotOpacity: 0.25,
-              minHotspotOpacity: 0.35,
-              cameraOrbit: "0deg 75deg 2m",
-              fieldOfView: "45deg",
-
-            ),
+            child: Container(
+              height: 400,
+              child: ModelViewer(
+                key: ValueKey(modelUrls[modelCurrentIndex]),
+                src: modelUrls[modelCurrentIndex], // Ensure this URL is correct and points to a valid model
+                autoRotate: false,
+                cameraControls: true,
+                interactionPrompt: InteractionPrompt.auto,
+                poster: "assets/logos/PULPATH_logo.jpg", // Optional, fallback image
+                maxHotspotOpacity: 0.25,
+                minHotspotOpacity: 0.35,
+                cameraOrbit: "0deg 75deg 2m",
+                fieldOfView: "45deg",
+              ),
+            )
 
           ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: modelCurrentIndex > 0
-                        ? () {
-                      setState(() {
-                        modelCurrentIndex--;
-                      });
-                    }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal, // Button background color
-                      foregroundColor: Colors.white, // Text color
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Padding inside the button
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10), // Rounded corners
-                      ),
-                      elevation: 5, // Shadow depth
-                    ),
-                    child: const Icon(Icons.arrow_back, color: Colors.white,),
+              ElevatedButton(
+                onPressed: modelCurrentIndex > 0
+                    ? () {
+                  setState(() {
+                    modelCurrentIndex--;
+                  });
+                }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  const SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: modelCurrentIndex < modelUrls.length - 1
-                        ? () {
-                      setState(() {
-                        modelCurrentIndex++;
-                      });
-                    }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal, // Button background color
-                      foregroundColor: Colors.white, // Text color
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Padding inside the button
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10), // Rounded corners
-                      ),
-                      elevation: 5, // Shadow depth
-                    ),
-                    child: const Icon(Icons.arrow_forward, color: Colors.white,),
-                  ),
-                ],
+                  elevation: 5,
+                ),
+                child: const Icon(Icons.arrow_back, color: Colors.white),
               ),
-
+              const SizedBox(width: 16),
+              ElevatedButton(
+                onPressed: modelCurrentIndex < modelUrls.length - 1
+                    ? () {
+                  setState(() {
+                    modelCurrentIndex++;
+                  });
+                }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 5,
+                ),
+                child: const Icon(Icons.arrow_forward, color: Colors.white),
+              ),
             ],
+          ),
+          const SizedBox(height: 16),
+          // Horizontal Pain Scale
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Pain Scale (Static)',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(11, (index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.circle,
+                            size: 16,
+                            color: index <= painLevels[modelCurrentIndex]
+                                ? Colors.red
+                                : Colors.grey,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '$index',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: index <= painLevels[modelCurrentIndex]
+                                  ? Colors.red
+                                  : Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Pain Level: ${painLevels[modelCurrentIndex]}',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Drawer for X-rays: Updated to display progressively
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'X-rays for Model ${modelCurrentIndex + 1}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 100,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: xrayUrls.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            // Optional: Add logic for highlighting selected X-ray
+                          },
+                          child: Image.network(
+                            xrayUrls[index],
+                            fit: BoxFit.cover,
+                            width: 100,
+                            height: 100,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       );
     },
   );
 }
+
+
+
+
 
 
 

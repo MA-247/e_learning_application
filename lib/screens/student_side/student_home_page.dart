@@ -1,9 +1,13 @@
+import 'package:e_learning_application/screens/about_section/about_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:e_learning_application/screens/student_side/learning_section/student_topics_list_page.dart';
 import 'package:e_learning_application/screens/student_side/testing_system/scores_pages/topics_list.dart';
 import 'package:e_learning_application/screens/student_side/notes_list_page.dart';
 import 'package:e_learning_application/screens/student_side/student_profile/profile_page.dart';
+import 'package:e_learning_application/screens/student_side/learning_section/module_lecture_selection_page.dart';
+import 'package:e_learning_application/screens/about_section/about.dart';
+import 'package:e_learning_application/screens/settings.dart';
 
 class StudentHomePage extends StatefulWidget {
   final User user;
@@ -23,10 +27,12 @@ class _StudentHomePageState extends State<StudentHomePage> {
   void initState() {
     super.initState();
     _pages = [
-      TopicsListPage(), // Learning Section
+      LearningModeSelection(), // Learning Section
       NotesListPage(), // Notes Page
       ScoresTopicsListPage(userId: widget.user.uid), // Test Scores
       UserProfilePage(user: widget.user), // Profile
+      AboutSection(),
+
     ];
   }
 
@@ -60,6 +66,11 @@ class _StudentHomePageState extends State<StudentHomePage> {
             icon: Icon(Icons.account_circle),
             label: 'Profile',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info),
+            label: 'About',
+          ),
+
         ],
         selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: Colors.grey,

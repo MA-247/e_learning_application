@@ -172,7 +172,7 @@ class _CreateTestPageState extends State<CreateTestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create Test', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold)),
+        title: Text('Create Test', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -246,7 +246,7 @@ class _CreateTestPageState extends State<CreateTestPage> {
                               icon: Icon(Icons.upload_file),
                               label: Text('Upload Image'),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).canvasColor,
+                                backgroundColor: Theme.of(context).primaryColorDark,
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 20,
                                     vertical: 12),
@@ -304,7 +304,10 @@ class _CreateTestPageState extends State<CreateTestPage> {
                   children: [
                     Icon(Icons.add),
                     SizedBox(width: 8),
-                    Text('Add Field'),
+                    Text('Add Field',
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),),
                   ],
                 ),
                 style: ElevatedButton.styleFrom(

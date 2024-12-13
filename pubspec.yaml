@@ -82,18 +82,18 @@ flutter:
   assets:
     - assets/logos/logo1.png
     - assets/logos/PULPATH_logo.jpg
-    - assets/healthyTooth.obj
-    - assets/healthyTooth.mtl
-    - assets/toothDetailed.glb
-    - assets/maxillary_first_molar.glb
-    - assets/teeth_pulp.glb
-    - assets/decaying_tooth_1.glb
     - assets/module_1/emq_1/decaying_tooth.jfif
     - assets/module_1/emq_1/gum_disease.jfif
     - assets/module_1/emq_1/tooth_filling.jfif
-    - assets/module_1/3D_models/model1.glb
-    - assets/module_1/3D_models/model2.glb
-    - assets/module_1/3D_models/model5.glb
+    - assets/module_1/x_rays/1.jpg
+    - assets/module_1/x_rays/2.jpg
+    - assets/module_1/x_rays/3.jpg
+    - assets/module_1/x_rays/4.jpg
+    - assets/module_1/x_rays/5.jpg
+    - assets/module_2/emq_2/plaque.jpg
+    - assets/module_2/emq_2/tobacco.jpg
+    - assets/module_3/x_rays/cracked.png
+
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

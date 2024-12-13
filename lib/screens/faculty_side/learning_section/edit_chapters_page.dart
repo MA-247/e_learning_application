@@ -1,363 +1,195 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 
-enum FieldType { text, heading, image, mcq, emq }
+class EditChapterPage extends StatefulWidget {
+  final String chapterId; // ID of the chapter to be edited
+  final String topicId;   // The topic this chapter belongs to
 
-class DynamicField {
-  FieldType type;
-  String text = '';
-  String headingText = '';
-  File? image;
-  String question = '';
-  String option1 = '', option2 = '', option3 = '', option4 = '';
-  int correctOption = 1;
-  int? score;
-  List<File?> emqImages = [];  // For storing the images of EMQ
-  List<String> emqLabels = []; // To store the labels for each image
+  EditChapterPage({required this.chapterId, required this.topicId});
 
-  DynamicField({required this.type});
-}
-
-class AddChapterPage extends StatefulWidget {
   @override
-  final String topicId; // Accept topicId as an argument
-
-  const AddChapterPage({required this.topicId, Key? key}) : super(key: key);
-
-  _AddChapterPageState createState() => _AddChapterPageState();
+  _EditChapterPageState createState() => _EditChapterPageState();
 }
 
-class _AddChapterPageState extends State<AddChapterPage> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _titleController = TextEditingController();
-  List<DynamicField> _fields = [];
-  bool _isLoading = false;
+class _EditChapterPageState extends State<EditChapterPage> {
+  TextEditingController _titleController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  String? _imageUrl; // The URL of the uploaded image
+  String? _selected3DModelId; // To store selected 3D model if applicable
+  bool _isImageSelected = false; // Flag to track image selection
+  bool _isModelSelected = false; // Flag to track model selection
 
-  Future<void> _pickImage(DynamicField field) async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+  // Define model names and URLs
+  final List<Map<String, String>> models = [
+    {'name': 'Caries Prog. 1', 'url': 'https://ma-247.github.io/pulpath_assets/model1.glb'},
+    {'name': 'Caries Prog. 2', 'url': 'https://ma-247.github.io/pulpath_assets/model2.glb'},
+    {'name': 'Caries Prog. 3', 'url': 'https://ma-247.github.io/pulpath_assets/model3.glb'},
+    {'name': 'Caries Prog. 4', 'url': 'https://ma-247.github.io/pulpath_assets/model4.glb'},
+    {'name': 'Caries Prog. 5', 'url': 'https://ma-247.github.io/pulpath_assets/model5.glb'},
+    {'name': 'Tooth Cross Section', 'url': 'https://ma-247.github.io/pulpath_3d_models_extras/cross.glb'},
+    {'name': 'Second Molar', 'url': 'https://ma-247.github.io/pulpath_3d_models_extras/mandibular_second_molar.glb'},
+    {'name': 'First Molar', 'url': 'https://ma-247.github.io/pulpath_3d_models_extras/maxillary_first_molar_with_two_root_canals.glb'},
+  ];
+
+  String? _selectedModel;
+
+  // Fetch the chapter details from Firestore
+  Future<void> _loadChapterDetails() async {
+    DocumentSnapshot chapterSnapshot = await FirebaseFirestore.instance
+        .collection('topics')
+        .doc(widget.topicId)
+        .collection("chapters")
+        .doc(widget.chapterId)
+        .get();
+
+    if (chapterSnapshot.exists) {
+      var chapterData = chapterSnapshot.data() as Map<String, dynamic>;
+      _titleController.text = chapterData['title'];
+      _descriptionController.text = chapterData['description'];
       setState(() {
-        field.image = File(pickedFile.path);
+        _imageUrl = chapterData['imageUrl'];
+        _selected3DModelId = chapterData['3DModelId'];
+        _selectedModel = _selected3DModelId != null
+            ? models.firstWhere((model) => model['url'] == _selected3DModelId)['name']
+            : null;
+        _isImageSelected = _imageUrl != null;
+        _isModelSelected = _selected3DModelId != null;
       });
     }
   }
 
-  Future<void> _pickEmqImage(DynamicField field, int index) async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        if (field.emqImages.length <= index) {
-          field.emqImages.add(File(pickedFile.path));
-        } else {
-          field.emqImages[index] = File(pickedFile.path);
-        }
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    _loadChapterDetails(); // Load the chapter details when the page is initialized
   }
 
-  void _showAddFieldDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Select Field Type'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text('Text'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _addField(FieldType.text);
-                },
-              ),
-              ListTile(
-                title: Text('Heading'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _addField(FieldType.heading);
-                },
-              ),
-              ListTile(
-                title: Text('Image'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _addField(FieldType.image);
-                },
-              ),
-              ListTile(
-                title: Text('MCQ'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _addField(FieldType.mcq);
-                },
-              ),
-              ListTile(
-                title: Text('EMQ'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _addField(FieldType.emq);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _addField(FieldType type) {
-    setState(() {
-      final newField = DynamicField(type: type);
-      if (type == FieldType.emq) {
-        // Initialize the EMQ field with 1 empty image and label
-        newField.emqImages.add(null);
-        newField.emqLabels.add('');
-      }
-      _fields.add(newField);
-    });
-  }
-
-
-  void _removeField(int index) {
-    setState(() {
-      _fields.removeAt(index);
-    });
-  }
-
-  Future<void> _addChapter() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      try {
-        // Upload images to Firebase Storage
-        for (var field in _fields) {
-          if (field.type == FieldType.image && field.image != null) {
-            final storageRef = FirebaseStorage.instance
-                .ref()
-                .child('chapter_images/${DateTime.now().toString()}');
-            await storageRef.putFile(field.image!);
-            field.text = await storageRef.getDownloadURL();
-          }
-
-          // For EMQ type, upload the 4 images
-          if (field.type == FieldType.emq) {
-            for (int i = 0; i < field.emqImages.length; i++) {
-              if (field.emqImages[i] != null) {
-                final storageRef = FirebaseStorage.instance
-                    .ref()
-                    .child('emq_images/${DateTime.now().toString()}');
-                await storageRef.putFile(field.emqImages[i]!);
-                String imageUrl = await storageRef.getDownloadURL();
-                field.emqImages[i] = File(imageUrl); // Store the image URL
-              }
-            }
-          }
-        }
-
-        // Prepare fields data for Firestore
-        List<Map> fieldData = _fields.map((field) {
-          switch (field.type) {
-            case FieldType.text:
-              return {'type': 'text', 'content': field.text};
-            case FieldType.heading:
-              return {'type': 'heading', 'content': field.headingText};
-            case FieldType.image:
-              return {'type': 'image', 'url': field.text};
-            case FieldType.mcq:
-              return {
-                'type': 'mcq',
-                'question': field.question,
-                'options': [
-                  field.option1,
-                  field.option2,
-                  field.option3,
-                  field.option4
-                ],
-                'correctOption': field.correctOption,
-                'score': field.score,
-              };
-            case FieldType.emq:
-              return {
-                'type': 'emq',
-                'question': field.question,
-                'images': field.emqImages.map((e) => e?.path).toList(), // Store image paths or URLs
-                'labels': field.emqLabels, // Add labels for EMQ images
-              };
-            default:
-              return {}; // This still returns an empty map
-          }
-        }).toList();
-
-        await FirebaseFirestore.instance.collection('chapters').add({
-          'title': _titleController.text,
-          'fields': fieldData,
-          'createdAt': DateTime.now(),
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Chapter added successfully!')),
-        );
-        Navigator.of(context).pop();
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add chapter: $e')),
-        );
-      } finally {
+  // Upload a new image and get its URL from Firebase Storage
+  Future<void> _uploadImage() async {
+    final result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      final file = result.files.single;
+      final filePath = file.path;
+      if (filePath != null) {
+        final ref = FirebaseStorage.instance.ref().child('chapter_images/${file.name}');
+        await ref.putFile(File(filePath));
+        String downloadUrl = await ref.getDownloadURL();
         setState(() {
-          _isLoading = false;
+          _imageUrl = downloadUrl;
+          _isImageSelected = true;
+          _isModelSelected = false; // Disable model selection
         });
       }
     }
+  }
+
+  // Update the chapter in Firestore
+  Future<void> _updateChapter() async {
+    if (_titleController.text.isEmpty || _descriptionController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Title and description cannot be empty')));
+      return;
+    }
+
+    final chapterData = {
+      'title': _titleController.text,
+      'description': _descriptionController.text,
+      'imageUrl': _imageUrl,
+      '3DModelId': _selected3DModelId,
+      'lastEditedTimestamp': FieldValue.serverTimestamp(),
+    };
+
+    await FirebaseFirestore.instance.collection('topics').doc(widget.topicId).collection("chapters").doc(widget.chapterId).update(chapterData);
+
+    Navigator.pop(context); // Go back after saving
+  }
+
+  // Method to handle 3D model selection
+  void _onModelSelected(String? selectedModel) {
+    setState(() {
+      if (selectedModel == null) {
+        _selectedModel = null;
+        _selected3DModelId = null;
+        _isModelSelected = false;
+      } else {
+        _selectedModel = selectedModel;
+        _selected3DModelId = models.firstWhere((model) => model['name'] == selectedModel)['url'];
+        _isModelSelected = true;
+        _isImageSelected = false; // Disable image selection
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Chapter'),
+        title: Text('Edit Chapter'),
+        backgroundColor: theme.appBarTheme.backgroundColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
+        child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextFormField(
+              TextField(
                 controller: _titleController,
-                decoration: InputDecoration(
-                  labelText: 'Chapter Title',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                value!.isEmpty ? 'Please enter a chapter title' : null,
+                decoration: InputDecoration(labelText: 'Chapter Title'),
               ),
-              SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _fields.length,
-                  itemBuilder: (context, index) {
-                    final field = _fields[index];
-                    return Card(
-                      margin: EdgeInsets.symmetric(vertical: 8),
-                      child: ListTile(
-                        title: _buildFieldWidget(field),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _removeField(index),
-                        ),
-                      ),
+              TextField(
+                controller: _descriptionController,
+                decoration: InputDecoration(labelText: 'Description'),
+                maxLines: 5,
+              ),
+              SizedBox(height: 10),
+              // Show current image or button to upload new image
+              _imageUrl == null
+                  ? ElevatedButton(
+                onPressed: _isModelSelected ? null : _uploadImage, // Disable if model is selected
+                child: Text('Upload Image'),
+              )
+                  : Column(
+                children: [
+                  Image.network(_imageUrl!),
+                  ElevatedButton(
+                    onPressed: _isModelSelected ? null : _uploadImage, // Disable if model is selected
+                    child: Text('Change Image'),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              // Dropdown for selecting the 3D model
+              DropdownButton<String>(
+                value: _selectedModel,
+                hint: Text('Select 3D Model'),
+                onChanged: _isImageSelected ? null : _onModelSelected, // Disable if image is selected
+                items: [
+                  DropdownMenuItem<String>(
+                    value: null,
+                    child: Text('No Model Selected'),
+                  ),
+                  ...models.map((model) {
+                    return DropdownMenuItem<String>(
+                      value: model['name']!,
+                      child: Text(model['name']!),
                     );
-                  },
-                ),
-              ),
-              ElevatedButton(
-                onPressed: _showAddFieldDialog,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [Icon(Icons.add), SizedBox(width: 8), Text('Add Field')],
-                ),
+                  }).toList(),
+                ],
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _isLoading ? null : _addChapter,
-                child: Text(_isLoading ? 'Saving...' : 'Save Chapter'),
+                onPressed: _updateChapter,
+                child: Text('Save Changes'),
               ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  Widget _buildFieldWidget(DynamicField field) {
-    switch (field.type) {
-      case FieldType.text:
-        return TextFormField(
-          decoration: InputDecoration(labelText: 'Text Content'),
-          initialValue: field.text,
-          onChanged: (value) => field.text = value,
-        );
-      case FieldType.heading:
-        return TextFormField(
-          decoration: InputDecoration(labelText: 'Heading'),
-          initialValue: field.headingText,
-          onChanged: (value) => field.headingText = value,
-        );
-      case FieldType.image:
-        return field.image != null
-            ? Image.file(field.image!, height: 100)
-            : ElevatedButton.icon(
-          onPressed: () => _pickImage(field),
-          icon: Icon(Icons.image),
-          label: Text('Pick Image'),
-        );
-      case FieldType.mcq:
-        return Column(
-          children: [
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Question'),
-              initialValue: field.question,
-              onChanged: (value) => field.question = value,
-            ),
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Option 1'),
-              initialValue: field.option1,
-              onChanged: (value) => field.option1 = value,
-            ),
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Option 2'),
-              initialValue: field.option2,
-              onChanged: (value) => field.option2 = value,
-            ),
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Option 3'),
-              initialValue: field.option3,
-              onChanged: (value) => field.option3 = value,
-            ),
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Option 4'),
-              initialValue: field.option4,
-              onChanged: (value) => field.option4 = value,
-            ),
-          ],
-        );
-      case FieldType.emq:
-        return Column(
-          children: [
-            for (int i = 0; i < field.emqImages.length; i++) ...[
-              ElevatedButton.icon(
-                onPressed: () => _pickEmqImage(field, i),
-                icon: Icon(Icons.image),
-                label: Text('Pick Image ${i + 1}'),
-              ),
-              field.emqImages[i] != null
-                  ? Image.file(field.emqImages[i]!, height: 100)
-                  : SizedBox(),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Label for Image ${i + 1}'),
-                initialValue: field.emqLabels.length > i
-                    ? field.emqLabels[i]
-                    : '',
-                onChanged: (value) {
-                  if (field.emqLabels.length <= i) {
-                    field.emqLabels.add(value);
-                  } else {
-                    field.emqLabels[i] = value;
-                  }
-                },
-              ),
-            ],
-          ],
-        );
-      default:
-        return SizedBox.shrink();
-    }
   }
 }

@@ -22,6 +22,8 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
   bool _isCompleted = false;
   bool _isLoading = true;
   late String userId;
+  String? _imageUrl; // Variable to store the image URL
+  String? _modelUrl; // Variable to store the model URL
 
   @override
   void initState() {
@@ -35,7 +37,7 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Chapter Details',
-        style: Theme.of(context).appBarTheme.titleTextStyle,),
+            style: Theme.of(context).appBarTheme.titleTextStyle),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         actions: [
           Tooltip(
@@ -72,6 +74,9 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
           }
 
           var chapter = snapshot.data!;
+          _imageUrl = chapter['imageUrl'];  // Fetch the image URL
+          _modelUrl = chapter['3dModelId'];  // Fetch the 3D model URL
+          print(_modelUrl);
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
@@ -88,23 +93,43 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Section 2: 3D Model Viewer
-                  Container(
-                    height: 400, // Adjusted height for better viewing
-                    child: ModelViewer(
-                      src: 'assets/teeth_pulp.glb', // Replace with your model URL
-                      alt: "gs://e-learning-application-7c9a6.appspot.com/3d_models/health_tooth.glb",
-                      autoRotate: false,
-                      cameraControls: true,
-                      // Enable hotspots
-                      interactionPrompt: InteractionPrompt.auto,
-                      poster: "assets/logos/PULPATH_logo.jpg",
-                      maxHotspotOpacity: 0.25,
-                      minHotspotOpacity: 0.35,
+                  // Section 2: 3D Model or Image Viewer
+                  if (_modelUrl != null && _modelUrl!.isNotEmpty)
 
-
-                    ),
-                  ),
+                    Container(
+                      height: 400, // Adjusted height for better viewing
+                      child: ModelViewer(
+                        src: _modelUrl!, // Use the dynamic model URL from Firestore
+                        alt: "3D Model not available",
+                        autoRotate: false,
+                        cameraControls: true,
+                        interactionPrompt: InteractionPrompt.auto,
+                        poster: _imageUrl ?? "assets/logos/PULPATH_logo.jpg", // Fallback to a default image if none exists
+                        maxHotspotOpacity: 0.25,
+                        minHotspotOpacity: 0.35,
+                      ),
+                    )
+                  else if (_imageUrl != null && _imageUrl!.isNotEmpty)
+                    Container(
+                      height: 400, // Adjusted height for better viewing
+                      child: Image.network(
+                        _imageUrl!, // Use the dynamic image URL from Firestore
+                        fit: BoxFit.contain,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                  (loadingProgress.expectedTotalBytes ?? 1)
+                                  : null,
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  else
+                    const Center(child: Text('No Model or Image Available')),
 
                   const SizedBox(height: 20),
 

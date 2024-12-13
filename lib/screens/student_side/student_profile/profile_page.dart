@@ -60,6 +60,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -73,15 +74,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
           : SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start, // Left-align column
           children: [
             const SizedBox(height: 20),
             // Profile Picture
-            CircleAvatar(
-              radius: 60,
-              backgroundColor: Colors.blue.shade800,
-              child: Text(
-                widget.user.displayName?.substring(0, 1) ?? '',
-                style: const TextStyle(fontSize: 40, color: Colors.white),
+            Center(
+              child: CircleAvatar(
+                radius: 60,
+                backgroundColor: Colors.blue.shade800,
+                child: Text(
+                  widget.user.displayName?.substring(0, 1) ?? '',
+                  style: const TextStyle(fontSize: 40, color: Colors.white),
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -93,52 +97,58 @@ class _UserProfilePageState extends State<UserProfilePage> {
             _buildUserInfo('Year of Study', userData!['yearOfStudy']),
             const SizedBox(height: 20),
             // Edit and Logout Buttons
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditProfilePage(user: widget.user),
+            Center(
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditProfilePage(user: widget.user),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      backgroundColor: Colors.blue.shade600,
+                      shadowColor: Colors.blue.shade200,
+                      elevation: 4,
+                    ),
+                    child: Text(
+                      'Edit Profile',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                backgroundColor: Colors.blue.shade600,
-                shadowColor: Colors.blue.shade200,
-                elevation: 4,
-              ),
-              child: Text(
-                'Edit Profile',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: signOut,
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                backgroundColor: Colors.red.shade600,
-                shadowColor: Colors.red.shade200,
-                elevation: 4,
-              ),
-              child: Text(
-                'Log Out',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: signOut,
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      backgroundColor: Colors.red.shade600,
+                      shadowColor: Colors.red.shade200,
+                      elevation: 4,
+                    ),
+                    child: Text(
+                      'Log Out',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -147,11 +157,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
+
   Widget _buildUserInfo(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: const EdgeInsets.symmetric(vertical: 8.0), // Add vertical spacing
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start, // Left-align everything
         children: [
           Text(
             label,
@@ -161,16 +172,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
               fontWeight: FontWeight.w500,
             ),
           ),
+          const SizedBox(height: 4), // Small spacing between label and value
           Text(
             value,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: Colors.blue.shade800,
+              color: Colors.black87, // Optional: Neutral text color for value
             ),
           ),
         ],
       ),
     );
   }
+
+
 }

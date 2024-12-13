@@ -8,12 +8,12 @@ final List<ModuleSection> module1Sections = [
     content: "Scenario 1",
     contentParts: [
       {"type" : "heading",
-      "text" : "Module 1"},
+      "text" : "Scenario Introduction"},
 
       {"type" : "paragraph",
       "text" : """After finishing my assignment of first chapter of oral pathology of oral pathology till late night, I slept peacefully but I heard the cries of my    younger sister due to acute pulpitis asking for help. I tried to figure out which tooth she is having pain by asking her and looking into her mouth but could not figure it out. My mother gave her some energizic which was prescribed by our dentist to my mother for tooth ache last week.
-  My sister calmed down after few minutes but the pain was not completely gone. 
-  I started to search about the what led to her having this acute pain. When I explored further, I found there are other causes for the pain than caries.
+My sister calmed down after few minutes but the pain was not completely gone. 
+I started to search about the what led to her having this acute pain. When I explored further, I found there are other causes for the pain than caries.
     """}
     ],
   ),
@@ -96,11 +96,20 @@ ModuleSection(
     type: SectionType.model3D,
     content: "Healthy Tooth",
     modelUrls: [
-      "assets/module_1/3D_models/model1.glb",
-      "assets/module_1/3D_models/model2.glb",
-      "assets/module_1/3D_models/model3.glb",
-      "assets/module_1/3D_models/model4.glb",
-      "assets/module_1/3D_models/model5.glb",
+      "https://ma-247.github.io/pulpath_assets/model1.glb",
+      "https://ma-247.github.io/pulpath_assets/model2.glb",
+      "https://ma-247.github.io/pulpath_assets/model3.glb",
+      "https://ma-247.github.io/pulpath_assets/model4.glb",
+      "https://ma-247.github.io/pulpath_assets/model5.glb",
+
+    ],
+    painLevels: [0,1,3,6,10],
+    xrayUrls: [
+      "assets/module_1/x_rays/1.jpg",
+      "assets/module_1/x_rays/2.jpg",
+      "assets/module_1/x_rays/3.jpg",
+      "assets/module_1/x_rays/4.jpg",
+      "assets/module_1/x_rays/5.jpg",
     ],
   ),
 

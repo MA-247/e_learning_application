@@ -46,7 +46,10 @@ android {
 
     defaultConfig {
         // Application ID for your app
-        applicationId "com.example.e_learning_application"
+        applicationId "com.example.e_learning_app"
+
+        // Change this to match Firebase
+
 
         // Flutter SDK versions
         minSdkVersion flutter.minSdkVersion // You can set this to flutter.minSdkVersion if needed

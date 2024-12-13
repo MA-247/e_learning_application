@@ -1,3 +1,5 @@
+import 'package:e_learning_application/services/default_learning_modules/module_2/module2_sections.dart';
+import 'package:e_learning_application/services/default_learning_modules/module_3/module3_sections.dart';
 import 'package:flutter/material.dart';
 import 'package:e_learning_application/services/default_learning_modules/module_widgets/module_screen.dart';
 import 'package:e_learning_application/services/default_learning_modules/module_1/module1_sections.dart';
@@ -8,6 +10,8 @@ class ModulesListPage extends StatelessWidget {
     // Example modules list with sections
     final List<Map<String, dynamic>> modules = [
       {'title': 'Module 1', 'description': 'Pulpitis', 'sections': module1Sections},
+      {'title' : 'Module 2', 'description' : 'Periodontal Disease', 'sections' : module2Sections},
+      {'title' : 'Module 3', 'description' : 'Dental Trauma and Its Management', 'sections' : module3Sections},
     ];
 
     return Scaffold(

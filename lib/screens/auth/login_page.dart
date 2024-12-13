@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isFirstLogin = prefs.getBool('isFirstLogin') ?? true;
 
-    if (true) {
+    if (isFirstLogin) {
       // Show pop-up dialog for the first-time login
       showDialog(
         context: context,
@@ -205,6 +205,8 @@ class _LoginPageState extends State<LoginPage> {
                     controller: emailTextController,
                     hintText: 'Email',
                     obscureText: false,
+                    fillColor: colorScheme.surface,
+                    textColor: textColor,
                   ),
                   const SizedBox(height: 10),
                   // Password text field

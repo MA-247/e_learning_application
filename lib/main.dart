@@ -130,7 +130,7 @@ class _BaseScaffoldState extends State<BaseScaffold> {
         ],
       ),
       floatingActionButton: _isStudent
-          ? NotesButton(contextTag: "App") // Show Notes Button only for students
+          ? MovableNotesButton(contextTag: "App") // Show Notes Button only for students
           : null,
     );
   }
